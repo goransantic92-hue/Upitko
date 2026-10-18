@@ -1,0 +1,3520 @@
+<!DOCTYPE html>
+<html lang="sr-Latn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upitko — CRM za srpske firme | Svi upiti i prodaja na jednom mestu</title>
+  <meta name="description" content="Upitko je savremeni CRM i komandni centar prodaje za firme u Srbiji: svi upiti sa sajta, Instagrama, Vibera, oglasnika i emaila na jednom mestu, automatska dodela prodavcima i pregled prihoda u RSD uživo." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="sr_RS" />
+  <meta property="og:title" content="Upitko — Prodajte pametnije, ne napornije" />
+  <meta property="og:description" content="Svi upiti na jednom mestu, automatsko dodeljivanje prodavcima u sekundama i pregled prodaje uživo u RSD. CRM napravljen za srpske firme." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,12 92,88 8,88' fill='%235df0a8'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script type="importmap">
+  { "imports": {
+    "three": "https://unpkg.com/three@0.143.0/build/three.module.js",
+    "three/examples/jsm/": "https://unpkg.com/three@0.143.0/examples/jsm/"
+  }}
+  </script>
+  <style>
+
+:root{
+  --bg:#04060f; --bg-2:#060a18; --ink:#f3f6ff; --muted:#9aa6c4; --muted-2:#6b7796;
+  --line:rgba(150,175,230,.12); --line-strong:rgba(150,175,230,.22);
+  --accent:#5df0a8; --accent-2:#2fd38a; --accent-ink:#032018;
+  --glass:rgba(12,18,38,.55); --glass-2:rgba(16,24,48,.65);
+  --radius:18px; --radius-lg:26px; --maxw:1180px;
+  --shadow:0 30px 80px -30px rgba(0,0,0,.75);
+  --font:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+/* Lenis */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+/* staggered scroll-reveal */
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,.7,.2,1),transform .7s cubic-bezier(.22,.7,.2,1);transition-delay:var(--rd,0ms);will-change:opacity,transform}
+[data-reveal].in{opacity:1;transform:none}
+/* fixed WebGL planet behind everything, never grabs pointer/scroll */
+.planet-canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0;pointer-events:none}
+.page{position:relative;z-index:1}
+.section{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:clamp(80px,12vw,160px) 24px}
+.eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+.section-head{max-width:680px;margin:0 auto clamp(48px,6vw,80px);text-align:center}
+.section-head h2,.showcase-copy h2,.cta-card h2{font-size:clamp(30px,4.4vw,50px);font-weight:800;line-height:1.05;letter-spacing:-.02em;text-shadow:0 2px 40px rgba(0,0,0,.6)}
+.section-head p{margin-top:18px;color:var(--muted);font-size:18px;line-height:1.65;text-shadow:0 1px 24px rgba(0,0,0,.55)}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:9px;font-size:15px;font-weight:600;padding:13px 22px;border-radius:999px;border:1px solid transparent;cursor:pointer;transition:transform .18s ease,box-shadow .25s ease,background .2s ease,border-color .2s ease;white-space:nowrap;font-family:inherit}
+.btn svg{width:17px;height:17px}
+.btn-primary{color:var(--accent-ink);background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 10px 30px -8px rgba(93,240,168,.55),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 38px -8px rgba(93,240,168,.7)}
+.btn-outline{color:var(--ink);background:rgba(255,255,255,.04);border-color:var(--line-strong);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.btn-outline:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+.btn-ghost{color:var(--ink);background:rgba(255,255,255,.05);border-color:var(--line-strong);padding:9px 18px}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+
+/* Section 1: Hero & Logos */
+.hero{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:radial-gradient(125% 62% at 50% -10%, rgba(4,6,15,.82) 0%, rgba(4,6,15,.28) 44%, transparent 68%);
+}
+.nav{
+  position:relative;
+  z-index:20;
+  width:100%;
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:22px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.brand{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  font-weight:800;
+  font-size:19px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.brand-mark{
+  color:var(--accent);
+  font-size:14px;
+  transform:translateY(-1px);
+  display:inline-block;
+}
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:30px;
+  font-size:14.5px;
+  font-weight:500;
+  color:var(--muted);
+}
+.nav-links a{
+  transition:color .2s ease;
+}
+.nav-links a:hover{
+  color:var(--ink);
+}
+.hero-inner{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:40px 24px;
+  transform:translateY(-10vh);
+}
+.hero-title{
+  font-size:clamp(34px,5.2vw,62px);
+  font-weight:800;
+  line-height:1.04;
+  letter-spacing:-.03em;
+  max-width:15ch;
+  text-shadow:0 2px 50px rgba(0,0,0,.55);
+}
+.hero-title em{
+  font-style:normal;
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero-sub{
+  margin-top:24px;
+  max-width:560px;
+  font-size:clamp(16px,2vw,19px);
+  line-height:1.6;
+  color:var(--muted);
+  text-shadow:0 1px 24px rgba(0,0,0,.55);
+}
+.hero-actions{
+  margin-top:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.logos{
+  text-align:center;
+  padding:0 24px clamp(36px,6vw,64px);
+}
+.logos-label{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+  margin-bottom:20px;
+}
+.logos-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:clamp(24px,5vw,56px);
+}
+.logo{
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  color:var(--muted-2);
+  opacity:.8;
+  transition:color .2s ease,opacity .2s ease;
+  cursor:pointer;
+}
+.logo:hover{
+  color:var(--ink);
+  opacity:1;
+}
+
+/* Section 2: Features */
+.feature-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+.card{
+  position:relative;
+  overflow:hidden;
+  padding:30px;
+  border-radius:var(--radius);
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  transition:transform .25s ease,border-color .25s ease,background .25s ease;
+  cursor:pointer;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(120% 120% at 0% 0%, rgba(93,240,168,.08), transparent 45%);
+  opacity:0;
+  transition:opacity .3s ease;
+  pointer-events:none;
+}
+.card:hover{
+  transform:translateY(-4px);
+  border-color:var(--line-strong);
+  background:var(--glass-2);
+}
+.card:hover::before{
+  opacity:1;
+}
+.card-icon{
+  width:46px;
+  height:46px;
+  border-radius:12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--accent);
+  background:rgba(93,240,168,.1);
+  border:1px solid rgba(93,240,168,.18);
+  margin-bottom:20px;
+}
+.card-icon svg{
+  width:24px;
+  height:24px;
+}
+.card h3{
+  font-size:19px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  margin-bottom:10px;
+}
+.card p{
+  font-size:15px;
+  line-height:1.6;
+  color:var(--muted);
+}
+
+/* Section 3: Showcase + Stats */
+.showcase-grid{
+  display:grid;
+  grid-template-columns:1fr 1.05fr;
+  gap:clamp(36px,6vw,72px);
+  align-items:center;
+}
+.showcase-copy p{
+  margin:18px 0 30px;
+  color:var(--muted);
+  font-size:17.5px;
+  line-height:1.65;
+  text-shadow:0 1px 24px rgba(0,0,0,.55);
+}
+.dashboard{
+  position:relative;
+  padding:24px;
+  border-radius:var(--radius-lg);
+  background:var(--glass-2);
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.dashboard::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  padding:1px;
+  background:linear-gradient(160deg, rgba(93,240,168,.35), transparent 40%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.dash-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+  gap:10px;
+}
+.dash-title{
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--ink);
+  cursor:pointer;
+  transition:color .2s ease;
+}
+.dash-title:hover{
+  color:var(--accent);
+}
+.dash-live{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--accent);
+  background:rgba(93,240,168,.1);
+  border:1px solid rgba(93,240,168,.22);
+  padding:5px 11px;
+  border-radius:999px;
+  cursor:pointer;
+  user-select:none;
+}
+.dash-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 10px var(--accent);
+  animation:pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.45;transform:scale(.85)}
+}
+.dash-bars{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  height:150px;
+  padding:18px 16px 14px;
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--line);
+  border-radius:14px;
+  margin-bottom:20px;
+}
+.dash-bar{
+  flex:1;
+  background:linear-gradient(180deg,var(--accent),rgba(47,211,138,.25));
+  border-radius:6px 6px 3px 3px;
+  transform-origin:bottom;
+  animation:grow 1.1s cubic-bezier(.22,.8,.2,1) backwards;
+  transition:height .45s cubic-bezier(.22,.8,.2,1),filter .2s ease;
+  cursor:pointer;
+  position:relative;
+}
+.dash-bar:hover{
+  filter:brightness(1.2);
+}
+@keyframes grow{
+  from{transform:scaleY(0)}
+  to{transform:scaleY(1)}
+}
+.dash-rows{
+  display:grid;
+  gap:12px;
+}
+.dash-row{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  align-items:center;
+  gap:14px;
+  font-size:13.5px;
+  color:var(--muted);
+  cursor:pointer;
+  transition:color .2s ease;
+}
+.dash-row:hover{
+  color:var(--ink);
+}
+.dash-track{
+  height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.dash-fill{
+  display:block;
+  height:100%;
+  width:var(--w);
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--accent-2),var(--accent));
+  animation:fill 1.15s cubic-bezier(.22,.8,.2,1) .3s backwards;
+  transition:width .5s cubic-bezier(.22,.8,.2,1);
+}
+@keyframes fill{
+  from{width:0}
+  to{width:var(--w)}
+}
+.stats{
+  margin-top:clamp(56px,8vw,96px);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+.stat{
+  text-align:center;
+  padding:30px 18px;
+  border-radius:var(--radius);
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  transition:transform .22s ease,border-color .22s ease;
+}
+.stat:hover{
+  transform:translateY(-3px);
+  border-color:var(--line-strong);
+}
+.stat-value{
+  font-size:clamp(30px,4vw,44px);
+  font-weight:800;
+  letter-spacing:-.02em;
+  line-height:1.05;
+  background:linear-gradient(180deg,#fff,var(--accent));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.stat-label{
+  font-size:14px;
+  color:var(--muted);
+  margin-top:8px;
+}
+
+/* Section 4: CTA + Footer */
+.cta-card{
+  text-align:center;
+  max-width:760px;
+  margin:0 auto;
+  padding:clamp(48px,7vw,80px) clamp(28px,5vw,64px);
+  border-radius:var(--radius-lg);
+  background:radial-gradient(120% 140% at 50% 0%, rgba(93,240,168,.12), transparent 55%), var(--glass-2);
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.cta-card p{
+  margin:18px auto 34px;
+  max-width:520px;
+  color:var(--muted);
+  font-size:17.5px;
+  line-height:1.65;
+}
+.footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:48px;
+  flex-wrap:wrap;
+  margin-top:clamp(64px,9vw,110px);
+  padding-top:48px;
+  border-top:1px solid var(--line);
+}
+.footer-brand{
+  max-width:280px;
+}
+.footer-brand p{
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.6;
+  color:var(--muted-2);
+}
+.footer-cols{
+  display:flex;
+  gap:clamp(36px,6vw,72px);
+  flex-wrap:wrap;
+}
+.footer-col{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  font-size:14px;
+  color:var(--muted);
+}
+.footer-col h4{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+  margin-bottom:4px;
+}
+.footer-col a{
+  transition:color .2s ease;
+}
+.footer-col a:hover{
+  color:var(--ink);
+}
+.copyright{
+  text-align:center;
+  margin-top:56px;
+  font-size:13px;
+  color:var(--muted-2);
+}
+
+/* Interactive Command Modal Overlay */
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(4,6,15,.72);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease;
+}
+.modal-backdrop.open{
+  opacity:1;
+  pointer-events:auto;
+}
+.modal-panel{
+  width:100%;
+  max-width:640px;
+  max-height:88vh;
+  overflow-y:auto;
+  border-radius:var(--radius-lg);
+  background:radial-gradient(120% 140% at 50% 0%, rgba(93,240,168,.12), transparent 55%), rgba(12,18,38,.92);
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow);
+  padding:32px;
+  transform:translateY(16px) scale(.98);
+  transition:transform .28s cubic-bezier(.22,.8,.2,1);
+}
+.modal-backdrop.open .modal-panel{
+  transform:none;
+}
+.modal-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:20px;
+}
+.modal-close{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid var(--line-strong);
+  background:rgba(255,255,255,.05);
+  color:var(--muted);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:18px;
+  transition:background .2s ease,color .2s ease;
+}
+.modal-close:hover{
+  background:rgba(255,255,255,.12);
+  color:var(--ink);
+}
+.modal-body p{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.6;
+  margin-bottom:18px;
+}
+.plan-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:16px;
+}
+.plan-card{
+  padding:18px;
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.plan-card.featured{
+  border-color:rgba(93,240,168,.45);
+  background:rgba(93,240,168,.06);
+}
+.plan-name{
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--accent);
+}
+.plan-price{
+  font-size:26px;
+  font-weight:800;
+  color:var(--ink);
+}
+.plan-price span{
+  font-size:13px;
+  font-weight:500;
+  color:var(--muted);
+}
+.plan-list{
+  list-style:none;
+  font-size:13px;
+  color:var(--muted);
+  display:grid;
+  gap:6px;
+  margin:8px 0 12px;
+}
+.form-grid{
+  display:grid;
+  gap:14px;
+  margin-top:14px;
+}
+.form-field{
+  display:grid;
+  gap:6px;
+}
+.form-field label{
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--muted);
+}
+.form-field input,.form-field select{
+  width:100%;
+  padding:11px 14px;
+  border-radius:11px;
+  border:1px solid var(--line-strong);
+  background:rgba(4,6,15,.65);
+  color:var(--ink);
+  font-family:inherit;
+  font-size:14px;
+  outline:none;
+}
+.form-field input:focus,.form-field select:focus{
+  border-color:var(--accent);
+}
+.form-check{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-size:12.5px;
+  line-height:1.5;
+  color:var(--muted);
+  cursor:pointer;
+}
+.form-check input{
+  margin-top:2px;
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+  accent-color:var(--accent);
+}
+.plan-card .btn{
+  margin-top:auto;
+  justify-content:center;
+}
+.modal-body .plan-note{
+  margin:16px 0 0;
+  font-size:13px;
+  color:var(--muted-2);
+}
+.steps{
+  list-style:none;
+  counter-reset:step;
+  display:grid;
+  gap:12px;
+  margin-bottom:18px;
+}
+.steps li{
+  counter-increment:step;
+  position:relative;
+  padding:14px 16px 14px 52px;
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  color:var(--muted);
+  font-size:14.5px;
+  line-height:1.55;
+}
+.steps li::before{
+  content:counter(step);
+  position:absolute;
+  left:14px;
+  top:13px;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  font-weight:700;
+  color:var(--accent-ink);
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+}
+.steps strong{
+  color:var(--ink);
+}
+.toast-msg{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  z-index:120;
+  padding:12px 18px;
+  border-radius:999px;
+  background:rgba(12,18,38,.92);
+  border:1px solid rgba(93,240,168,.38);
+  color:var(--ink);
+  font-size:13.5px;
+  font-weight:500;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  display:flex;
+  align-items:center;
+  gap:9px;
+  opacity:0;
+  transform:translateY(12px);
+  pointer-events:none;
+  transition:opacity .25s ease,transform .25s ease;
+}
+.toast-msg.show{
+  opacity:1;
+  transform:none;
+}
+
+/* Responsive */
+@media (max-width:980px){
+  .feature-grid{grid-template-columns:repeat(2,1fr)}
+  .showcase-grid{grid-template-columns:1fr;text-align:center}
+  .showcase-copy{display:flex;flex-direction:column;align-items:center}
+  .showcase-copy p{max-width:580px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:720px){
+  .nav-links{display:none}
+  .nav{padding:18px 20px}
+  .section{padding:clamp(64px,16vw,110px) 20px}
+  .plan-grid{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .feature-grid{grid-template-columns:1fr}
+  .dash-row{grid-template-columns:90px 1fr}
+  .hero-actions{width:100%}
+  .hero-actions .btn{flex:1;justify-content:center}
+  .cta-card{padding:40px 22px}
+  .footer{flex-direction:column}
+}
+@media (max-width:380px){
+  .stats{grid-template-columns:1fr}
+  .logo{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  [data-reveal]{opacity:1 !important;transform:none !important;transition:none !important}
+  .dash-bar,.dash-fill,.dash-dot{animation:none !important}
+}
+  
+
+/* Deep-Dive Subsections & Interactive Product Modules */
+.card-more{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:16px;
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--accent);
+  transition:gap .2s ease;
+}
+.card:hover .card-more{
+  gap:10px;
+}
+.card-badge{
+  position:absolute;
+  top:20px;
+  right:20px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  padding:4px 9px;
+  border-radius:999px;
+}
+
+.deep-dives{
+  display:grid;
+  gap:clamp(64px,9vw,120px);
+}
+.deep-row{
+  display:grid;
+  grid-template-columns:1fr 1.08fr;
+  gap:clamp(32px,5vw,64px);
+  align-items:center;
+  scroll-margin-top:96px;
+}
+.deep-row.reverse{
+  grid-template-columns:1.08fr 1fr;
+}
+.deep-row.reverse .deep-copy{
+  order:2;
+}
+.deep-row.reverse .deep-visual{
+  order:1;
+}
+.deep-copy h3{
+  font-size:clamp(26px,3.4vw,38px);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-.02em;
+  margin-bottom:16px;
+  text-shadow:0 2px 32px rgba(0,0,0,.6);
+}
+.deep-copy p{
+  color:var(--muted);
+  font-size:16.5px;
+  line-height:1.65;
+  margin-bottom:22px;
+}
+.deep-list{
+  list-style:none;
+  display:grid;
+  gap:12px;
+  margin-bottom:26px;
+}
+.deep-list li{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  font-size:15px;
+  line-height:1.55;
+  color:var(--ink);
+}
+.deep-check{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:rgba(93,240,168,.14);
+  border:1px solid rgba(93,240,168,.35);
+  color:var(--accent);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+  flex-shrink:0;
+  margin-top:2px;
+}
+.deep-visual{
+  position:relative;
+  padding:24px;
+  border-radius:var(--radius-lg);
+  background:var(--glass-2);
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.deep-visual::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  padding:1px;
+  background:linear-gradient(160deg, rgba(93,240,168,.32), transparent 42%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.vis-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:14px;
+  margin-bottom:16px;
+  border-bottom:1px solid var(--line);
+  font-size:13.5px;
+  font-weight:600;
+}
+.vis-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  font-weight:600;
+  padding:4px 10px;
+  border-radius:999px;
+  color:var(--accent);
+  background:rgba(93,240,168,.1);
+  border:1px solid rgba(93,240,168,.24);
+}
+.inbox-list{
+  display:grid;
+  gap:10px;
+}
+.inbox-item{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:13px;
+  background:rgba(4,6,15,.55);
+  border:1px solid var(--line);
+  cursor:pointer;
+  transition:border-color .2s ease,transform .2s ease,background .2s ease;
+}
+.inbox-item:hover,.inbox-item.active{
+  border-color:rgba(93,240,168,.45);
+  background:rgba(93,240,168,.06);
+  transform:translateX(3px);
+}
+.ch-pill{
+  font-size:11px;
+  font-weight:700;
+  padding:4px 8px;
+  border-radius:8px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.ch-ig{background:rgba(236,72,153,.18);color:#f472b6;border:1px solid rgba(236,72,153,.35)}
+.ch-vb{background:rgba(139,92,246,.18);color:#a78bfa;border:1px solid rgba(139,92,246,.35)}
+.ch-web{background:rgba(93,240,168,.15);color:#5df0a8;border:1px solid rgba(93,240,168,.35)}
+.ch-kp{background:rgba(251,191,36,.16);color:#fbbf24;border:1px solid rgba(251,191,36,.35)}
+.inbox-main strong{
+  display:block;
+  font-size:13.5px;
+  color:var(--ink);
+}
+.inbox-main span{
+  font-size:12.5px;
+  color:var(--muted);
+}
+.inbox-meta{
+  text-align:right;
+  font-size:11.5px;
+  color:var(--muted-2);
+}
+.inbox-meta b{
+  display:block;
+  color:var(--accent);
+  font-size:12px;
+}
+
+/* Workflow nodes */
+.wf-tree{
+  display:grid;
+  gap:12px;
+}
+.wf-node{
+  padding:13px 16px;
+  border-radius:13px;
+  background:rgba(4,6,15,.6);
+  border:1px solid var(--line-strong);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-size:13.5px;
+}
+.wf-node strong{color:var(--ink)}
+.wf-node span{color:var(--muted);font-size:12.5px}
+.wf-branches{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding-left:14px;
+  border-left:2px dashed rgba(93,240,168,.35);
+}
+.wf-branch{
+  padding:12px;
+  border-radius:12px;
+  background:rgba(93,240,168,.05);
+  border:1px solid rgba(93,240,168,.22);
+  font-size:12.5px;
+}
+.wf-branch b{
+  display:block;
+  color:var(--accent);
+  margin-bottom:4px;
+  font-size:11.5px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+/* SLA Comparison bars */
+.sla-box{
+  display:grid;
+  gap:14px;
+}
+.sla-card{
+  padding:14px 16px;
+  border-radius:13px;
+  background:rgba(4,6,15,.55);
+  border:1px solid var(--line);
+}
+.sla-card.good{
+  background:rgba(93,240,168,.07);
+  border-color:rgba(93,240,168,.38);
+}
+.sla-top{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-bottom:8px;
+}
+.sla-time-bad{color:#f87171;font-weight:700}
+.sla-time-good{color:var(--accent);font-weight:800}
+
+/* Role matrix & Audit log */
+.role-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12.5px;
+  margin-bottom:14px;
+}
+.role-table th,.role-table td{
+  padding:9px 10px;
+  text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.role-table th{
+  color:var(--muted-2);
+  font-weight:600;
+  text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:.08em;
+}
+.audit-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:12px;
+  color:var(--muted);
+  padding:8px 11px;
+  border-radius:9px;
+  background:rgba(4,6,15,.5);
+  margin-top:6px;
+}
+
+/* On-page Pricing & Comparison & FAQ */
+.billing-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:6px;
+  border-radius:999px;
+  background:var(--glass);
+  border:1px solid var(--line-strong);
+  margin-top:22px;
+}
+.billing-btn{
+  padding:8px 16px;
+  border-radius:999px;
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .2s ease,color .2s ease;
+}
+.billing-btn.active{
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  color:var(--accent-ink);
+}
+.pricing-grid-main{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+.price-card-main{
+  padding:32px 26px;
+  border-radius:var(--radius-lg);
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.price-card-main.featured{
+  background:radial-gradient(120% 120% at 50% 0%, rgba(93,240,168,.14), transparent 58%), var(--glass-2);
+  border-color:rgba(93,240,168,.5);
+  box-shadow:var(--shadow);
+  transform:translateY(-6px);
+}
+.price-big{
+  font-size:clamp(30px,3.5vw,42px);
+  font-weight:800;
+  letter-spacing:-.02em;
+  color:var(--ink);
+}
+.price-big span{
+  font-size:14px;
+  font-weight:500;
+  color:var(--muted);
+}
+.compare-wrap{
+  overflow-x:auto;
+  border-radius:var(--radius-lg);
+  background:var(--glass);
+  border:1px solid var(--line-strong);
+  backdrop-filter:blur(16px);
+}
+.compare-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14.5px;
+}
+.compare-table th,.compare-table td{
+  padding:16px 20px;
+  text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.compare-table th{
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--muted);
+  background:rgba(4,6,15,.45);
+}
+.compare-table td.hl,.compare-table th.hl{
+  background:rgba(93,240,168,.07);
+  color:var(--ink);
+  font-weight:600;
+}
+.faq-list{
+  max-width:820px;
+  margin:0 auto;
+  display:grid;
+  gap:12px;
+}
+.faq-item{
+  border-radius:var(--radius);
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(14px);
+  overflow:hidden;
+}
+.faq-q{
+  width:100%;
+  padding:20px 24px;
+  background:transparent;
+  border:none;
+  color:var(--ink);
+  font-family:inherit;
+  font-size:16px;
+  font-weight:700;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  cursor:pointer;
+}
+.faq-a{
+  padding:0 24px 20px;
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.65;
+  display:none;
+}
+.faq-item.open .faq-a{
+  display:block;
+}
+.faq-item.open{
+  border-color:var(--line-strong);
+}
+.nav-app-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:var(--accent) !important;
+  font-weight:600;
+}
+@media (max-width:980px){
+  .deep-row,.deep-row.reverse{grid-template-columns:1fr}
+  .deep-row.reverse .deep-copy,.deep-row.reverse .deep-visual{order:unset}
+  .pricing-grid-main{grid-template-columns:1fr}
+  .price-card-main.featured{transform:none}
+}
+
+  
+/* Clickable Channel Cards in Hero */
+.nav-card-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  opacity:.75;
+}
+.logos-row{
+  gap:12px !important;
+}
+.logo-card{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 16px;
+  border-radius:12px;
+  background:rgba(12,18,38,.65);
+  border:1px solid var(--line-strong);
+  font-size:14px;
+  font-weight:700;
+  color:var(--muted);
+  backdrop-filter:blur(10px);
+  transition:all .2s ease;
+  cursor:pointer;
+}
+.logo-card:hover{
+  color:var(--ink);
+  border-color:rgba(93,240,168,.48);
+  background:rgba(93,240,168,.1);
+  transform:translateY(-3px);
+  box-shadow:0 12px 26px -10px rgba(93,240,168,.35);
+}
+
+/* Sticky 6-Module Sub-Navbar for Deep Dives */
+.module-subnav{
+  position:sticky;
+  top:12px;
+  z-index:60;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:8px;
+  padding:10px;
+  margin-bottom:52px;
+  border-radius:16px;
+  background:rgba(8,13,30,.82);
+  border:1px solid var(--line-strong);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+.mod-pill-card{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  padding:10px 12px;
+  border-radius:11px;
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--line);
+  transition:all .18s ease;
+  cursor:pointer;
+  text-align:left;
+}
+.mod-pill-card:hover,.mod-pill-card.active{
+  background:rgba(93,240,168,.12);
+  border-color:rgba(93,240,168,.48);
+  transform:translateY(-2px);
+}
+.mod-pill-card small{
+  font-size:10.5px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--accent);
+}
+.mod-pill-card strong{
+  font-size:12.5px;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+@media (max-width:980px){
+  .module-subnav{grid-template-columns:repeat(3,1fr);position:static}
+}
+@media (max-width:560px){
+  .module-subnav{grid-template-columns:repeat(2,1fr)}
+}
+
+  </style>
+</head>
+<body>
+  <canvas class="planet-canvas"></canvas>
+
+  <div class="page" id="top">
+    <!-- SEKCIJA 1 · HERO -->
+    <header class="hero">
+      <nav class="nav">
+        <a href="index.html" class="brand">
+          <span class="brand-mark">▲</span>
+          <span>Upitko</span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Funkcije</a>
+          <a href="#deep-dives">Moduli</a>
+          <a href="#comparison">Poređenje</a>
+          <a href="#pricing">Cene</a>
+          <a href="integracije.html">Integracije</a>
+          <a href="vodici.html">Vodiči</a>
+          <a href="o-nama.html">O nama</a>
+          <a href="app.html" class="nav-app-badge"><span class="dash-dot"></span>Live CRM App</a>
+        </div>
+        <a href="#cta" class="btn btn-ghost" data-modal="signup">Počnite besplatno</a>
+      </nav>
+
+      <div class="hero-inner">
+        <span class="eyebrow" data-reveal style="--rd:20ms">Savremeni CRM &amp; prodajni komandni centar</span>
+        <h1 class="hero-title" data-reveal style="--rd:60ms">
+          Prodajte pametnije,<br>ne <em>napornije</em>
+        </h1>
+        <p class="hero-sub" data-reveal style="--rd:180ms">
+          Svi upiti sa sajta, Instagrama, Vibera, oglasnika i emaila na jednom mestu — automatski dodeljeni pravom prodavcu u sekundama, uz pregled prihoda u dinarima uživo. Zbogom, Excel tabele.
+        </p>
+        <div class="hero-actions" data-reveal style="--rd:300ms">
+          <a href="#cta" class="btn btn-primary" data-modal="signup">
+            <span>Počnite besplatno</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="app.html" class="btn btn-outline">Isprobajte aplikaciju uživo</a>
+          <a href="#solutions" class="btn btn-ghost" data-modal="consult">Zakažite 1-na-1 demo</a>
+        </div>
+      </div>
+
+      <div class="logos" data-reveal style="--rd:420ms">
+        <div class="logos-label">Svi upiti na jednom mestu — iz kanala koje vaši kupci u Srbiji svakodnevno koriste</div>
+        <div class="logos-row">
+          <a href="#modul-upiti" class="logo-card" data-nav-scroll="#modul-upiti"><span class="nav-card-dot"></span><span>Sajt forme</span></a>
+          <a href="#modul-upiti" class="logo-card" data-nav-scroll="#modul-upiti"><span class="nav-card-dot"></span><span>Instagram DM</span></a>
+          <a href="#modul-upiti" class="logo-card" data-nav-scroll="#modul-upiti"><span class="nav-card-dot"></span><span>Facebook Lead Ads</span></a>
+          <a href="#modul-brzi-odgovor" class="logo-card" data-nav-scroll="#modul-brzi-odgovor"><span class="nav-card-dot"></span><span>Viber Business</span></a>
+          <a href="integracije.html" class="logo-card"><span class="nav-card-dot"></span><span>WhatsApp</span></a>
+          <a href="#modul-srbija" class="logo-card" data-nav-scroll="#modul-srbija"><span class="nav-card-dot"></span><span>Domaći oglasnici</span></a>
+          <a href="#modul-srbija" class="logo-card" data-nav-scroll="#modul-srbija"><span class="nav-card-dot"></span><span>APR PIB &amp; SEF</span></a>
+        </div>
+      </div>
+    </header>
+
+    <!-- SEKCIJA 2 · 6 KARTICA FUNKCIJA (klik vodi na detaljnu pod-sekciju) -->
+    <section class="section features" id="features">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Sve u jednoj orbiti</span>
+        <h2 data-reveal style="--rd:80ms">Jedna platforma za ceo vaš prodajni motor</h2>
+        <p data-reveal style="--rd:160ms">
+          Prestanite da krpite Excel tabele, Viber grupe i beležnice. Kliknite na bilo koju od 6 kartica ispod da vidite kako svaki modul detaljno funkcioniše u praksi.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <a href="#modul-upiti" class="card" data-reveal style="--rd:0ms">
+          <span class="card-badge">Modul 01</span>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>Svi upiti na jednom mestu</h3>
+          <p>Poruke sa sajta, društvenih mreža, Vibera, oglasnika i emaila stižu u isto sanduče. Nijedan kupac više ne ostaje bez odgovora.</p>
+          <span class="card-more">Pogledajte detaljno objašnjenje →</span>
+        </a>
+
+        <a href="#modul-automatizacija" class="card" data-reveal style="--rd:90ms">
+          <span class="card-badge">Modul 02</span>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="6" height="6" rx="1.5"/>
+              <rect x="15" y="15" width="6" height="6" rx="1.5"/>
+              <path d="M6 9v3a3 3 0 0 0 3 3h3"/>
+            </svg>
+          </div>
+          <h3>Pametna automatizacija</h3>
+          <p>Upit se sam dodeljuje prodavcu po pravilima koja vi zadate, podsetnici stižu na vreme, a poslovi klize kroz faze bez ručnog prepisivanja.</p>
+          <span class="card-more">Pogledajte detaljno objašnjenje →</span>
+        </a>
+
+        <a href="#modul-analitika" class="card" data-reveal style="--rd:180ms">
+          <span class="card-badge">Modul 03</span>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 19V5"/>
+              <path d="M4 19h16"/>
+              <path d="M8 16v-4"/>
+              <path d="M13 16V8"/>
+              <path d="M18 16v-7"/>
+            </svg>
+          </div>
+          <h3>Prodaja uživo</h3>
+          <p>Koliko upita je stiglo, iz kog kanala, ko najbrže zatvara poslove i koliko vredi vaš levak u dinarima ili evrima — sve na jednom ekranu.</p>
+          <span class="card-more">Pogledajte detaljno objašnjenje →</span>
+        </a>
+
+        <a href="#modul-brzi-odgovor" class="card" data-reveal style="--rd:270ms">
+          <span class="card-badge">Modul 04</span>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+            </svg>
+          </div>
+          <h3>Brz odgovor (Speed-to-Lead)</h3>
+          <p>Prodavac dobija obaveštenje na telefon u sekundi kad upit stigne, a sistem automatski prebacuje upit kolegi ako je prodavac zauzet.</p>
+          <span class="card-more">Pogledajte detaljno objašnjenje →</span>
+        </a>
+
+        <a href="#modul-bezbednost" class="card" data-reveal style="--rd:360ms">
+          <span class="card-badge">Modul 05</span>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Bezbedno i uredno</h3>
+          <p>Granularne uloge i dozvole, kompletan istorijat svake izmene i zaštita baze klijenata koja ostaje u firmi i kada prodavac ode.</p>
+          <span class="card-more">Pogledajte detaljno objašnjenje →</span>
+        </a>
+
+        <a href="#modul-srbija" class="card" data-reveal style="--rd:450ms">
+          <span class="card-badge">Modul 06</span>
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/>
+            </svg>
+          </div>
+          <h3>Napravljeno za Srbiju</h3>
+          <p>Interfejs na srpskom, rad sa RSD i EUR, domaći oglasnici, kreiranje PDF predračuna i priprema za SEF e-Fakture uz domaću podršku.</p>
+          <span class="card-more">Pogledajte detaljno objašnjenje →</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- SEKCIJA 2B · DETALJNE POD-SEKCIJE ZA SVAKU OD 6 KARTICA -->
+    <section class="section" id="deep-dives">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Detaljan pregled modula</span>
+        <h2 data-reveal style="--rd:80ms">Kako Upitko rešava 6 najvećih problema u prodaji</h2>
+        <p data-reveal style="--rd:160ms">
+          Po uzoru na najnaprednije svetske RevOps platforme (poput Default-a, Attio-a i Close-a), ali skrojeno za kanale, valute i navike kupaca u Srbiji.
+        </p>
+      </div>
+
+      <nav class="module-subnav" aria-label="Navigacija kroz module">
+        <a href="#modul-upiti" class="mod-pill-card active" data-nav-scroll="#modul-upiti" data-mod-nav="modul-upiti">
+          <small>Modul 01</small><strong>Svi upiti (Inbox)</strong>
+        </a>
+        <a href="#modul-automatizacija" class="mod-pill-card" data-nav-scroll="#modul-automatizacija" data-mod-nav="modul-automatizacija">
+          <small>Modul 02</small><strong>Automatizacija</strong>
+        </a>
+        <a href="#modul-analitika" class="mod-pill-card" data-nav-scroll="#modul-analitika" data-mod-nav="modul-analitika">
+          <small>Modul 03</small><strong>Prodaja uživo</strong>
+        </a>
+        <a href="#modul-brzi-odgovor" class="mod-pill-card" data-nav-scroll="#modul-brzi-odgovor" data-mod-nav="modul-brzi-odgovor">
+          <small>Modul 04</small><strong>Brz odgovor (SLA)</strong>
+        </a>
+        <a href="#modul-bezbednost" class="mod-pill-card" data-nav-scroll="#modul-bezbednost" data-mod-nav="modul-bezbednost">
+          <small>Modul 05</small><strong>Bezbednost &amp; ZZPL</strong>
+        </a>
+        <a href="#modul-srbija" class="mod-pill-card" data-nav-scroll="#modul-srbija" data-mod-nav="modul-srbija">
+          <small>Modul 06</small><strong>Za Srbiju (PIB/SEF)</strong>
+        </a>
+      </nav>
+
+      <div class="deep-dives">
+        <!-- POD-SEKCIJA 1: SVI UPITI NA JEDNOM MESTU -->
+        <article class="deep-row" id="modul-upiti" data-reveal>
+          <div class="deep-copy">
+            <span class="eyebrow">Modul 01 · Omnichannel Sanduče</span>
+            <h3>Svi upiti na jednom mestu — bez skakanja između 7 aplikacija</h3>
+            <p>
+              Kupci u Srbiji pišu tamo gde im je najlakše: neko pošalje DM na Instagramu u 22h, neko piše na Viber, neko popuni kontakt formu na sajtu, a B2B klijent pošalje zvaničan email. Upitko hvata svaki od tih signala i pretvara ga u urednu karticu kupca.
+            </p>
+            <ul class="deep-list">
+              <li><span class="deep-check">✓</span><span><strong>Automatsko prepoznavanje duplikata:</strong> Ako isti kupac piše na Instagramu, a sutradan pošalje email, Upitko spaja celu prepisku u jedan dosije.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Praćenje porekla (UTM &amp; kampanje):</strong> Tačno vidite koji oglas na Facebooku, Instagramu ili Google-u je doneo konkretan dinarski prihod.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Odgovaranje iz jednog prozora:</strong> Prodavac šalje Viber poruku, email ili ponudu direktno iz kartice klijenta, uz gotove šablone.</span></li>
+            </ul>
+            <a href="app.html#inbox" class="btn btn-outline">Otvorite Omnichannel sanduče u aplikaciji →</a>
+          </div>
+
+          <div class="deep-visual">
+            <div class="vis-header">
+              <span>Jedinstveno sanduče upita (Omnichannel Inbox)</span>
+              <span class="vis-tag"><span class="dash-dot"></span>4 nova upita</span>
+            </div>
+            <div class="inbox-list">
+              <div class="inbox-item active" data-inbox-preview="Instagram DM · Marko Ilić: Zanima me ponuda za 12 kancelarijskih radnih mesta sa montažom u Novom Sadu.">
+                <span class="ch-pill ch-ig">Instagram</span>
+                <div class="inbox-main">
+                  <strong>Marko Ilić · Studio Forma NS</strong>
+                  <span>„Zanima me ponuda za 12 radnih mesta sa montažom..."</span>
+                </div>
+                <div class="inbox-meta">
+                  <span>pre 14 sek</span>
+                  <b>480.000 RSD</b>
+                </div>
+              </div>
+              <div class="inbox-item" data-inbox-preview="Viber Business · Jelena Savić: Poslala sam dimenzije u prilogu, kada možemo očekivati predračun?">
+                <span class="ch-pill ch-vb">Viber</span>
+                <div class="inbox-main">
+                  <strong>Jelena Savić · Ordinacija Dr Savić</strong>
+                  <span>„Poslala sam dimenzije u prilogu, kada možemo..."</span>
+                </div>
+                <div class="inbox-meta">
+                  <span>pre 2 min</span>
+                  <b>215.000 RSD</b>
+                </div>
+              </div>
+              <div class="inbox-item" data-inbox-preview="Sajt forma · TehnoGradnja d.o.o. (PIB: 108492011) traži B2B rabat i godišnji ugovor.">
+                <span class="ch-pill ch-web">Sajt forma</span>
+                <div class="inbox-main">
+                  <strong>Dejan Kovačević · TehnoGradnja d.o.o.</strong>
+                  <span>Upit za godišnje snabdevanje · PIB 108492011</span>
+                </div>
+                <div class="inbox-meta">
+                  <span>pre 6 min</span>
+                  <b>1.850.000 RSD</b>
+                </div>
+              </div>
+              <div class="inbox-item" data-inbox-preview="Oglasnik parser · Automatski uvezen upit sa portala 4zida / KupujemProdajem.">
+                <span class="ch-pill ch-kp">Oglasnik</span>
+                <div class="inbox-main">
+                  <strong>Nemanja Pavlović · Beograd (Vračar)</strong>
+                  <span>Automatski uvezen upit sa oglasnog portala</span>
+                </div>
+                <div class="inbox-meta">
+                  <span>pre 11 min</span>
+                  <b>145.000 RSD</b>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- POD-SEKCIJA 2: PAMETNA AUTOMATIZACIJA -->
+        <article class="deep-row reverse" id="modul-automatizacija" data-reveal>
+          <div class="deep-copy">
+            <span class="eyebrow">Modul 02 · Vizuelni Workflow Builder</span>
+            <h3>Pametna automatizacija koja vodi poslove kroz levak dok vi spavate</h3>
+            <p>
+              Umesto da menadžer prodaje ručno čita poruke i u Viber grupi piše <em>„Ko će da preuzme ovog klijenta?“</em>, Upitko u deliću sekunde primenjuje vaša poslovna pravila i vodi prodavca korak po korak.
+            </p>
+            <ul class="deep-list">
+              <li><span class="deep-check">✓</span><span><strong>Pametno rutiranje (Round-Robin &amp; Teritorije):</strong> Upiti iz Vojvodine idu timu u Novom Sadu, B2B upiti preko 500.000 RSD idu senior komercijalisti, a ostali se dele ravnomerno.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Automatski „Follow-up“ zadaci:</strong> Ako je ponuda poslata, a kupac nije odgovorio 48 sati, Upitko sam otvara zadatak prodavcu ili šalje ljubazan podsetnik.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Obogaćivanje podataka po PIB-u / domenu:</strong> Čim B2B klijent unese email ili PIB, sistem automatski popunjava naziv firme, adresu i delatnost.</span></li>
+            </ul>
+            <a href="app.html#workflows" class="btn btn-outline">Pogledajte Workflow automatizacije uživo →</a>
+          </div>
+
+          <div class="deep-visual">
+            <div class="vis-header">
+              <span>Vizuelni tok: Obrada novog upita</span>
+              <span class="vis-tag">Aktivno pravilo · 0ms kašnjenja</span>
+            </div>
+            <div class="wf-tree">
+              <div class="wf-node">
+                <div>
+                  <strong>1. Triger: Stiže novi upit</strong><br>
+                  <span>Izvor: Sajt forma, Instagram Lead Ad ili Viber</span>
+                </div>
+                <span class="vis-tag">Instant</span>
+              </div>
+              <div class="wf-node">
+                <div>
+                  <strong>2. Kvalifikacija i bodovanje (Lead Scoring)</strong><br>
+                  <span>Provera budžeta, grada i PIB-a firme</span>
+                </div>
+                <span class="vis-tag">Score: 92/100</span>
+              </div>
+              <div class="wf-branches">
+                <div class="wf-branch">
+                  <b>Ako je vrednost &gt; 300.000 RSD</b>
+                  Dodeli: <strong>Senior B2B tim</strong><br>
+                  Pošalji push + Viber alarm odmah i zakaži poziv u roku od 5 min.
+                </div>
+                <div class="wf-branch">
+                  <b>Standardni upit (&lt; 300.000 RSD)</b>
+                  Dodeli: <strong>Slobodan prodavac (Round-Robin)</strong><br>
+                  Pošalji kupcu automatski SMS/Viber sa katalogom.
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- POD-SEKCIJA 3: PRODAJA UŽIVO -->
+        <article class="deep-row" id="modul-analitika" data-reveal>
+          <div class="deep-copy">
+            <span class="eyebrow">Modul 03 · Analitika i prognoza prihoda</span>
+            <h3>Prodaja uživo — tačno znate koliko vredi vaš levak u svakom trenutku</h3>
+            <p>
+              Direktori i vlasnici firmi više ne moraju da čekaju kraj meseca ili da sastavljaju tabele petkom popodne da bi saznali kakva je prodaja. Upitko pretvara svaku aktivnost prodavca u jasne finansijske pokazatelje.
+            </p>
+            <ul class="deep-list">
+              <li><span class="deep-check">✓</span><span><strong>Vrednost levka po fazama u RSD i EUR:</strong> Vidite koliko novca je u fazi „Ponuda poslata“, a koliko u „Pred potpisivanjem“, uz ponderisanu verovatnoću zatvaranja.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Učinak svakog prodavca bez nagađanja:</strong> Broj preuzetih upita, procenat konverzije, prosečna vrednost posla i brzina odgovora po članu tima.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>ROI po marketinškom kanalu:</strong> Uporedite koliko ste uložili u Instagram/Google oglase sa stvarno naplaćenim poslovima iz tog kanala.</span></li>
+            </ul>
+            <a href="app.html" class="btn btn-outline">Otvorite komandnu tablu sa analitikom →</a>
+          </div>
+
+          <div class="deep-visual">
+            <div class="vis-header">
+              <span>Učinak prodajnog tima · Tekući mesec</span>
+              <span class="vis-tag">Ukupno u levku: 14,8 mil. RSD</span>
+            </div>
+            <div class="inbox-list">
+              <div class="inbox-item">
+                <span class="ch-pill ch-web">38% Win</span>
+                <div class="inbox-main">
+                  <strong>Nikola Jovanović (Senior B2B)</strong>
+                  <span>42 upita · Prosečan odgovor: 24 sek · 16 zatvorenih poslova</span>
+                </div>
+                <div class="inbox-meta">
+                  <span>Zatvoreno</span>
+                  <b>4.920.000 RSD</b>
+                </div>
+              </div>
+              <div class="inbox-item">
+                <span class="ch-pill ch-ig">34% Win</span>
+                <div class="inbox-main">
+                  <strong>Milica Đorđević (Komercijala)</strong>
+                  <span>58 upita · Prosečan odgovor: 31 sek · 20 zatvorenih poslova</span>
+                </div>
+                <div class="inbox-meta">
+                  <span>Zatvoreno</span>
+                  <b>3.640.000 RSD</b>
+                </div>
+              </div>
+              <div class="inbox-item">
+                <span class="ch-pill ch-vb">29% Win</span>
+                <div class="inbox-main">
+                  <strong>Stefan Marković (Teren &amp; Salon)</strong>
+                  <span>35 upita · Prosečan odgovor: 52 sek · 10 zatvorenih poslova</span>
+                </div>
+                <div class="inbox-meta">
+                  <span>Zatvoreno</span>
+                  <b>2.180.000 RSD</b>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- POD-SEKCIJA 4: BRZ ODGOVOR (SPEED-TO-LEAD) -->
+        <article class="deep-row reverse" id="modul-brzi-odgovor" data-reveal>
+          <div class="deep-copy">
+            <span class="eyebrow">Modul 04 · Speed-to-Lead &amp; SLA alarm</span>
+            <h3>Odgovorite kupcu za 30 sekundi — pre nego što pozove sledeći oglas</h3>
+            <p>
+              Kupac u Srbiji obično pošalje upit na 3 do 4 mesta istovremeno. Firma koja se javi u prvih 5 minuta dok je kupac još sa telefonom u ruci zatvara posao u najvećem broju slučajeva.
+            </p>
+            <ul class="deep-list">
+              <li><span class="deep-check">✓</span><span><strong>Štoperica prvog odgovora (SLA):</strong> Svaki novi upit ima vizuelni tajmer koji meri sekunde od prijema poruke do prvog poziva ili odgovora.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Automatska preraspodela (Escalation):</strong> Ako dodeljeni prodavac ne otvori upit za 5 minuta (npr. na sastanku je), Upitko automatski prebacuje upit prvom slobodnom kolegi.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Trenutni „Click-to-Call“ i Viber šabloni:</strong> Jednim dodirom na telefonu prodavac poziva kupca ili šalje personalizovanu poruku sa cenovnikom.</span></li>
+            </ul>
+            <a href="#cta" class="btn btn-outline" data-modal="consult">Zakažite demo merenja brzine odgovora →</a>
+          </div>
+
+          <div class="deep-visual">
+            <div class="vis-header">
+              <span>Poređenje brzine prvog odgovora (Speed-to-Lead)</span>
+              <span class="vis-tag">SLA cilj: &lt; 60 sek</span>
+            </div>
+            <div class="sla-box">
+              <div class="sla-card">
+                <div class="sla-top">
+                  <span>Klasičan rad (Excel + prosleđivanje u Viber grupi)</span>
+                  <span class="sla-time-bad">Prosek: 4h 15min</span>
+                </div>
+                <div class="dash-track"><span class="dash-fill" style="--w:18%;background:#f87171"></span></div>
+                <p style="font-size:12px;color:var(--muted);margin-top:8px">Kupac se u međuvremenu već čuo sa konkurencijom i ohladio.</p>
+              </div>
+              <div class="sla-card good">
+                <div class="sla-top">
+                  <span>Upitko Instant Triger + Mobilni SLA alarm</span>
+                  <span class="sla-time-good">Prosek: 22 sekunde</span>
+                </div>
+                <div class="dash-track"><span class="dash-fill" style="--w:94%"></span></div>
+                <p style="font-size:12px;color:var(--muted);margin-top:8px">Prodavac dobija notifikaciju u istoj sekundi; ako ne reaguje za 5 min, preuzima sledeći.</p>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- POD-SEKCIJA 5: BEZBEDNO I UREDNO -->
+        <article class="deep-row" id="modul-bezbednost" data-reveal>
+          <div class="deep-copy">
+            <span class="eyebrow">Modul 05 · Kontrola pristupa i zaštita baze</span>
+            <h3>Vaša baza kupaca ostaje u vašoj firmi — zauvek</h3>
+            <p>
+              Jedan od najvećih rizika kada se prodaja vodi u privatnim telefonima i deljenim Excel tabelama jeste to što odlaskom jednog komercijaliste firma gubi kontakte, dogovorene rabate i istoriju pregovora.
+            </p>
+            <ul class="deep-list">
+              <li><span class="deep-check">✓</span><span><strong>Granularne uloge (Vlasnik / Menadžer / Prodavac):</strong> Prodavac vidi samo svoje dodeljene upite i ne može masovno da izveze celu bazu klijenata u CSV.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Kompletan Audit Log (Istorijat izmena):</strong> Svaka promena cene, faze posla ili brisanje beleške ostaje trajno zabeležena sa tačnim vremenom i imenom korisnika.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Usklađenost sa domaćim ZZPL i GDPR:</strong> Enkripcija podataka (TLS 1.3 / AES-256), dnevni rezervni kopije (backup) u EU data centrima i ugovor o obradi podataka.</span></li>
+            </ul>
+            <a href="pravno.html" class="btn btn-outline">Pročitajte više o bezbednosti i ZZPL usklađenosti →</a>
+          </div>
+
+          <div class="deep-visual">
+            <div class="vis-header">
+              <span>Matrica dozvola i bezbednosni dnevnik</span>
+              <span class="vis-tag">ZZPL &amp; ISO 27001 arhitektura</span>
+            </div>
+            <table class="role-table">
+              <thead>
+                <tr>
+                  <th>Funkcija</th>
+                  <th>Vlasnik</th>
+                  <th>Menadžer</th>
+                  <th>Prodavac</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Pregled svih upita u firmi</td>
+                  <td style="color:var(--accent)">✓ Sve</td>
+                  <td style="color:var(--accent)">✓ Tim</td>
+                  <td>Samo svoji</td>
+                </tr>
+                <tr>
+                  <td>Izvoz baze kontakata (CSV)</td>
+                  <td style="color:var(--accent)">✓ Dozvoljeno</td>
+                  <td>Uz odobrenje</td>
+                  <td style="color:#f87171">✕ Blokirano</td>
+                </tr>
+                <tr>
+                  <td>Brisanje poslova i istorije</td>
+                  <td style="color:var(--accent)">✓ Dozvoljeno</td>
+                  <td style="color:#f87171">✕ Blokirano</td>
+                  <td style="color:#f87171">✕ Blokirano</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="audit-item">
+              <span>🔒 <strong>Audit Log:</strong> Pokušaj masovnog izvoza kontakata automatski blokiran</span>
+              <span>pre 8 min</span>
+            </div>
+            <div class="audit-item">
+              <span>✓ <strong>Prebacivanje portfolija:</strong> 48 aktivnih poslova prebačeno na novog kolegu</span>
+              <span>danas, 09:15</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- POD-SEKCIJA 6: NAPRAVLJENO ZA SRBIJU -->
+        <article class="deep-row reverse" id="modul-srbija" data-reveal>
+          <div class="deep-copy">
+            <span class="eyebrow">Modul 06 · Lokalizovano za domaći biznis</span>
+            <h3>Napravljeno za Srbiju — od PIB pretrage do predračuna u dinarima</h3>
+            <p>
+              Strani CRM alati (HubSpot, Salesforce, Pipedrive) koštaju i po 50–100 € po korisniku, nemaju domaće kanale, traže platne kartice i ne razumeju PIB, matični broj, predračune i SEF e-Fakture. Upitko je izgrađen od nule za domaće privrednike.
+            </p>
+            <ul class="deep-list">
+              <li><span class="deep-check">✓</span><span><strong>Dvojne valute (RSD + EUR):</strong> Vodite ponude u evrima ili dinarima uz automatski preračun po srednjem kursu NBS za izveštaje i fakturisanje.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>PDF Ponude i SEF e-Fakture priprema:</strong> Generišite brendiranu ponudu ili predračun sa PIB-om, MB-om i IPS QR kodom u jednom kliku.</span></li>
+              <li><span class="deep-check">✓</span><span><strong>Plaćanje preko računa firme i domaća podrška:</strong> Pretplatu plaćate standardno po predračunu/e-Fakturi u dinarima, a podrška vam se javlja na srpskom.</span></li>
+            </ul>
+            <a href="integracije.html" class="btn btn-outline">Pogledajte sve domaće i globalne integracije →</a>
+          </div>
+
+          <div class="deep-visual">
+            <div class="vis-header">
+              <span>Lokalni B2B paket za Srbiju</span>
+              <span class="vis-tag">RSD / EUR · PIB · SEF</span>
+            </div>
+            <div class="inbox-list">
+              <div class="inbox-item">
+                <span class="ch-pill ch-web">APR / PIB</span>
+                <div class="inbox-main">
+                  <strong>Automatsko povlačenje podataka po PIB-u</strong>
+                  <span>Unesite PIB (npr. 108492011) → naziv, MB, adresa i delatnost se popunjavaju sami</span>
+                </div>
+                <div class="inbox-meta"><b>Aktivno</b></div>
+              </div>
+              <div class="inbox-item">
+                <span class="ch-pill ch-kp">Predračun</span>
+                <div class="inbox-main">
+                  <strong>PDF Ponuda + IPS QR kod za instant uplatu</strong>
+                  <span>Generisanje predračuna u RSD (sa ili bez PDV-a) direktno iz kartice posla</span>
+                </div>
+                <div class="inbox-meta"><b>1 klik</b></div>
+              </div>
+              <div class="inbox-item">
+                <span class="ch-pill ch-vb">SEF / ERP</span>
+                <div class="inbox-main">
+                  <strong>Izvoz za SEF e-Fakture i knjigovodstvo</strong>
+                  <span>Kompatibilno sa domaćim ERP i knjigovodstvenim programima (Pantheon, BizniSoft, Minimax)</span>
+                </div>
+                <div class="inbox-meta"><b>XML / API</b></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- SEKCIJA 3 · KAKO RADI + INTERAKTIVNI DASHBOARD -->
+    <section class="section showcase" id="solutions">
+      <div class="showcase-grid">
+        <div class="showcase-copy">
+          <span class="eyebrow" data-reveal>Pregled iz visine</span>
+          <h2 data-reveal style="--rd:90ms">Vidite celu prodaju u realnom vremenu</h2>
+          <p data-reveal style="--rd:180ms">
+            Svaka faza, svaki upit, svaki dinar — pred vama. Upitko vam pokazuje šta radi, gde vam kupci ispadaju iz levka i kome treba pomoć da zatvori posao.
+          </p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap" data-reveal style="--rd:270ms">
+            <a href="app.html" class="btn btn-primary">
+              <span>Otvorite interaktivnu aplikaciju</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"/>
+                <path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+            <a href="#cta" class="btn btn-outline" data-modal="explore">Kako radi u 3 koraka</a>
+          </div>
+        </div>
+
+        <div class="dashboard" data-reveal style="--rd:160ms" id="live-dashboard">
+          <div class="dash-top">
+            <span class="dash-title" id="dash-quarter" title="Kliknite za promenu kvartala">Prodaja · Q3</span>
+            <span class="dash-live" id="dash-refresh" title="Kliknite da osvežite podatke"><span class="dash-dot"></span>Uživo</span>
+          </div>
+          <div class="dash-bars">
+            <div class="dash-bar" style="height:62%;animation-delay:0ms" data-label="Pon · 1,4 mil. RSD"></div>
+            <div class="dash-bar" style="height:88%;animation-delay:90ms" data-label="Uto · 2,1 mil. RSD"></div>
+            <div class="dash-bar" style="height:47%;animation-delay:180ms" data-label="Sre · 1,1 mil. RSD"></div>
+            <div class="dash-bar" style="height:95%;animation-delay:270ms" data-label="Čet · 2,4 mil. RSD"></div>
+            <div class="dash-bar" style="height:71%;animation-delay:360ms" data-label="Pet · 1,7 mil. RSD"></div>
+            <div class="dash-bar" style="height:80%;animation-delay:450ms" data-label="Sub · 1,9 mil. RSD"></div>
+            <div class="dash-bar" style="height:58%;animation-delay:540ms" data-label="Ned · 1,3 mil. RSD"></div>
+          </div>
+          <div class="dash-rows">
+            <div class="dash-row" data-stage="Novi upiti (90% obrađeno u roku)">
+              <span>Novi upiti</span>
+              <div class="dash-track"><span class="dash-fill" style="--w:90%"></span></div>
+            </div>
+            <div class="dash-row" data-stage="Kvalifikovani (72% konverzija)">
+              <span>Kvalifikovani</span>
+              <div class="dash-track"><span class="dash-fill" style="--w:72%"></span></div>
+            </div>
+            <div class="dash-row" data-stage="Ponuda poslata (48% aktivno)">
+              <span>Ponuda poslata</span>
+              <div class="dash-track"><span class="dash-fill" style="--w:48%"></span></div>
+            </div>
+            <div class="dash-row" data-stage="Zatvoreni poslovi (34% uspešnost)">
+              <span>Zatvoreno</span>
+              <div class="dash-track"><span class="dash-fill" style="--w:34%"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat" data-reveal style="--rd:0ms">
+          <div class="stat-value">0 RSD</div>
+          <div class="stat-label">Start paket, zauvek besplatan</div>
+        </div>
+        <div class="stat" data-reveal style="--rd:80ms">
+          <div class="stat-value">14 dana</div>
+          <div class="stat-label">Besplatna proba svih funkcija</div>
+        </div>
+        <div class="stat" data-reveal style="--rd:160ms">
+          <div class="stat-value">1 mesto</div>
+          <div class="stat-label">Za upite iz svih kanala</div>
+        </div>
+        <div class="stat" data-reveal style="--rd:240ms">
+          <div class="stat-value">24/7</div>
+          <div class="stat-label">Automatsko dodeljivanje upita</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEKCIJA 4 · POREĐENJE: UPITKO VS EXCEL VS STRANI CRM -->
+    <section class="section" id="comparison">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Zašto firme prelaze na Upitko</span>
+        <h2 data-reveal style="--rd:80ms">Između haotičnog Excela i preskupog HubSpot-a</h2>
+        <p data-reveal style="--rd:160ms">
+          Pogledajte zašto domaći prodajni timovi biraju Upitko umesto ručnih tabela ili komplikovanih stranih licenci.
+        </p>
+      </div>
+
+      <div class="compare-wrap" data-reveal>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Kriterijum</th>
+              <th class="hl">▲ Upitko CRM</th>
+              <th>Excel + Viber grupe</th>
+              <th>Strani CRM (HubSpot / Pipedrive)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Prijem upita (Sajt, IG, Viber, Oglasnici)</td>
+              <td class="hl">✓ Automatski u 1 sekundi</td>
+              <td>✕ Ručno prepisivanje i kopiranje</td>
+              <td>Delimično (bez domaćih oglasnika i Vibera)</td>
+            </tr>
+            <tr>
+              <td>Merenje brzine prvog odgovora (SLA)</td>
+              <td class="hl">✓ Ugrađena štoperica + eskalacija</td>
+              <td>✕ Nemoguće izmeriti</td>
+              <td>Samo u najskupljim Enterprise paketima</td>
+            </tr>
+            <tr>
+              <td>Jezik, valute i predračuni</td>
+              <td class="hl">✓ Srpski, RSD + EUR, PIB, PDF ponude</td>
+              <td>Ručno kucanje u Word-u</td>
+              <td>Engleski interfejs, bez PIB i SEF podrške</td>
+            </tr>
+            <tr>
+              <td>Vreme uvođenja u firmu</td>
+              <td class="hl">✓ Za 15 minuta (uvoz iz Excela)</td>
+              <td>Već postoji, ali stvara haos</td>
+              <td>Nedelje obuke i skupih konsultanata</td>
+            </tr>
+            <tr>
+              <td>Cena i način plaćanja</td>
+              <td class="hl">✓ Od 0 RSD (plaćanje po predračunu u RSD)</td>
+              <td>„Besplatno“ (ali gubite 30%+ upita)</td>
+              <td>25 € – 90 € po korisniku (samo devizna kartica)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SEKCIJA 5 · CENE DIREKTNO NA STRANICI -->
+    <section class="section" id="pricing">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Transparentni paketi</span>
+        <h2 data-reveal style="--rd:80ms">Cene u dinarima koje prate vaš rast</h2>
+        <p data-reveal style="--rd:160ms">
+          Počnite besplatno bez platne kartice. Plaćanje za firme vrši se jednostavno po predračunu (e-Fakturi) u RSD.
+        </p>
+        <div class="billing-toggle" data-reveal style="--rd:220ms">
+          <button type="button" class="billing-btn active" data-billing="monthly">Mesečno</button>
+          <button type="button" class="billing-btn" data-billing="yearly">Godišnje (2 meseca gratis)</button>
+        </div>
+      </div>
+
+      <div class="pricing-grid-main">
+        <div class="price-card-main" data-reveal style="--rd:0ms">
+          <div class="plan-name">Start</div>
+          <div class="price-big">0 RSD <span>/ zauvek</span></div>
+          <p style="color:var(--muted);font-size:14px">Savršeno za male timove i preduzetnike koji prelaze sa Excel tabela.</p>
+          <ul class="plan-list" style="font-size:14px;gap:9px">
+            <li>✓ Do 2 korisnika u timu</li>
+            <li>✓ Do 100 upita mesečno</li>
+            <li>✓ Vizuelni prodajni levak (Kanban)</li>
+            <li>✓ Veb forma za vaš sajt</li>
+            <li>✓ Mobilni pristup i podsetnici</li>
+          </ul>
+          <a href="#cta" class="btn btn-outline" data-modal="signup">Kreirajte besplatan nalog</a>
+        </div>
+
+        <div class="price-card-main featured" data-reveal style="--rd:90ms">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="plan-name">Rast · Najpopularniji</span>
+            <span class="vis-tag">14 dana besplatno</span>
+          </div>
+          <div class="price-big" data-price-monthly="1.490 RSD" data-price-yearly="1.240 RSD">1.490 RSD <span>/ korisnik mesečno</span></div>
+          <p style="color:var(--muted);font-size:14px">Za rastuće prodajne timove koji žele sve kanale i automatizaciju na jednom mestu.</p>
+          <ul class="plan-list" style="font-size:14px;gap:9px">
+            <li>✓ Neograničen broj upita i poslova</li>
+            <li>✓ Instagram, Facebook Lead Ads i Email</li>
+            <li>✓ Automatska Round-Robin dodela upita</li>
+            <li>✓ Merenje brzine odgovora (SLA štoperica)</li>
+            <li>✓ PDF ponude i predračuni u RSD / EUR</li>
+          </ul>
+          <a href="#cta" class="btn btn-primary" data-modal="signup">Pokrenite 14 dana besplatno</a>
+        </div>
+
+        <div class="price-card-main" data-reveal style="--rd:180ms">
+          <div class="plan-name">Biznis</div>
+          <div class="price-big" data-price-monthly="2.990 RSD" data-price-yearly="2.490 RSD">2.990 RSD <span>/ korisnik mesečno</span></div>
+          <p style="color:var(--muted);font-size:14px">Za ozbiljne prodajne operacije sa naprednim integracijama i zaštitom baze.</p>
+          <ul class="plan-list" style="font-size:14px;gap:9px">
+            <li>✓ Sve iz paketa Rast</li>
+            <li>✓ Viber Business, WhatsApp i oglasnici</li>
+            <li>✓ Granularne uloge, Audit Log i zabrana izvoza</li>
+            <li>✓ SEF e-Fakture izvoz i ERP API/Webhooks</li>
+            <li>✓ Lični menadžer podrške i obuka tima</li>
+          </ul>
+          <a href="cene.html" class="btn btn-outline">Izračunajte uštedu / Detaljne cene →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEKCIJA 6 · FAQ (ČESTO POSTAVLJANA PITANJA) -->
+    <section class="section" id="faq">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Česta pitanja</span>
+        <h2 data-reveal style="--rd:80ms">Sve što treba da znate pre početka</h2>
+      </div>
+
+      <div class="faq-list" data-reveal>
+        <div class="faq-item open">
+          <button type="button" class="faq-q">
+            <span>Kako se vrši plaćanje u Srbiji? Da li nam treba kompanijska kartica?</span>
+            <span>+</span>
+          </button>
+          <div class="faq-a">
+            Ne treba vam platna kartica. Kao domaća firma ili preduzetnik, dobijate uredan predračun i e-Fakturu preko SEF-a u dinarima (RSD) koju plaćate standardnim nalogom za prenos sa tekućeg računa firme.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-q">
+            <span>Već imamo hiljade kupaca u Excel tabelama. Koliko traje prebacivanje?</span>
+            <span>+</span>
+          </button>
+          <div class="faq-a">
+            Manje od 10 minuta. Upitko ima ugrađen čarobnjak za uvoz CSV i Excel fajlova koji automatski prepoznaje kolone (Ime, Firma, PIB, Telefon, Email, Status) i spaja duplikate. Naš tim vam besplatno pomaže pri prvom uvozu.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-q">
+            <span>Kako funkcioniše povezivanje sa Instagramom, Viberom i oglasnicima?</span>
+            <span>+</span>
+          </button>
+          <div class="faq-a">
+            Meta (Instagram i Facebook Lead Ads) i Viber Business se povezuju u par klikova preko zvanične autorizacije. Za domaće oglasne portale (KupujemProdajem, Halo Oglasi, 4zida, Polovni Automobili), Upitko koristi pametni email parser koji svako obaveštenje sa portala automatski pretvara u karticu upita sa imenom i telefonom kupca.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-q">
+            <span>Da li komercijalista može da iskopira bazu klijenata kada odlazi iz firme?</span>
+            <span>+</span>
+          </button>
+          <div class="faq-a">
+            Ne. Ulogama „Prodavac“ možete jednim klikom isključiti opciju izvoza podataka (CSV/Excel export) i ograničiti vidljivost samo na upite koji su im trenutno dodeljeni, dok sve aktivnosti ostaju zapisane u sigurnosnom Audit Log-u.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEKCIJA 7 · POZIV NA AKCIJU + FOOTER -->
+    <section class="section cta" id="cta">
+      <div class="cta-card">
+        <span class="eyebrow" data-reveal style="--rd:60ms">Spremni kad i vi</span>
+        <h2 data-reveal style="--rd:140ms">Podignite prodaju na novu orbitu uz Upitko</h2>
+        <p data-reveal style="--rd:220ms">
+          Bez platne kartice. Bez ugovorne obaveze. Isprobajte živu demo aplikaciju odmah u pregledaču ili otvorite besplatan nalog za svoju firmu.
+        </p>
+        <div class="hero-actions" data-reveal style="--rd:300ms;margin-top:0">
+          <a href="#top" class="btn btn-primary" data-modal="signup">
+            <span>Počnite besplatno</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="app.html" class="btn btn-outline">Otvori Live CRM Aplikaciju</a>
+          <a href="#solutions" class="btn btn-ghost" data-modal="sales">Razgovarajte sa prodajom</a>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <div class="footer-brand">
+          <a href="index.html" class="brand">
+            <span class="brand-mark">▲</span>
+            <span>Upitko</span>
+          </a>
+          <p>Savremeni CRM i komandni centar prodaje za firme u Srbiji i regionu.</p>
+        </div>
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h4>Proizvod</h4>
+            <a href="#features">Funkcije</a>
+            <a href="#deep-dives">Detaljni moduli</a>
+            <a href="integracije.html">Integracije</a>
+            <a href="cene.html">Cene i kalkulator</a>
+            <a href="app.html">Web Aplikacija (Live Demo)</a>
+          </div>
+          <div class="footer-col">
+            <h4>Resursi i Firma</h4>
+            <a href="vodici.html">Vodiči i Playbook-ovi</a>
+            <a href="o-nama.html">O nama i Kontakt</a>
+            <a href="#comparison">Upitko vs Excel / HubSpot</a>
+            <a href="#faq">Česta pitanja</a>
+          </div>
+          <div class="footer-col">
+            <h4>Pravno &amp; ZZPL</h4>
+            <a href="pravno.html#privatnost">Politika privatnosti</a>
+            <a href="pravno.html#uslovi">Uslovi korišćenja</a>
+            <a href="pravno.html#dpa">Ugovor o obradi (DPA)</a>
+            <a href="pravno.html#bezbednost">Bezbednost podataka</a>
+          </div>
+        </div>
+      </footer>
+
+      <div class="copyright">
+        © <span id="year"></span> Upitko CRM — Napravljeno za srpske firme. Sva prava zadržana.
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal (Cene, Prijava, Demo, Vodiči...) -->
+  <div class="modal-backdrop" id="command-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-panel" data-lenis-prevent>
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow" id="modal-eyebrow" style="margin-bottom:6px">Upitko</span>
+          <h3 id="modal-title" style="font-size:24px;font-weight:800;letter-spacing:-.02em">Počnite besplatno</h3>
+        </div>
+        <button type="button" class="modal-close" id="modal-close" aria-label="Zatvori">×</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast obaveštenje -->
+  <div class="toast-msg" id="toast-msg">
+    <span class="dash-dot"></span>
+    <span id="toast-text">Podaci osveženi</span>
+  </div>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import Lenis from 'https://unpkg.com/lenis@1.3.23/dist/lenis.mjs';
+
+// Copyright year
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+// Reduced motion check
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Lenis smooth scroll
+let lenis = null;
+if (!prefersReducedMotion) {
+  lenis = new Lenis({ duration: 1.15, smoothWheel: true, touchMultiplier: 1.5 });
+  function raf(t) {
+    lenis.raf(t);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+}
+
+// Staggered scroll reveal
+const revealEls = document.querySelectorAll('[data-reveal]');
+if (prefersReducedMotion) {
+  revealEls.forEach((el) => el.classList.add('in'));
+} else {
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.18, rootMargin: '0px 0px -8% 0px' }
+  );
+  revealEls.forEach((el) => io.observe(el));
+}
+
+// Interactive UI: Toast helper
+const toastEl = document.getElementById('toast-msg');
+const toastText = document.getElementById('toast-text');
+let toastTimer = null;
+function showToast(msg) {
+  if (!toastEl || !toastText) return;
+  toastText.textContent = msg;
+  toastEl.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+}
+
+// Interaktivni demo dashboard (Sekcija 3) — ilustrativni podaci
+const QUARTERS = [
+  { label: 'Prodaja · Q3', bars: [62, 88, 47, 95, 71, 80, 58], rows: [90, 72, 48, 34] },
+  { label: 'Prodaja · Q4', bars: [74, 92, 66, 98, 84, 89, 73], rows: [94, 79, 56, 41] },
+  { label: 'Prodaja · Q1', bars: [54, 76, 52, 84, 65, 72, 61], rows: [86, 68, 44, 31] },
+  { label: 'Prodaja · Q2', bars: [68, 82, 59, 91, 77, 75, 64], rows: [88, 70, 46, 33] },
+];
+let qIdx = 0;
+const dashQuarter = document.getElementById('dash-quarter');
+const dashRefresh = document.getElementById('dash-refresh');
+const dashBars = document.querySelectorAll('.dash-bar');
+const dashFills = document.querySelectorAll('.dash-fill');
+
+function applyQuarter(q) {
+  if (dashQuarter) dashQuarter.textContent = q.label;
+  dashBars.forEach((bar, i) => {
+    bar.style.height = `${q.bars[i]}%`;
+  });
+  dashFills.forEach((fill, i) => {
+    fill.style.setProperty('--w', `${q.rows[i]}%`);
+  });
+}
+
+if (dashQuarter) {
+  dashQuarter.addEventListener('click', () => {
+    qIdx = (qIdx + 1) % QUARTERS.length;
+    applyQuarter(QUARTERS[qIdx]);
+    showToast(`Prikaz: ${QUARTERS[qIdx].label}`);
+  });
+}
+if (dashRefresh) {
+  dashRefresh.addEventListener('click', () => {
+    qIdx = (qIdx + 1) % QUARTERS.length;
+    applyQuarter(QUARTERS[qIdx]);
+    showToast(`Podaci osveženi · ${QUARTERS[qIdx].label}`);
+  });
+}
+dashBars.forEach((bar) => {
+  bar.addEventListener('click', () => {
+    showToast(`Promet: ${bar.getAttribute('data-label') || bar.style.height}`);
+  });
+});
+document.querySelectorAll('.dash-row').forEach((row) => {
+  row.addEventListener('click', () => {
+    showToast(`Faza: ${row.getAttribute('data-stage')}`);
+  });
+});
+document.querySelectorAll('.logo').forEach((logo) => {
+  logo.addEventListener('click', () => {
+    showToast(`${logo.getAttribute('data-partner')} — pravo u vaše Upitko sanduče`);
+  });
+});
+document.querySelectorAll('.card[data-feature]').forEach((card) => {
+  card.addEventListener('click', () => {
+    const feat = card.getAttribute('data-feature');
+    showToast(`${feat} · pokazaćemo vam u demo pozivu`);
+  });
+});
+
+// Modali: Cene, Prijava, Demo, Prodaja, Vodiči, Pravno...
+const modalBackdrop = document.getElementById('command-modal');
+const modalClose = document.getElementById('modal-close');
+const modalEyebrow = document.getElementById('modal-eyebrow');
+const modalTitle = document.getElementById('modal-title');
+const modalBody = document.getElementById('modal-body');
+
+const CONSENT_FIELD = `
+        <label class="form-check">
+          <input type="checkbox" name="saglasnost" required />
+          <span>Saglasan/na sam da me Upitko kontaktira povodom ove prijave. Podaci se koriste isključivo u tu svrhu.</span>
+        </label>`;
+
+const MODAL_VIEWS = {
+  plans: {
+    eyebrow: 'Cene',
+    title: 'Jednostavni paketi, bez skrivenih troškova',
+    html: `
+      <p>Počnite besplatno i pređite na veći paket kada vam prodaja poraste. Bez ugovorne obaveze.</p>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name">Start</div>
+          <div class="plan-price">0 RSD <span>/ mesečno</span></div>
+          <ul class="plan-list">
+            <li>Do 2 korisnika</li>
+            <li>Do 100 upita mesečno</li>
+            <li>Prodajni levak i podsetnici</li>
+            <li>Forma za vaš sajt</li>
+          </ul>
+          <button type="button" class="btn btn-outline" data-modal="signup">Počnite besplatno</button>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-name">Rast</div>
+          <div class="plan-price">1.490 RSD <span>/ korisnik mesečno</span></div>
+          <ul class="plan-list">
+            <li>Neograničeno upita</li>
+            <li>Upiti sa Instagrama, Facebooka i emaila</li>
+            <li>Automatsko dodeljivanje upita</li>
+            <li>Izveštaji uživo</li>
+          </ul>
+          <button type="button" class="btn btn-primary" data-modal="signup">Probajte 14 dana</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Biznis</div>
+          <div class="plan-price">2.990 RSD <span>/ korisnik mesečno</span></div>
+          <ul class="plan-list">
+            <li>Sve iz paketa Rast</li>
+            <li>Viber i WhatsApp</li>
+            <li>Napredna automatizacija i API</li>
+            <li>Prioritetna podrška i obuka tima</li>
+          </ul>
+          <button type="button" class="btn btn-outline" data-modal="sales">Razgovarajte sa nama</button>
+        </div>
+      </div>
+      <p class="plan-note">Cene su prikazane bez PDV-a. Godišnje plaćanje: 2 meseca gratis. Za više od 50 korisnika pravimo individualnu ponudu.</p>
+    `
+  },
+  signup: {
+    eyebrow: 'Rani pristup',
+    title: 'Otvorite svoj Upitko nalog',
+    html: `
+      <p>Upitko otvaramo postepeno, firmu po firmu. Ostavite podatke i javićemo vam se čim vaš nalog bude spreman — bez platne kartice.</p>
+      <form class="form-grid" id="modal-form" data-form="rani-pristup">
+        <div class="form-field">
+          <label for="su-email">Poslovni email</label>
+          <input id="su-email" name="email" type="email" required placeholder="marko@firma.rs" />
+        </div>
+        <div class="form-field">
+          <label for="su-company">Naziv firme</label>
+          <input id="su-company" name="firma" type="text" required placeholder="Firma d.o.o." />
+        </div>
+        <div class="form-field">
+          <label for="su-team">Koliko ljudi radi u prodaji?</label>
+          <select id="su-team" name="velicina_tima">
+            <option>1 – 3</option>
+            <option>4 – 10</option>
+            <option>11 – 50</option>
+            <option>Više od 50</option>
+          </select>
+        </div>
+        ${CONSENT_FIELD}
+        <button type="submit" class="btn btn-primary" style="justify-content:center;margin-top:6px">Prijavite se za rani pristup</button>
+      </form>
+    `
+  },
+  consult: {
+    eyebrow: 'Demo uživo',
+    title: 'Zakažite demo od 20 minuta',
+    html: `
+      <p>Pokazaćemo vam Upitko na primeru vaše firme: odakle vam stižu upiti, ko ih obrađuje i gde se gube kupci.</p>
+      <form class="form-grid" id="modal-form" data-form="demo">
+        <div class="form-field">
+          <label for="co-name">Ime i prezime</label>
+          <input id="co-name" name="ime" type="text" required placeholder="Jovana Petrović" />
+        </div>
+        <div class="form-field">
+          <label for="co-email">Poslovni email</label>
+          <input id="co-email" name="email" type="email" required placeholder="jovana@firma.rs" />
+        </div>
+        <div class="form-field">
+          <label for="co-phone">Telefon (opciono)</label>
+          <input id="co-phone" name="telefon" type="tel" placeholder="+381 6x xxx xxxx" />
+        </div>
+        ${CONSENT_FIELD}
+        <button type="submit" class="btn btn-primary" style="justify-content:center;margin-top:6px">Zakažite demo</button>
+      </form>
+    `
+  },
+  sales: {
+    eyebrow: 'Veće firme i posebni zahtevi',
+    title: 'Razgovarajte sa našim timom',
+    html: `
+      <p>Više prodajnih timova, posebne integracije ili prenos podataka iz postojećeg sistema? Napravićemo ponudu po meri.</p>
+      <form class="form-grid" id="modal-form" data-form="prodaja">
+        <div class="form-field">
+          <label for="sa-email">Poslovni email</label>
+          <input id="sa-email" name="email" type="email" required placeholder="direktor@firma.rs" />
+        </div>
+        <div class="form-field">
+          <label for="sa-size">Broj korisnika</label>
+          <select id="sa-size" name="broj_korisnika">
+            <option>10 – 50</option>
+            <option>50 – 200</option>
+            <option>Više od 200</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="sa-note">Šta vam je najvažnije? (opciono)</label>
+          <input id="sa-note" name="poruka" type="text" placeholder="npr. povezivanje sa našim ERP-om" />
+        </div>
+        ${CONSENT_FIELD}
+        <button type="submit" class="btn btn-primary" style="justify-content:center;margin-top:6px">Pošaljite upit</button>
+      </form>
+    `
+  },
+  learning: {
+    eyebrow: 'Vodiči i saveti',
+    title: 'Kako da prodajete više',
+    html: `
+      <p>Praktični vodiči za vlasnike firmi i prodajne timove — uskoro na našem blogu:</p>
+      <div class="form-grid">
+        <div class="plan-card">
+          <div class="plan-name">Vodič 01 · Upiti iz Instagram poruka</div>
+          <p style="margin:0;font-size:13.5px">Kako da nijedna poruka iz DM-a ne čeka odgovor duže od pet minuta.</p>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Vodič 02 · Od Excela do CRM-a za jedan dan</div>
+          <p style="margin:0;font-size:13.5px">Kako da prebacite kupce iz tabela bez gubljenja istorije razgovora.</p>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Vodič 03 · Merenje rada prodavaca</div>
+          <p style="margin:0;font-size:13.5px">Tri brojke koje vlasnik firme treba da pogleda svake nedelje.</p>
+        </div>
+      </div>
+    `
+  },
+  explore: {
+    eyebrow: 'Kako radi',
+    title: 'Od upita do zatvorenog posla u 3 koraka',
+    html: `
+      <ol class="steps">
+        <li><strong>Povežite kanale.</strong> Sajt, Instagram, Facebook i email — svi upiti stižu u jedno sanduče.</li>
+        <li><strong>Postavite pravila.</strong> Ko dobija koje upite, kada stižu podsetnici i šta se dešava kad niko ne odgovori.</li>
+        <li><strong>Pratite uživo.</strong> Levak, rad prodavaca i promet u dinarima, na računaru ili telefonu.</li>
+      </ol>
+      <p>Zlatne tačke na planeti iza ovog prozora simbolizuju upite koji stižu u realnom vremenu.</p>
+      <button type="button" class="btn btn-primary" data-modal="consult">Zakažite demo</button>
+    `
+  },
+  about: {
+    eyebrow: 'O nama',
+    title: 'Domaći CRM za domaće firme',
+    html: `<p>Upitko pravimo jer mnoge firme u Srbiji i dalje vode prodaju kroz Excel, Viber grupe i sveske — pa upiti kasne, a kupci odlaze konkurenciji. Želimo alat koji je dovoljno jednostavan za malu firmu, a dovoljno moćan za veliki prodajni tim.</p>`
+  },
+  careers: {
+    eyebrow: 'Karijera',
+    title: 'Gradimo tim',
+    html: `<p>Trenutno nemamo otvorene pozicije, ali uvek rado upoznajemo dobre developere, dizajnere i ljude iz prodaje.</p><button type="button" class="btn btn-outline" data-modal="sales">Javite nam se</button>`
+  },
+  legal: {
+    eyebrow: 'Privatnost i bezbednost',
+    title: 'Vaši podaci su vaši',
+    html: `<p>Podatke obrađujemo u skladu sa Zakonom o zaštiti podataka o ličnosti Republike Srbije. Politika privatnosti, uslovi korišćenja i ugovor o obradi podataka biće objavljeni pre zvaničnog pokretanja.</p>`
+  }
+};
+
+// TODO (Nivo 2): poslati podatke na backend (serverless funkcija → baza + email obaveštenje).
+// Dok to ne bude povezano, prijave se NIGDE ne šalju — sajt ne puštati javno pre toga.
+async function submitLead(formType, data) {
+  try {
+    const existing = JSON.parse(localStorage.getItem('upitko_leads') || '[]');
+    existing.unshift({
+      id: 'L-' + Date.now().toString().slice(-4),
+      name: data.ime || data.email?.split('@')[0] || 'Novi kontakt',
+      company: data.firma || data.email?.split('@')[1] || 'Upit sa sajta',
+      channel: 'Sajt forma (' + formType + ')',
+      value: 180000,
+      stage: 'novi',
+      owner: 'Nikola J.',
+      time: 'upravo sada',
+      email: data.email || '',
+      phone: data.telefon || ''
+    });
+    localStorage.setItem('upitko_leads', JSON.stringify(existing));
+  } catch (_e) {}
+  console.info('[Upitko] Prijava sačuvana u lokalni CRM demo:', formType, data);
+}
+
+function openModal(key) {
+  const view = MODAL_VIEWS[key] || MODAL_VIEWS.signup;
+  modalEyebrow.textContent = view.eyebrow;
+  modalTitle.textContent = view.title;
+  modalBody.innerHTML = view.html;
+  modalBackdrop.classList.add('open');
+
+  const form = document.getElementById('modal-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      await submitLead(form.getAttribute('data-form'), data);
+      modalBackdrop.classList.remove('open');
+      showToast('Hvala! Javićemo vam se uskoro.');
+    });
+  }
+  // Dugmad unutar modala koja otvaraju drugi modal (npr. Cene → Prijava)
+  modalBody.querySelectorAll('[data-modal]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal(btn.getAttribute('data-modal'));
+    });
+  });
+}
+
+document.querySelectorAll('[data-modal]').forEach((el) => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal(el.getAttribute('data-modal'));
+  });
+});
+if (modalClose) {
+  modalClose.addEventListener('click', () => modalBackdrop.classList.remove('open'));
+}
+if (modalBackdrop) {
+  modalBackdrop.addEventListener('click', (e) => {
+    if (e.target === modalBackdrop) modalBackdrop.classList.remove('open');
+  });
+}
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modalBackdrop) modalBackdrop.classList.remove('open');
+});
+
+// 100% Procedural 3D Planet Config (bez eksternih GLB/PNG licenci)
+const CONFIG = {
+  rimColor:'#c1faff', rimPower:2.4, nightLights:10, terrainDepth:0.33, terrainShade:1.3,
+  oceanGlint:0.45, oceanDeep:0.12, oceanFlow:3, oceanFlowSpeed:0.8, oceanFlowScale:2.1,
+  glowColor:'#3a6cff', glowIntensity:3.35, planetRadius:1.95, spin:0.03, initRotation:2.07,
+  tilt:0.37, autoRotate:0,
+  cloud1Height:1.005, cloud1Opacity:0.6, cloud1Spin:0.06,
+  cloud2Height:1.03, cloud2Opacity:0.5, cloud2Spin:0.14,
+  cloud3Height:1.075, cloud3Opacity:0.5, cloud3Spin:0.1,
+  bgColor:'#040a1e', flameColor:'#3a6cff', flameColor2:'#c1faff', flameAmt:0.15,
+  atmoColor:'#9fc4ff', atmoCount:320, atmoSize:22, atmoSpeed:0.8,
+  starColor:'#cfe0ff', starCount:1400, starSize:1.6, starFlicker:1,
+  markerColor:'#ffd27a', markerCount:60, markerSize:16, markerSpeed:0.5,
+};
+const LAYERS = { NONE:0, TORUS_SCENE:1, BLOOM_SCENE:2, ENTIRE_SCENE:3 };
+
+const Lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const hexToVec3 = (hex) => {
+  const c = hex.replace('#', '');
+  const n = parseInt(c, 16);
+  return new THREE.Vector3(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+};
+const sample = (stops, p) => {
+  if (p <= stops[0].p) return stops[0].v;
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i];
+    const b = stops[i + 1];
+    if (p <= b.p) {
+      const t = clamp((p - a.p) / (b.p - a.p), 0, 1);
+      const s = t * t * (3 - 2 * t);
+      return Lerp(a.v, b.v, s);
+    }
+  }
+  return stops[stops.length - 1].v;
+};
+
+const SNOISE = `
+vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+float snoise(vec3 v){
+  const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+  vec3 i = floor(v + dot(v, C.yyy)); vec3 x0 = v - i + dot(i, C.xxx);
+  vec3 g = step(x0.yzx, x0.xyz); vec3 l = 1.0 - g;
+  vec3 i1 = min(g.xyz, l.zxy); vec3 i2 = max(g.xyz, l.zxy);
+  vec3 x1 = x0 - i1 + 1.0 * C.xxx; vec3 x2 = x0 - i2 + 2.0 * C.xxx; vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
+  i = mod(i, 289.0);
+  vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+  float n_ = 1.0/7.0; vec3 ns = n_ * D.wyz - D.xzx;
+  vec4 j = p - 49.0 * floor(p * ns.z *ns.z);
+  vec4 x_ = floor(j * ns.z); vec4 y_ = floor(j - 7.0 * x_);
+  vec4 x = x_ *ns.x + ns.yyyy; vec4 y = y_ *ns.x + ns.yyyy; vec4 h = 1.0 - abs(x) - abs(y);
+  vec4 b0 = vec4(x.xy, y.xy); vec4 b1 = vec4(x.zw, y.zw);
+  vec4 s0 = floor(b0)*2.0 + 1.0; vec4 s1 = floor(b1)*2.0 + 1.0; vec4 sh = -step(h, vec4(0.0));
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy; vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+  vec3 p0 = vec3(a0.xy,h.x); vec3 p1 = vec3(a0.zw,h.y); vec3 p2 = vec3(a1.xy,h.z); vec3 p3 = vec3(a1.zw,h.w);
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+  p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0); m = m * m;
+  return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+}
+`;
+
+// Procedural fallback textures so the Earth & clouds render even if remote bucket is offline
+function createFallbackTextures() {
+  const cw = 1024, ch = 512;
+  const dayCanvas = document.createElement('canvas');
+  dayCanvas.width = cw; dayCanvas.height = ch;
+  const dCtx = dayCanvas.getContext('2d');
+
+  const nightCanvas = document.createElement('canvas');
+  nightCanvas.width = cw; nightCanvas.height = ch;
+  const nCtx = nightCanvas.getContext('2d');
+
+  const dImg = dCtx.createImageData(cw, ch);
+  const nImg = nCtx.createImageData(cw, ch);
+
+  const hash = (x, y, z) => {
+    const s = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453;
+    return s - Math.floor(s);
+  };
+  const vnoise = (x, y, z) => {
+    const ix = Math.floor(x), iy = Math.floor(y), iz = Math.floor(z);
+    const fx = x - ix, fy = y - iy, fz = z - iz;
+    const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy), uz = fz * fz * (3 - 2 * fz);
+    const n000 = hash(ix, iy, iz), n100 = hash(ix + 1, iy, iz);
+    const n010 = hash(ix, iy + 1, iz), n110 = hash(ix + 1, iy + 1, iz);
+    const n001 = hash(ix, iy, iz + 1), n101 = hash(ix + 1, iy, iz + 1);
+    const n011 = hash(ix, iy + 1, iz + 1), n111 = hash(ix + 1, iy + 1, iz + 1);
+    return Lerp(
+      Lerp(Lerp(n000, n100, ux), Lerp(n010, n110, ux), uy),
+      Lerp(Lerp(n001, n101, ux), Lerp(n011, n111, ux), uy),
+      uz
+    );
+  };
+  const fbm = (x, y, z) => {
+    let v = 0, amp = 0.5, f = 1.8;
+    for (let i = 0; i < 5; i++) {
+      v += amp * vnoise(x * f, y * f, z * f);
+      f *= 2.05; amp *= 0.5;
+    }
+    return v;
+  };
+
+  for (let py = 0; py < ch; py++) {
+    const v = py / ch;
+    const phi = v * Math.PI;
+    const sinPhi = Math.sin(phi), cosPhi = Math.cos(phi);
+    const polar = Math.abs(v - 0.5) * 2;
+    for (let px = 0; px < cw; px++) {
+      const u = px / cw;
+      const theta = u * Math.PI * 2;
+      const nx = sinPhi * Math.cos(theta);
+      const ny = cosPhi;
+      const nz = sinPhi * Math.sin(theta);
+
+      const n = fbm(nx + 2.4, ny + 1.7, nz + 3.1);
+      const idx = (py * cw + px) * 4;
+      const isLand = n > 0.51 && polar < 0.88;
+
+      if (isLand) {
+        const elev = clamp((n - 0.51) / 0.35, 0, 1);
+        dImg.data[idx] = Math.floor(38 + elev * 75);
+        dImg.data[idx + 1] = Math.floor(72 + elev * 64);
+        dImg.data[idx + 2] = Math.floor(48 + elev * 38);
+        dImg.data[idx + 3] = 255;
+
+        const city = vnoise(nx * 26, ny * 26, nz * 26) * vnoise(nx * 9, ny * 9, nz * 9);
+        const coast = 1.0 - clamp(Math.abs(n - 0.54) * 14, 0, 1);
+        const cVal = city > 0.36 ? Math.pow((city - 0.36) / 0.64, 1.5) * (0.6 + 0.8 * coast) : 0;
+        nImg.data[idx] = Math.min(255, Math.floor(cVal * 255));
+        nImg.data[idx + 1] = Math.min(255, Math.floor(cVal * 195));
+        nImg.data[idx + 2] = Math.min(255, Math.floor(cVal * 95));
+        nImg.data[idx + 3] = 255;
+      } else {
+        const depth = clamp((0.51 - n) / 0.35, 0, 1);
+        dImg.data[idx] = Math.floor(8 + (1 - depth) * 14);
+        dImg.data[idx + 1] = Math.floor(28 + (1 - depth) * 32);
+        dImg.data[idx + 2] = Math.floor(68 + (1 - depth) * 58);
+        dImg.data[idx + 3] = 255;
+
+        nImg.data[idx] = 0;
+        nImg.data[idx + 1] = 0;
+        nImg.data[idx + 2] = 0;
+        nImg.data[idx + 3] = 255;
+      }
+    }
+  }
+  dCtx.putImageData(dImg, 0, 0);
+  nCtx.putImageData(nImg, 0, 0);
+
+  const cloudCanvas = document.createElement('canvas');
+  cloudCanvas.width = 512; cloudCanvas.height = 512;
+  const cCtx = cloudCanvas.getContext('2d');
+  const cImg = cCtx.createImageData(512, 512);
+  for (let y = 0; y < 512; y++) {
+    for (let x = 0; x < 512; x++) {
+      const c = fbm((x / 512) * 4, (y / 512) * 4, 1.2);
+      const a = clamp((c - 0.46) * 3.2, 0, 1);
+      const i = (y * 512 + x) * 4;
+      cImg.data[i] = 255;
+      cImg.data[i + 1] = 255;
+      cImg.data[i + 2] = 255;
+      cImg.data[i + 3] = Math.floor(a * 255);
+    }
+  }
+  cCtx.putImageData(cImg, 0, 0);
+
+  const dayTex = new THREE.CanvasTexture(dayCanvas);
+  dayTex.encoding = THREE.sRGBEncoding;
+  const nightTex = new THREE.CanvasTexture(nightCanvas);
+  const cloudFallbackTex = new THREE.CanvasTexture(cloudCanvas);
+  cloudFallbackTex.wrapS = THREE.RepeatWrapping;
+  cloudFallbackTex.wrapT = THREE.RepeatWrapping;
+  cloudFallbackTex.repeat.set(5, 5);
+
+  return { dayTex, nightTex, cloudFallbackTex };
+}
+
+// Renderer, Scene, Camera, Composers
+const canvas = document.querySelector('.planet-canvas');
+let w = window.innerWidth;
+let h = window.innerHeight;
+
+const renderer = new THREE.WebGL1Renderer({ canvas, antialias: true });
+renderer.setSize(w, h);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.VSMShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 200);
+camera.position.set(0, 0, 8);
+camera.layers.enable(LAYERS.TORUS_SCENE);
+camera.layers.enable(LAYERS.BLOOM_SCENE);
+camera.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(camera);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+ambientLight.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(ambientLight);
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+dirLight.position.set(0, 10, 2);
+dirLight.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(dirLight);
+
+const FinalPass = {
+  uniforms: {
+    iTime:{value:0}, tDiffuse:{value:null}, torusTexture:{value:null}, bloomTexture:{value:null}, haloTexture:{value:null},
+    uBg:{value:hexToVec3(CONFIG.bgColor)}, uFlameA:{value:hexToVec3(CONFIG.flameColor)},
+    uFlameB:{value:hexToVec3(CONFIG.flameColor2)}, uFlameAmt:{value:CONFIG.flameAmt},
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform float iTime; uniform sampler2D tDiffuse; uniform sampler2D bloomTexture; uniform sampler2D torusTexture; uniform sampler2D haloTexture;
+    uniform vec3 uBg; uniform vec3 uFlameA; uniform vec3 uFlameB; uniform float uFlameAmt;
+    varying vec2 vUv;
+    vec3 warp3d(vec3 pos, float t){ float curv=.8,a=1.9,b=0.7; pos*=2.;
+      pos.x+=curv*sin(t+a*pos.y)+t*b; pos.y+=curv*cos(t+a*pos.x);
+      pos.y+=curv*sin(t+a*pos.z)+t*b; pos.z+=curv*cos(t+a*pos.y);
+      pos.z+=curv*sin(t+a*pos.x)+t*b; pos.x+=curv*cos(t+a*pos.z);
+      return 0.5+0.5*cos(pos.xyz+vec3(1,2,4)); }
+    void main(){
+      vec2 uv = 2.*vUv - 1.;
+      vec3 w = pow(warp3d(vec3(uv.x, sin(uv.y), uv.y), iTime*1.5), vec3(1.5));
+      vec3 flame = 1.5*uFlameA*w.x; flame*=w.y; flame += uFlameB*w.z;
+      flame *= smoothstep(0.25, 1., abs(uv.y));
+      float md = smoothstep(-0.7, 1., -uv.y*uv.x); flame *= md*md;
+      vec3 bg = uBg * (1.0 - 0.4 * length(uv));
+      vec3 halo = texture2D(haloTexture, vUv).xyz;
+      gl_FragColor = vec4(bg + flame*uFlameAmt + texture2D(bloomTexture, vUv).xyz + texture2D(torusTexture, vUv).xyz + texture2D(tDiffuse, vUv).xyz + halo, 1.);
+    }`,
+};
+
+const renderScene = new RenderPass(scene, camera);
+
+const torusComposer = new EffectComposer(renderer);
+torusComposer.renderToScreen = false;
+torusComposer.setSize(w, h);
+torusComposer.setPixelRatio(window.devicePixelRatio);
+torusComposer.addPass(renderScene);
+torusComposer.addPass(new ShaderPass(GammaCorrectionShader));
+torusComposer.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.22, 0.2, 0));
+torusComposer.addPass(new ShaderPass(CopyShader));
+
+const bloomComposer = new EffectComposer(renderer);
+bloomComposer.renderToScreen = false;
+bloomComposer.setSize(w, h);
+bloomComposer.setPixelRatio(window.devicePixelRatio);
+bloomComposer.addPass(renderScene);
+bloomComposer.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.5, 0.6, 0));
+bloomComposer.addPass(new ShaderPass(GammaCorrectionShader));
+
+const finalPass = new ShaderPass(FinalPass);
+finalPass.uniforms.bloomTexture.value = bloomComposer.renderTarget1.texture;
+finalPass.uniforms.torusTexture.value = torusComposer.renderTarget1.texture;
+
+const finalComposer = new EffectComposer(renderer);
+finalComposer.setSize(w, h);
+finalComposer.setPixelRatio(window.devicePixelRatio);
+finalComposer.addPass(renderScene);
+finalComposer.addPass(finalPass);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.enablePan = false;
+controls.enabled = false;
+controls.autoRotate = true;
+controls.autoRotateSpeed = CONFIG.autoRotate;
+controls.minDistance = 3.5;
+controls.maxDistance = 16;
+controls.target.set(0, 0, 0);
+
+// Scroll stops & scene hierarchy
+const STOPS_X = [{p:0,v:0},{p:0.32,v:-3.1},{p:0.64,v:3.2},{p:1,v:0}];
+const STOPS_Y = [{p:0,v:-4.5},{p:0.32,v:0.55},{p:0.64,v:0.45},{p:1,v:0.15}];
+const STOPS_S = [{p:0,v:2.15},{p:0.32,v:1.0},{p:0.64,v:0.92},{p:1,v:1.12}];
+
+const worldGroup = new THREE.Group();
+worldGroup.position.set(STOPS_X[0].v, STOPS_Y[0].v, 0);
+worldGroup.scale.setScalar(STOPS_S[0].v);
+scene.add(worldGroup);
+
+const planetGroup = new THREE.Group();
+planetGroup.rotation.z = CONFIG.tilt;
+worldGroup.add(planetGroup);
+
+const cloudGroup = new THREE.Group();
+cloudGroup.rotation.z = CONFIG.tilt;
+cloudGroup.visible = false;
+worldGroup.add(cloudGroup);
+
+// Atmosphere halo glow
+const glowMat = new THREE.ShaderMaterial({
+  transparent: true,
+  side: THREE.DoubleSide,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+  uniforms: {
+    uGlow: { value: hexToVec3(CONFIG.glowColor) },
+    uIntensity: { value: CONFIG.glowIntensity },
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader: `
+    uniform vec3 uGlow; uniform float uIntensity; varying vec2 vUv;
+    void main(){
+      float d = length(vUv - 0.5) * 2.0;
+      float a = pow(clamp(1.0 - d, 0.0, 1.0), 2.2);
+      gl_FragColor = vec4(uGlow * a * uIntensity, a);
+    }
+  `,
+});
+const glowMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), glowMat);
+glowMesh.scale.setScalar(CONFIG.planetRadius * 2.3);
+glowMesh.layers.enable(LAYERS.ENTIRE_SCENE);
+worldGroup.add(glowMesh);
+
+// Shared time uniforms & shader refs
+let planetTime = 0;
+let cloudTime = 0;
+let starTime = 0;
+let markerTime = 0;
+let planetShaderUniforms = null;
+const cloudUniformsList = [];
+const cloudMeshes = [];
+
+const fallbackAssets = createFallbackTextures();
+
+// Cloud shells (3 layers) — 100% proceduralna tekstura oblaka
+const cloudTex = fallbackAssets.cloudFallbackTex;
+
+const cloudDefs = [
+  { hKey: 'cloud1Height', oKey: 'cloud1Opacity', sKey: 'cloud1Spin', ry: 0.0, phase: 0.0 },
+  { hKey: 'cloud2Height', oKey: 'cloud2Opacity', sKey: 'cloud2Spin', ry: 2.2, phase: 13.0 },
+  { hKey: 'cloud3Height', oKey: 'cloud3Opacity', sKey: 'cloud3Spin', ry: 4.3, phase: 27.0 },
+];
+
+cloudDefs.forEach((layer) => {
+  const geo = new THREE.SphereGeometry(CONFIG.planetRadius * CONFIG[layer.hKey], 64, 64);
+  const mat = new THREE.MeshStandardMaterial({
+    map: cloudTex,
+    transparent: true,
+    depthWrite: false,
+  });
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = { value: 0 };
+    shader.uniforms.noiseScale = { value: 20.0 };
+    shader.uniforms.uSpeedX = { value: 1.0 };
+    shader.uniforms.uSpeedY = { value: 2.0 };
+    shader.uniforms.uSpeedZ = { value: 2.0 };
+    shader.uniforms.uOpacity = { value: CONFIG[layer.oKey] };
+    shader.uniforms.uPhase = { value: layer.phase };
+    cloudUniformsList.push(shader.uniforms);
+
+    shader.vertexShader = 'varying vec2 vCloudUv;\n' + shader.vertexShader.replace(
+      /void\s+main\s*\(\s*\)\s*\{/,
+      'void main() {\nvCloudUv = uv;'
+    );
+    shader.fragmentShader = `
+      uniform float uTime;
+      uniform float noiseScale;
+      uniform float uSpeedX;
+      uniform float uSpeedY;
+      uniform float uSpeedZ;
+      uniform float uOpacity;
+      uniform float uPhase;
+      varying vec2 vCloudUv;
+      ${SNOISE}
+    ` + shader.fragmentShader.replace(
+      '#include <dithering_fragment>',
+      `#include <dithering_fragment>
+      gl_FragColor.rgb = vec3(1.0);
+      float cloudNoise = snoise(vec3(vCloudUv.x * noiseScale + uTime * uSpeedX + uPhase, vCloudUv.y * noiseScale - uTime * uSpeedY + uPhase, uTime * uSpeedZ + uPhase));
+      float cloudNdv = max(dot(normalize(vNormal), normalize(vViewPosition)), 0.0);
+      float cloudEdge = pow(1.0 - cloudNdv, 3.0);
+      float cloudMod = mix(cloudNoise, 1.0, cloudEdge);
+      float cloudNdl = dot(normalize(vNormal), normalize(vec3(-0.9, 0.18, 0.4)));
+      float cloudDay = 1.0 - smoothstep(0.30, -0.30, cloudNdl) * 0.9;
+      gl_FragColor.a *= cloudMod * uOpacity * cloudDay;`
+    );
+  };
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.y = layer.ry;
+  mesh.renderOrder = 2;
+  mesh.layers.enable(LAYERS.ENTIRE_SCENE);
+  cloudGroup.add(mesh);
+  cloudMeshes.push({ mesh, spinKey: layer.sKey });
+});
+
+// Ambient atmosphere motes (Points)
+const atmoGeo = new THREE.BufferGeometry();
+const atmoPos = new Float32Array(CONFIG.atmoCount * 3);
+const atmoSizes = new Float32Array(CONFIG.atmoCount);
+const atmoSeeds = new Float32Array(CONFIG.atmoCount);
+for (let i = 0; i < CONFIG.atmoCount; i++) {
+  atmoPos[i * 3 + 0] = Math.random() * 2 - 1;
+  atmoPos[i * 3 + 1] = Math.random() * 2 - 1;
+  atmoPos[i * 3 + 2] = Math.random() * 2 - 1;
+  atmoSizes[i] = CONFIG.atmoSize * (0.4 + Math.random());
+  atmoSeeds[i] = Math.random() * 100.0;
+}
+atmoGeo.setAttribute('position', new THREE.BufferAttribute(atmoPos, 3));
+atmoGeo.setAttribute('size', new THREE.BufferAttribute(atmoSizes, 1));
+atmoGeo.setAttribute('seed', new THREE.BufferAttribute(atmoSeeds, 1));
+
+const atmoMat = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  depthTest: false,
+  blending: THREE.AdditiveBlending,
+  uniforms: {
+    uTime: { value: 0 },
+    uRes: { value: new THREE.Vector2(w, h) },
+    uColor: { value: hexToVec3(CONFIG.atmoColor) },
+  },
+  vertexShader: `
+    attribute float size; attribute float seed; uniform float uTime; uniform vec2 uRes;
+    varying float vA;
+    vec3 warp(vec3 p, float t){ float c=0.9,a=1.9,b=0.02,s=0.05; p*=2.;
+      p.x+=c*sin(s*t+a*p.y)+t*b; p.y+=c*cos(s*t+a*p.x); p.y+=c*sin(s*t+a*p.z)+t*b;
+      p.z+=c*cos(s*t+a*p.y); p.z+=c*sin(s*t+a*p.x)+t*b; p.x+=c*cos(s*t+a*p.z);
+      return cos(p+vec3(1,2,4)); }
+    void main(){
+      vec3 v = position*4.0 + warp(position, uTime)*1.2;
+      vec4 mv = modelViewMatrix * vec4(v, 1.0);
+      float r = length(v); float farF = 1.0 - smoothstep(5.0, 6.5, r); float nearF = smoothstep(0.0, 0.5, -mv.z);
+      vA = farF * nearF;
+      gl_PointSize = size * uRes.y / 900.0 / -mv.z; gl_PointSize = max(gl_PointSize, 1.0);
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 uColor; varying float vA;
+    void main(){ vec2 p = gl_PointCoord - 0.5; float l = length(p); if (l > 0.5) discard;
+      float tex = smoothstep(0.5, 0.0, l); gl_FragColor = vec4(uColor * tex, tex * vA * 0.55); }
+  `,
+});
+const atmoPoints = new THREE.Points(atmoGeo, atmoMat);
+atmoPoints.frustumCulled = false;
+atmoPoints.layers.enable(LAYERS.ENTIRE_SCENE);
+atmoPoints.onBeforeRender = () => {
+  const t = performance.now() * 0.001;
+  atmoMat.uniforms.uTime.value = t * CONFIG.atmoSpeed * 8.0;
+  atmoPoints.position.copy(camera.position);
+  atmoPoints.updateMatrixWorld();
+  finalPass.uniforms.iTime.value = t * 0.12;
+};
+scene.add(atmoPoints);
+
+// Starfield (Points on a sphere, r=90)
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(CONFIG.starCount * 3);
+const starSeeds = new Float32Array(CONFIG.starCount);
+const starBright = new Float32Array(CONFIG.starCount);
+for (let i = 0; i < CONFIG.starCount; i++) {
+  const u = Math.random();
+  const v = Math.random();
+  const theta = 2 * Math.PI * u;
+  const phi = Math.acos(2 * v - 1);
+  const r = 90.0;
+  starPos[i * 3 + 0] = r * Math.sin(phi) * Math.cos(theta);
+  starPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+  starPos[i * 3 + 2] = r * Math.cos(phi);
+  starSeeds[i] = Math.random() * 100.0;
+  starBright[i] = 0.35 + Math.random() * 0.65;
+}
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+starGeo.setAttribute('seed', new THREE.BufferAttribute(starSeeds, 1));
+starGeo.setAttribute('bright', new THREE.BufferAttribute(starBright, 1));
+
+const starMat = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  depthTest: true,
+  blending: THREE.AdditiveBlending,
+  uniforms: {
+    uTime: { value: 0 },
+    uSize: { value: CONFIG.starSize },
+    uFlicker: { value: CONFIG.starFlicker },
+    uColor: { value: hexToVec3(CONFIG.starColor) },
+    uRes: { value: new THREE.Vector2(w, h) },
+  },
+  vertexShader: `
+    attribute float seed; attribute float bright;
+    uniform float uTime; uniform float uSize; uniform float uFlicker; uniform vec2 uRes;
+    varying float vTw;
+    void main(){
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      float tw = 0.6 + 0.4 * sin(uTime * uFlicker + seed);
+      vTw = bright * tw;
+      gl_PointSize = max(uSize * uRes.y / 900.0 * (90.0 / max(-mv.z, 1.0)), 1.0);
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 uColor; varying float vTw;
+    void main(){
+      vec2 p = gl_PointCoord - 0.5; float l = length(p); if (l > 0.5) discard;
+      float core = smoothstep(0.5, 0.0, l);
+      gl_FragColor = vec4(uColor, core * vTw);
+    }
+  `,
+});
+const starPoints = new THREE.Points(starGeo, starMat);
+starPoints.frustumCulled = false;
+starPoints.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(starPoints);
+
+// Land markers builder
+let markerMat = null;
+function buildLandMarkers(planetMesh, baseTex) {
+  const img = baseTex && baseTex.image;
+  if (!img || !img.width || !img.height) return;
+
+  const cw = img.width;
+  const ch = img.height;
+  let imgData = null;
+  try {
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = cw;
+    offCanvas.height = ch;
+    const ctx = offCanvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, cw, ch);
+    imgData = ctx.getImageData(0, 0, cw, ch).data;
+  } catch (_e) {
+    imgData = null;
+  }
+
+  const geo = planetMesh.geometry;
+  const posAttr = geo.attributes.position;
+  const uvAttr = geo.attributes.uv;
+  if (!posAttr || !uvAttr) return;
+
+  const indexAttr = geo.index;
+  const triCount = indexAttr ? indexAttr.count / 3 : posAttr.count / 3;
+  const cumAreas = new Float32Array(triCount);
+  const vA = new THREE.Vector3();
+  const vB = new THREE.Vector3();
+  const vC = new THREE.Vector3();
+  const ab = new THREE.Vector3();
+  const ac = new THREE.Vector3();
+  let totalArea = 0;
+
+  for (let i = 0; i < triCount; i++) {
+    const i0 = indexAttr ? indexAttr.getX(i * 3) : i * 3;
+    const i1 = indexAttr ? indexAttr.getX(i * 3 + 1) : i * 3 + 1;
+    const i2 = indexAttr ? indexAttr.getX(i * 3 + 2) : i * 3 + 2;
+    vA.fromBufferAttribute(posAttr, i0);
+    vB.fromBufferAttribute(posAttr, i1);
+    vC.fromBufferAttribute(posAttr, i2);
+    ab.subVectors(vB, vA);
+    ac.subVectors(vC, vA);
+    totalArea += ab.cross(ac).length() * 0.5;
+    cumAreas[i] = totalArea;
+  }
+
+  const mPos = [];
+  const mSeeds = [];
+  const uvA = new THREE.Vector2();
+  const uvB = new THREE.Vector2();
+  const uvC = new THREE.Vector2();
+  let attempts = 0;
+  const maxAttempts = CONFIG.markerCount * 80;
+
+  while (mSeeds.length < CONFIG.markerCount && attempts < maxAttempts) {
+    attempts++;
+    const target = Math.random() * totalArea;
+    let lo = 0;
+    let hi = triCount - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (cumAreas[mid] < target) lo = mid + 1;
+      else hi = mid;
+    }
+    const i0 = indexAttr ? indexAttr.getX(lo * 3) : lo * 3;
+    const i1 = indexAttr ? indexAttr.getX(lo * 3 + 1) : lo * 3 + 1;
+    const i2 = indexAttr ? indexAttr.getX(lo * 3 + 2) : lo * 3 + 2;
+
+    let r1 = Math.random();
+    let r2 = Math.random();
+    if (r1 + r2 > 1) {
+      r1 = 1 - r1;
+      r2 = 1 - r2;
+    }
+    const r0 = 1 - r1 - r2;
+
+    uvA.fromBufferAttribute(uvAttr, i0);
+    uvB.fromBufferAttribute(uvAttr, i1);
+    uvC.fromBufferAttribute(uvAttr, i2);
+    const u = (((uvA.x * r0 + uvB.x * r1 + uvC.x * r2) % 1) + 1) % 1;
+    const v = (((uvA.y * r0 + uvB.y * r1 + uvC.y * r2) % 1) + 1) % 1;
+
+    if (imgData) {
+      const px = clamp(Math.floor(u * cw), 0, cw - 1);
+      const py = clamp(Math.floor((baseTex.flipY ? 1 - v : v) * ch), 0, ch - 1);
+      const idx = (py * cw + px) * 4;
+      const cr = imgData[idx];
+      const cg = imgData[idx + 1];
+      const cb = imgData[idx + 2];
+      if (cb > cr + 6 && cb > cg + 6) continue;
+    }
+
+    vA.fromBufferAttribute(posAttr, i0);
+    vB.fromBufferAttribute(posAttr, i1);
+    vC.fromBufferAttribute(posAttr, i2);
+    const p = new THREE.Vector3()
+      .addScaledVector(vA, r0)
+      .addScaledVector(vB, r1)
+      .addScaledVector(vC, r2)
+      .multiplyScalar(1.012);
+
+    mPos.push(p.x, p.y, p.z);
+    mSeeds.push(Math.random());
+  }
+
+  const mGeo = new THREE.BufferGeometry();
+  mGeo.setAttribute('position', new THREE.Float32BufferAttribute(mPos, 3));
+  mGeo.setAttribute('seed', new THREE.Float32BufferAttribute(mSeeds, 1));
+
+  markerMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthTest: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 },
+      uColor: { value: hexToVec3(CONFIG.markerColor) },
+      uSize: { value: CONFIG.markerSize },
+      uSpeed: { value: CONFIG.markerSpeed },
+      uRes: { value: new THREE.Vector2(w, h) },
+    },
+    vertexShader: `
+      attribute float seed; uniform float uSize; uniform vec2 uRes;
+      varying float vSeed; varying float vFade;
+      void main(){
+        vSeed = seed;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vec3 vn = normalize(normalMatrix * normalize(position));
+        vec3 vd = normalize(-mv.xyz);
+        vFade = smoothstep(0.15, 0.5, dot(vn, vd));
+        gl_PointSize = max(uSize * uRes.y / 900.0 * (7.0 / max(-mv.z, 1.0)), 2.0);
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor; uniform float uTime; uniform float uSpeed;
+      varying float vSeed; varying float vFade;
+      void main(){
+        if (vFade <= 0.001) discard;
+        vec2 p = gl_PointCoord - 0.5;
+        float d = length(p) * 2.0;
+        if (d > 1.0) discard;
+        float core = smoothstep(0.30, 0.0, d) * 1.2;
+        float ph = fract(uTime * uSpeed + vSeed);
+        float ring = smoothstep(0.07, 0.0, abs(d - ph)) * (1.0 - ph);
+        gl_FragColor = vec4(uColor, clamp(core + ring, 0.0, 1.0) * vFade);
+      }
+    `,
+  });
+
+  const markerPoints = new THREE.Points(mGeo, markerMat);
+  markerPoints.layers.enable(LAYERS.ENTIRE_SCENE);
+  planetMesh.add(markerPoints);
+}
+
+// Apply custom planet shader & mount mesh
+const ENTRY_DUR = 1.9;
+const ENTRY_START_Y = -6.5;
+let planetLoaded = false;
+let entryElapsed = 0;
+
+function mountPlanetMesh(planetMesh, nightTex) {
+  if (planetLoaded) return;
+  planetMesh.geometry.computeBoundingSphere();
+  const bsRadius = planetMesh.geometry.boundingSphere.radius || 1;
+  planetMesh.scale.setScalar(CONFIG.planetRadius / bsRadius);
+
+  const mat = planetMesh.material.clone();
+  mat.metalness = 0;
+  mat.roughness = 1;
+  mat.envMapIntensity = 0;
+  mat.extensions = { ...(mat.extensions || {}), derivatives: true };
+
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.time = { value: 0 };
+    shader.uniforms.noiseScale = { value: 30.0 };
+    shader.uniforms.speedX = { value: 1.5 };
+    shader.uniforms.speedY = { value: 2.0 };
+    shader.uniforms.speedZ = { value: 2.5 };
+    shader.uniforms.rimColor = { value: hexToVec3(CONFIG.rimColor) };
+    shader.uniforms.rimPower = { value: CONFIG.rimPower };
+    shader.uniforms.nightBlendTexture = { value: nightTex || fallbackAssets.nightTex };
+    shader.uniforms.nightLights = { value: CONFIG.nightLights };
+    shader.uniforms.terrainDepth = { value: CONFIG.terrainDepth };
+    shader.uniforms.terrainShade = { value: CONFIG.terrainShade };
+    shader.uniforms.oceanGlint = { value: CONFIG.oceanGlint };
+    shader.uniforms.oceanDeep = { value: CONFIG.oceanDeep };
+    shader.uniforms.oceanFlow = { value: CONFIG.oceanFlow };
+    shader.uniforms.oceanFlowSpeed = { value: CONFIG.oceanFlowSpeed };
+    shader.uniforms.oceanFlowScale = { value: CONFIG.oceanFlowScale };
+    planetShaderUniforms = shader.uniforms;
+
+    shader.vertexShader = 'varying vec2 vCustomUv;\n' + shader.vertexShader.replace(
+      /void\s+main\s*\(\s*\)\s*\{/,
+      'void main() {\nvCustomUv = uv;'
+    );
+
+    shader.fragmentShader = `
+      uniform float time;
+      uniform float noiseScale;
+      uniform float speedX;
+      uniform float speedY;
+      uniform float speedZ;
+      uniform vec3 rimColor;
+      uniform float rimPower;
+      uniform sampler2D nightBlendTexture;
+      uniform float nightLights;
+      uniform float terrainDepth;
+      uniform float terrainShade;
+      uniform float oceanGlint;
+      uniform float oceanDeep;
+      uniform float oceanFlow;
+      uniform float oceanFlowSpeed;
+      uniform float oceanFlowScale;
+      varying vec2 vCustomUv;
+      ${SNOISE}
+    ` + shader.fragmentShader.replace(
+      '#include <dithering_fragment>',
+      `#include <dithering_fragment>
+      vec3 normalizedNormal = normalize(vNormal);
+      vec3 viewDir = normalize(vViewPosition);
+      float rim = 1.0 - max(dot(viewDir, normalizedNormal), 0.0);
+      rim = pow(rim, rimPower); rim = pow(rim, 1.5); rim *= 0.7;
+      vec3 currentColor = gl_FragColor.rgb;
+      float blueDom = currentColor.b - max(currentColor.r, currentColor.g);
+      float waterMask = clamp(smoothstep(-0.005, 0.03, blueDom), 0.0, 1.0);
+      float shimmer = snoise(vec3(vCustomUv.x * noiseScale + time * speedX, vCustomUv.y * noiseScale - time * speedY, time * speedZ));
+      gl_FragColor.rgb += waterMask * shimmer * 0.025;
+      float fT = time * oceanFlowSpeed * 4.0;
+      float fS = 4.0 * oceanFlowScale;
+      float warp = snoise(vec3(vCustomUv.x * fS - fT * 0.5, vCustomUv.y * fS + fT * 0.4, fT * 0.5));
+      float flow = snoise(vec3(vCustomUv.x * fS * 2.0 + fT * 0.6 + warp, vCustomUv.y * fS * 2.0 - fT * 0.5, fT * 0.7));
+      flow = warp * 0.6 + flow * 0.4;
+      gl_FragColor.rgb += waterMask * flow * 0.12 * oceanFlow;
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.01, 0.06, 0.16), waterMask * oceanDeep);
+      vec3 finalColor = mix(gl_FragColor.rgb, rimColor, rim);
+      gl_FragColor = vec4(finalColor, 1.0);
+      vec3 surfPos = -vViewPosition;
+      float terrH = dot(texture2D(map, vCustomUv).rgb, vec3(0.299, 0.587, 0.114));
+      vec3 sigX = dFdx(surfPos), sigY = dFdy(surfPos);
+      vec3 vR1 = cross(sigY, normalizedNormal), vR2 = cross(normalizedNormal, sigX);
+      float fDet = dot(sigX, vR1);
+      vec3 vGrad = sign(fDet) * (dFdx(terrH) * vR1 + dFdy(terrH) * vR2);
+      vec3 bumpedNormal = normalize(abs(fDet) * normalizedNormal - terrainDepth * vGrad);
+      vec3 shadeNormal = mix(bumpedNormal, normalizedNormal, waterMask);
+      vec3 cityLights = texture2D(nightBlendTexture, vCustomUv).rgb * gl_FragColor.rgb * nightLights;
+      vec3 viewSunDir = normalize(vec3(-0.9, 0.18, 0.4));
+      float ndl = dot(normalizedNormal, viewSunDir);
+      float dayAmt = smoothstep(-0.05, 0.35, ndl);
+      float relief = dot(shadeNormal, viewSunDir) - ndl;
+      gl_FragColor.rgb *= clamp(1.0 + relief * terrainShade * dayAmt, 0.55, 1.6);
+      float nightFactor  = smoothstep(0.18, -0.30, ndl);
+      float lightsFactor = smoothstep(0.30, -0.35, ndl);
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * 0.08, nightFactor);
+      gl_FragColor.rgb += cityLights * lightsFactor;
+      vec3 halfDir = normalize(viewSunDir + viewDir);
+      float ripple = snoise(vec3(vCustomUv * 240.0, time * 4.0));
+      float ndh = max(dot(normalizedNormal, halfDir) + ripple * 0.02, 0.0);
+      float glint = pow(ndh, 140.0);
+      gl_FragColor.rgb += glint * waterMask * dayAmt * oceanGlint * vec3(1.0, 0.97, 0.88);`
+    );
+  };
+
+  planetMesh.material = mat;
+  planetMesh.layers.enable(LAYERS.ENTIRE_SCENE);
+  planetGroup.add(planetMesh);
+  cloudGroup.visible = true;
+  buildLandMarkers(planetMesh, mat.map);
+  planetLoaded = true;
+}
+
+function mountFallbackPlanet() {
+  if (planetLoaded) return;
+  const fallbackGeo = new THREE.SphereGeometry(CONFIG.planetRadius, 96, 96);
+  const fallbackMat = new THREE.MeshStandardMaterial({
+    map: fallbackAssets.dayTex,
+    metalness: 0,
+    roughness: 1,
+  });
+  const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat);
+  mountPlanetMesh(fallbackMesh, fallbackAssets.nightTex);
+}
+
+// Odmah montiraj 100% proceduralnu 3D planetu (bez eksternih GLB zahteva)
+mountFallbackPlanet();
+
+// Interaktivni elementi za 6 detaljnih pod-sekcija, Cene i FAQ
+document.querySelectorAll('.inbox-item[data-inbox-preview]').forEach((item) => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.inbox-item[data-inbox-preview]').forEach((el) => el.classList.remove('active'));
+    item.classList.add('active');
+    showToast(item.getAttribute('data-inbox-preview'));
+  });
+});
+
+document.querySelectorAll('.billing-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.billing-btn').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    const mode = btn.getAttribute('data-billing');
+    document.querySelectorAll('[data-price-monthly]').forEach((priceEl) => {
+      const val = mode === 'yearly' ? priceEl.getAttribute('data-price-yearly') : priceEl.getAttribute('data-price-monthly');
+      priceEl.innerHTML = `${val} <span>/ korisnik mesečno</span>`;
+    });
+    showToast(mode === 'yearly' ? 'Prikazane godišnje cene (2 meseca gratis)' : 'Prikazane mesečne cene');
+  });
+});
+
+document.querySelectorAll('.faq-q').forEach((qBtn) => {
+  qBtn.addEventListener('click', () => {
+    const item = qBtn.closest('.faq-item');
+    if (item) item.classList.toggle('open');
+  });
+});
+
+
+// Smooth scroll navigacija za sve kartice i linkove u navbaru i na stranici (kompatibilno sa Lenis-om)
+const mainNav = document.getElementById('main-nav');
+const navBurger = document.getElementById('nav-burger');
+if (navBurger && mainNav) {
+  navBurger.addEventListener('click', () => {
+    mainNav.classList.toggle('mobile-open');
+  });
+}
+
+document.querySelectorAll('a[href^="#"]:not([data-modal])').forEach((link) => {
+  link.addEventListener('click', (e) => {
+    const hash = link.getAttribute('href');
+    if (!hash || hash === '#') return;
+    const target = document.querySelector(hash);
+    if (!target) return;
+    e.preventDefault();
+    if (mainNav) mainNav.classList.remove('mobile-open');
+    if (lenis) {
+      lenis.scrollTo(target, { offset: hash.startsWith('#modul-') ? -88 : 0, duration: 1.05 });
+    } else {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    history.replaceState(null, '', hash);
+  });
+});
+
+// Aktivno stanje na sticky navigaciji modula dok se skroluje
+const modArticles = document.querySelectorAll('.deep-row[id]');
+const modNavCards = document.querySelectorAll('[data-mod-nav]');
+if (modArticles.length && modNavCards.length) {
+  const modObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          modNavCards.forEach((c) => {
+            c.classList.toggle('active', c.getAttribute('data-mod-nav') === id);
+          });
+        }
+      });
+    },
+    { threshold: 0.35, rootMargin: '-15% 0px -35% 0px' }
+  );
+  modArticles.forEach((art) => modObserver.observe(art));
+}
+
+// Kada se stranica otvori sa #sekcijom u adresi (npr. sa pratecih stranica), skroluj do te sekcije
+function jumpToHashOnLoad() {
+  const hash = location.hash;
+  if (!hash || hash.length < 2) return;
+  let target = null;
+  try { target = document.querySelector(hash); } catch (_e) { return; }
+  if (!target) return;
+
+  const offset = hash.startsWith('#modul-') ? -88 : 0;
+  let tries = 0;
+  let stable = 0;
+  let userMoved = false;
+  const stop = () => { userMoved = true; };
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((ev) =>
+    window.addEventListener(ev, stop, { once: true, passive: true })
+  );
+
+  // Pregledac i Lenis mogu da pomere skrol tokom ucitavanja, pa pozicija se proverava
+  // i ispravlja dok se ne ustali (ili dok korisnik sam ne pocne da skroluje).
+  const tick = () => {
+    if (userMoved || tries++ > 40) return;
+    const y = Math.max(0, Math.round(target.getBoundingClientRect().top + window.scrollY + offset));
+    if (Math.abs(window.scrollY - y) <= 2) {
+      if (++stable >= 3) return;
+    } else {
+      stable = 0;
+      if (lenis) lenis.scrollTo(y, { immediate: true, force: true });
+      window.scrollTo({ top: y, behavior: 'instant' });
+    }
+    setTimeout(tick, 100);
+  };
+  setTimeout(tick, 150);
+}
+if (document.readyState === 'complete') jumpToHashOnLoad();
+else window.addEventListener('load', jumpToHashOnLoad);
+
+// Resize handling
+window.addEventListener('resize', () => {
+  w = window.innerWidth;
+  h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  torusComposer.setSize(w, h);
+  torusComposer.setPixelRatio(window.devicePixelRatio);
+
+  bloomComposer.setSize(w, h);
+  bloomComposer.setPixelRatio(window.devicePixelRatio);
+
+  finalComposer.setSize(w, h);
+  finalComposer.setPixelRatio(window.devicePixelRatio);
+
+  atmoMat.uniforms.uRes.value.set(w, h);
+  starMat.uniforms.uRes.value.set(w, h);
+  if (markerMat) markerMat.uniforms.uRes.value.set(w, h);
+});
+
+// Scroll & animation loop
+let curP = 0;
+let curX = STOPS_X[0].v;
+let curY = STOPS_Y[0].v;
+let curS = STOPS_S[0].v;
+let spinPhase = 0;
+let lastTime = performance.now();
+
+function animate(now) {
+  requestAnimationFrame(animate);
+
+  const dt = Math.min((now - lastTime) * 0.001, 0.05);
+  lastTime = now;
+
+  // Scroll progress & damped planet transforms
+  const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  const pTarget = clamp(window.scrollY / maxScroll, 0, 1);
+  curP += (pTarget - curP) * Math.min(1, dt * 4.5);
+
+  const sideScale = clamp(window.innerWidth / 1200, 0.5, 1);
+  const targetX = sample(STOPS_X, curP) * sideScale;
+  const targetY = sample(STOPS_Y, curP);
+  const targetS = sample(STOPS_S, curP);
+  const k = Math.min(1, dt * 3.2);
+
+  curX += (targetX - curX) * k;
+  curY += (targetY - curY) * k;
+  curS += (targetS - curS) * k;
+
+  // Float-up entrance
+  let entryY = prefersReducedMotion ? 0 : ENTRY_START_Y;
+  if (planetLoaded && !prefersReducedMotion) {
+    entryElapsed = Math.min(ENTRY_DUR, entryElapsed + dt);
+    const t = clamp(entryElapsed / ENTRY_DUR, 0, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    entryY = ENTRY_START_Y * (1 - ease);
+  }
+
+  worldGroup.position.set(curX, curY + entryY, 0);
+  worldGroup.scale.setScalar(curS);
+
+  // Spin & scroll rotation
+  spinPhase += dt * CONFIG.spin;
+  planetGroup.rotation.y = CONFIG.initRotation + spinPhase + curP * Math.PI * 1.6;
+
+  // Cloud spin
+  cloudMeshes.forEach(({ mesh, spinKey }) => {
+    mesh.rotation.y += dt * CONFIG[spinKey];
+  });
+
+  // Billboard atmosphere halo
+  glowMesh.quaternion.copy(camera.quaternion);
+
+  // Time advances
+  planetTime += dt / 12;
+  cloudTime += dt / 20;
+  starTime += dt;
+  markerTime += dt;
+
+  if (planetShaderUniforms) planetShaderUniforms.time.value = planetTime;
+  cloudUniformsList.forEach((u) => {
+    u.uTime.value = cloudTime;
+  });
+  starMat.uniforms.uTime.value = starTime;
+  if (markerMat) markerMat.uniforms.uTime.value = markerTime;
+
+  controls.update();
+
+  // Render order across layers
+  camera.layers.set(LAYERS.TORUS_SCENE);
+  torusComposer.render();
+
+  camera.layers.set(LAYERS.BLOOM_SCENE);
+  bloomComposer.render();
+
+  camera.layers.set(LAYERS.ENTIRE_SCENE);
+  finalComposer.render();
+}
+
+requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

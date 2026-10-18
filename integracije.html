@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="sr-Latn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integracije — Upitko CRM</title>
+  <meta name="description" content="Povežite Upitko sa Instagramom, Viberom, WhatsAppom, sajt formama, domaćim oglasnicima (KP, 4zida, Polovni Automobili) i SEF e-Fakturama." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,12 92,88 8,88' fill='%235df0a8'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+:root{
+  --bg:#04060f; --bg-2:#060a18; --ink:#f3f6ff; --muted:#9aa6c4; --muted-2:#6b7796;
+  --line:rgba(150,175,230,.12); --line-strong:rgba(150,175,230,.24);
+  --accent:#5df0a8; --accent-2:#2fd38a; --accent-ink:#032018;
+  --glass:rgba(12,18,38,.65); --glass-2:rgba(16,24,48,.82);
+  --radius:18px; --radius-lg:26px; --maxw:1180px;
+  --shadow:0 30px 80px -30px rgba(0,0,0,.75);
+  --font:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  color:var(--ink);
+  background:
+    radial-gradient(80% 50% at 50% -10%, rgba(58,108,255,.22), transparent 65%),
+    radial-gradient(65% 55% at 85% 40%, rgba(93,240,168,.1), transparent 60%),
+    var(--bg);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit;color:inherit}
+.nav{
+  width:100%;max-width:var(--maxw);margin:0 auto;padding:22px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.brand{
+  display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:19px;
+  letter-spacing:.16em;text-transform:uppercase;
+}
+.brand-mark{color:var(--accent);font-size:14px}
+.nav-links{display:flex;align-items:center;gap:28px;font-size:14.5px;font-weight:500;color:var(--muted)}
+.nav-links a:hover,.nav-links a.active{color:var(--ink)}
+.nav-app-badge{display:inline-flex;align-items:center;gap:6px;color:var(--accent)!important;font-weight:600}
+.dash-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+
+.section{max-width:var(--maxw);margin:0 auto;padding:clamp(56px,8vw,110px) 24px}
+.eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.page-head{max-width:740px;margin:0 auto 56px;text-align:center}
+.page-head h1{font-size:clamp(32px,4.8vw,54px);font-weight:800;line-height:1.06;letter-spacing:-.025em}
+.page-head p{margin-top:16px;color:var(--muted);font-size:18px;line-height:1.6}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;font-size:14.5px;font-weight:600;
+  padding:12px 22px;border-radius:999px;border:1px solid transparent;cursor:pointer;transition:all .18s ease;
+}
+.btn-primary{color:var(--accent-ink);background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 10px 30px -8px rgba(93,240,168,.55)}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-outline{color:var(--ink);background:rgba(255,255,255,.04);border-color:var(--line-strong)}
+.btn-outline:hover{background:rgba(255,255,255,.09)}
+.btn-ghost{color:var(--ink);background:rgba(255,255,255,.05);border-color:var(--line-strong);padding:9px 18px}
+
+.card{
+  padding:28px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--line);
+  backdrop-filter:blur(14px);display:flex;flex-direction:column;gap:12px;
+}
+.card.featured{
+  background:radial-gradient(120% 130% at 50% 0%, rgba(93,240,168,.14), transparent 58%), var(--glass-2);
+  border-color:rgba(93,240,168,.48);box-shadow:var(--shadow);
+}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
+  padding:4px 10px;border-radius:999px;background:rgba(93,240,168,.12);color:var(--accent);
+  border:1px solid rgba(93,240,168,.28);width:fit-content;text-transform:uppercase;letter-spacing:.06em;
+}
+.table-wrap{overflow-x:auto;border-radius:var(--radius-lg);background:var(--glass);border:1px solid var(--line-strong)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:15px 18px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted-2);background:rgba(4,6,15,.5)}
+
+.footer{
+  max-width:var(--maxw);margin:64px auto 0;padding:48px 24px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;
+}
+.footer-cols{display:flex;gap:56px;flex-wrap:wrap}
+.footer-col{display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--muted)}
+.footer-col h4{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted-2);margin-bottom:4px}
+.footer-col a:hover{color:var(--ink)}
+.copyright{text-align:center;padding:24px;font-size:13px;color:var(--muted-2)}
+
+@media (max-width:920px){.grid-3,.grid-2{grid-template-columns:1fr}.nav-links{display:none}}
+  
+
+  </style>
+</head>
+<body>
+  
+  <nav class="nav">
+    <a href="index.html" class="brand"><span class="brand-mark">▲</span><span>Upitko</span></a>
+    <div class="nav-links">
+      <a href="index.html#features">Funkcije</a>
+      <a href="index.html#deep-dives">Moduli</a>
+      <a href="index.html#comparison">Poređenje</a>
+      <a href="cene.html">Cene</a>
+      <a href="integracije.html" class="active">Integracije</a>
+      <a href="vodici.html">Vodiči</a>
+      <a href="o-nama.html">O nama</a>
+      <a href="app.html" class="nav-app-badge"><span class="dash-dot"></span>Live CRM App</a>
+    </div>
+    <a href="o-nama.html#kontakt" class="btn btn-ghost">Počnite besplatno</a>
+  </nav>
+  <section class="section">
+    <div class="page-head">
+      <span class="eyebrow">Katalog integracija</span>
+      <h1>Povežite sve kanale iz kojih vam stižu kupci u Srbiji</h1>
+      <p>Upitko se povezuje sa društvenim mrežama, mesindžerima, domaćim oglasnim portalima i knjigovodstvenim programima bez programiranja.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <span class="tag">Društvene mreže</span>
+        <h3>Instagram DM &amp; Lead Ads</h3>
+        <p style="color:var(--muted);font-size:14.5px">Svaka poruka u Instagram sandučetu ili prijava sa sponzorisanog oglasa automatski otvara karticu kupca i obaveštava prodavca.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Društvene mreže</span>
+        <h3>Facebook Lead Forms &amp; Messenger</h3>
+        <p style="color:var(--muted);font-size:14.5px">Zaboravite na ručno skidanje CSV tabela iz Meta Ads Manager-a. Upiti stižu u Upitko u istoj sekundi kada kupac klikne „Pošalji“.</p>
+      </div>
+      <div class="card featured">
+        <span class="tag">Domaći favorit</span>
+        <h3>Viber Business poruke</h3>
+        <p style="color:var(--muted);font-size:14.5px">Primajte i šaljite zvanične Viber poruke, cenovnike i PDF predračune direktno iz kartice klijenta u Upitku.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Mesindžeri</span>
+        <h3>WhatsApp Cloud API</h3>
+        <p style="color:var(--muted);font-size:14.5px">Kompletna dvosmerna komunikacija sa kupcima iz Srbije i dijaspore preko vašeg poslovnog WhatsApp broja.</p>
+      </div>
+      <div class="card featured">
+        <span class="tag">Specijalno za Srbiju</span>
+        <h3>Domaći oglasnici (KP, Halo, 4zida, Polovni)</h3>
+        <p style="color:var(--muted);font-size:14.5px">Pametni email parser automatski čita obaveštenja sa domaćih portala za nekretnine, automobile i opremu i pretvara ih u uredne upite.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Finansije &amp; ERP</span>
+        <h3>APR PIB pretraga, SEF e-Fakture i ERP</h3>
+        <p style="color:var(--muted);font-size:14.5px">Automatsko popunjavanje podataka firme po PIB-u, generisanje IPS QR predračuna i XML izvoz za SEF, Pantheon, BizniSoft i Minimax.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Veb sajtovi</span>
+        <h3>WordPress, Elementor, Webflow &amp; Custom forme</h3>
+        <p style="color:var(--muted);font-size:14.5px">Ugradite Upitko formu jednim redom koda ili povežite postojeću kontakt formu na sajtu preko Webhook-a za 2 minuta.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Kalendari</span>
+        <h3>Google Calendar, Outlook &amp; Cal.com</h3>
+        <p style="color:var(--muted);font-size:14.5px">Automatsko zakazivanje sastanaka, terenskih obilazaka ili pregleda bez preklapanja termina prodavaca.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Otvoreni API</span>
+        <h3>REST API, Webhooks &amp; Zapier / Make</h3>
+        <p style="color:var(--muted);font-size:14.5px">Povežite Upitko sa sopstvenim internim softverom, internet prodavnicom (WooCommerce / Shopify) ili call-centrom.</p>
+      </div>
+    </div>
+  </section>
+  
+  <footer class="footer">
+    <div style="max-width:280px">
+      <a href="index.html" class="brand"><span class="brand-mark">▲</span><span>Upitko</span></a>
+      <p style="margin-top:12px;font-size:14px;color:var(--muted-2);line-height:1.6">Savremeni CRM i komandni centar prodaje za firme u Srbiji i regionu.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Proizvod</h4>
+        <a href="index.html#features">Funkcije</a>
+        <a href="index.html#deep-dives">Detaljni moduli</a>
+        <a href="integracije.html">Integracije</a>
+        <a href="cene.html">Cene i kalkulator</a>
+        <a href="app.html">Live CRM Aplikacija</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resursi i Firma</h4>
+        <a href="vodici.html">Vodiči i Playbook-ovi</a>
+        <a href="o-nama.html">O nama i Kontakt</a>
+      </div>
+      <div class="footer-col">
+        <h4>Pravno &amp; ZZPL</h4>
+        <a href="pravno.html#privatnost">Politika privatnosti</a>
+        <a href="pravno.html#uslovi">Uslovi korišćenja</a>
+        <a href="pravno.html#dpa">Ugovor o obradi (DPA)</a>
+        <a href="pravno.html#bezbednost">Bezbednost podataka</a>
+      </div>
+    </div>
+  </footer>
+  <div class="copyright">© 2026 Upitko CRM — Napravljeno za srpske firme.</div>
+</body>
+</html>

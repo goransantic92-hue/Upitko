@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ascend — Scale Smarter, Not Harder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script type="importmap">
+  { "imports": {
+    "three": "https://unpkg.com/three@0.143.0/build/three.module.js",
+    "three/examples/jsm/": "https://unpkg.com/three@0.143.0/examples/jsm/"
+  }}
+  </script>
+  <style>
+:root{
+  --bg:#04060f; --bg-2:#060a18; --ink:#f3f6ff; --muted:#9aa6c4; --muted-2:#6b7796;
+  --line:rgba(150,175,230,.12); --line-strong:rgba(150,175,230,.22);
+  --accent:#5df0a8; --accent-2:#2fd38a; --accent-ink:#032018;
+  --glass:rgba(12,18,38,.55); --glass-2:rgba(16,24,48,.65);
+  --radius:18px; --radius-lg:26px; --maxw:1180px;
+  --shadow:0 30px 80px -30px rgba(0,0,0,.75);
+  --font:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+/* Lenis */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+/* staggered scroll-reveal */
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,.7,.2,1),transform .7s cubic-bezier(.22,.7,.2,1);transition-delay:var(--rd,0ms);will-change:opacity,transform}
+[data-reveal].in{opacity:1;transform:none}
+/* fixed WebGL planet behind everything, never grabs pointer/scroll */
+.planet-canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0;pointer-events:none}
+.page{position:relative;z-index:1}
+.section{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:clamp(80px,12vw,160px) 24px}
+.eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+.section-head{max-width:680px;margin:0 auto clamp(48px,6vw,80px);text-align:center}
+.section-head h2,.showcase-copy h2,.cta-card h2{font-size:clamp(30px,4.4vw,50px);font-weight:800;line-height:1.05;letter-spacing:-.02em;text-shadow:0 2px 40px rgba(0,0,0,.6)}
+.section-head p{margin-top:18px;color:var(--muted);font-size:18px;line-height:1.65;text-shadow:0 1px 24px rgba(0,0,0,.55)}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:9px;font-size:15px;font-weight:600;padding:13px 22px;border-radius:999px;border:1px solid transparent;cursor:pointer;transition:transform .18s ease,box-shadow .25s ease,background .2s ease,border-color .2s ease;white-space:nowrap;font-family:inherit}
+.btn svg{width:17px;height:17px}
+.btn-primary{color:var(--accent-ink);background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 10px 30px -8px rgba(93,240,168,.55),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 38px -8px rgba(93,240,168,.7)}
+.btn-outline{color:var(--ink);background:rgba(255,255,255,.04);border-color:var(--line-strong);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.btn-outline:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+.btn-ghost{color:var(--ink);background:rgba(255,255,255,.05);border-color:var(--line-strong);padding:9px 18px}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+
+/* Section 1: Hero & Logos */
+.hero{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:radial-gradient(125% 62% at 50% -10%, rgba(4,6,15,.82) 0%, rgba(4,6,15,.28) 44%, transparent 68%);
+}
+.nav{
+  width:100%;
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:22px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.brand{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  font-weight:800;
+  font-size:19px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.brand-mark{
+  color:var(--accent);
+  font-size:14px;
+  transform:translateY(-1px);
+  display:inline-block;
+}
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:30px;
+  font-size:14.5px;
+  font-weight:500;
+  color:var(--muted);
+}
+.nav-links a{
+  transition:color .2s ease;
+}
+.nav-links a:hover{
+  color:var(--ink);
+}
+.hero-inner{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:40px 24px;
+  transform:translateY(-10vh);
+}
+.hero-title{
+  font-size:clamp(34px,5.2vw,62px);
+  font-weight:800;
+  line-height:1.04;
+  letter-spacing:-.03em;
+  max-width:15ch;
+  text-shadow:0 2px 50px rgba(0,0,0,.55);
+}
+.hero-title em{
+  font-style:normal;
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero-sub{
+  margin-top:24px;
+  max-width:560px;
+  font-size:clamp(16px,2vw,19px);
+  line-height:1.6;
+  color:var(--muted);
+  text-shadow:0 1px 24px rgba(0,0,0,.55);
+}
+.hero-actions{
+  margin-top:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.logos{
+  text-align:center;
+  padding:0 24px clamp(36px,6vw,64px);
+}
+.logos-label{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+  margin-bottom:20px;
+}
+.logos-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:clamp(24px,5vw,56px);
+}
+.logo{
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  color:var(--muted-2);
+  opacity:.8;
+  transition:color .2s ease,opacity .2s ease;
+  cursor:pointer;
+}
+.logo:hover{
+  color:var(--ink);
+  opacity:1;
+}
+
+/* Section 2: Features */
+.feature-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+.card{
+  position:relative;
+  overflow:hidden;
+  padding:30px;
+  border-radius:var(--radius);
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  transition:transform .25s ease,border-color .25s ease,background .25s ease;
+  cursor:pointer;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(120% 120% at 0% 0%, rgba(93,240,168,.08), transparent 45%);
+  opacity:0;
+  transition:opacity .3s ease;
+  pointer-events:none;
+}
+.card:hover{
+  transform:translateY(-4px);
+  border-color:var(--line-strong);
+  background:var(--glass-2);
+}
+.card:hover::before{
+  opacity:1;
+}
+.card-icon{
+  width:46px;
+  height:46px;
+  border-radius:12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--accent);
+  background:rgba(93,240,168,.1);
+  border:1px solid rgba(93,240,168,.18);
+  margin-bottom:20px;
+}
+.card-icon svg{
+  width:24px;
+  height:24px;
+}
+.card h3{
+  font-size:19px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  margin-bottom:10px;
+}
+.card p{
+  font-size:15px;
+  line-height:1.6;
+  color:var(--muted);
+}
+
+/* Section 3: Showcase + Stats */
+.showcase-grid{
+  display:grid;
+  grid-template-columns:1fr 1.05fr;
+  gap:clamp(36px,6vw,72px);
+  align-items:center;
+}
+.showcase-copy p{
+  margin:18px 0 30px;
+  color:var(--muted);
+  font-size:17.5px;
+  line-height:1.65;
+  text-shadow:0 1px 24px rgba(0,0,0,.55);
+}
+.dashboard{
+  position:relative;
+  padding:24px;
+  border-radius:var(--radius-lg);
+  background:var(--glass-2);
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.dashboard::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  padding:1px;
+  background:linear-gradient(160deg, rgba(93,240,168,.35), transparent 40%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.dash-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+  gap:10px;
+}
+.dash-title{
+  font-size:14.5px;
+  font-weight:600;
+  color:var(--ink);
+  cursor:pointer;
+  transition:color .2s ease;
+}
+.dash-title:hover{
+  color:var(--accent);
+}
+.dash-live{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--accent);
+  background:rgba(93,240,168,.1);
+  border:1px solid rgba(93,240,168,.22);
+  padding:5px 11px;
+  border-radius:999px;
+  cursor:pointer;
+  user-select:none;
+}
+.dash-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 10px var(--accent);
+  animation:pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.45;transform:scale(.85)}
+}
+.dash-bars{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  height:150px;
+  padding:18px 16px 14px;
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--line);
+  border-radius:14px;
+  margin-bottom:20px;
+}
+.dash-bar{
+  flex:1;
+  background:linear-gradient(180deg,var(--accent),rgba(47,211,138,.25));
+  border-radius:6px 6px 3px 3px;
+  transform-origin:bottom;
+  animation:grow 1.1s cubic-bezier(.22,.8,.2,1) backwards;
+  transition:height .45s cubic-bezier(.22,.8,.2,1),filter .2s ease;
+  cursor:pointer;
+  position:relative;
+}
+.dash-bar:hover{
+  filter:brightness(1.2);
+}
+@keyframes grow{
+  from{transform:scaleY(0)}
+  to{transform:scaleY(1)}
+}
+.dash-rows{
+  display:grid;
+  gap:12px;
+}
+.dash-row{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  align-items:center;
+  gap:14px;
+  font-size:13.5px;
+  color:var(--muted);
+  cursor:pointer;
+  transition:color .2s ease;
+}
+.dash-row:hover{
+  color:var(--ink);
+}
+.dash-track{
+  height:8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.dash-fill{
+  display:block;
+  height:100%;
+  width:var(--w);
+  border-radius:inherit;
+  background:linear-gradient(90deg,var(--accent-2),var(--accent));
+  animation:fill 1.15s cubic-bezier(.22,.8,.2,1) .3s backwards;
+  transition:width .5s cubic-bezier(.22,.8,.2,1);
+}
+@keyframes fill{
+  from{width:0}
+  to{width:var(--w)}
+}
+.stats{
+  margin-top:clamp(56px,8vw,96px);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+.stat{
+  text-align:center;
+  padding:30px 18px;
+  border-radius:var(--radius);
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  transition:transform .22s ease,border-color .22s ease;
+}
+.stat:hover{
+  transform:translateY(-3px);
+  border-color:var(--line-strong);
+}
+.stat-value{
+  font-size:clamp(30px,4vw,44px);
+  font-weight:800;
+  letter-spacing:-.02em;
+  line-height:1.05;
+  background:linear-gradient(180deg,#fff,var(--accent));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.stat-label{
+  font-size:14px;
+  color:var(--muted);
+  margin-top:8px;
+}
+
+/* Section 4: CTA + Footer */
+.cta-card{
+  text-align:center;
+  max-width:760px;
+  margin:0 auto;
+  padding:clamp(48px,7vw,80px) clamp(28px,5vw,64px);
+  border-radius:var(--radius-lg);
+  background:radial-gradient(120% 140% at 50% 0%, rgba(93,240,168,.12), transparent 55%), var(--glass-2);
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.cta-card p{
+  margin:18px auto 34px;
+  max-width:520px;
+  color:var(--muted);
+  font-size:17.5px;
+  line-height:1.65;
+}
+.footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:48px;
+  flex-wrap:wrap;
+  margin-top:clamp(64px,9vw,110px);
+  padding-top:48px;
+  border-top:1px solid var(--line);
+}
+.footer-brand{
+  max-width:280px;
+}
+.footer-brand p{
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.6;
+  color:var(--muted-2);
+}
+.footer-cols{
+  display:flex;
+  gap:clamp(36px,6vw,72px);
+  flex-wrap:wrap;
+}
+.footer-col{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  font-size:14px;
+  color:var(--muted);
+}
+.footer-col h4{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+  margin-bottom:4px;
+}
+.footer-col a{
+  transition:color .2s ease;
+}
+.footer-col a:hover{
+  color:var(--ink);
+}
+.copyright{
+  text-align:center;
+  margin-top:56px;
+  font-size:13px;
+  color:var(--muted-2);
+}
+
+/* Interactive Command Modal Overlay */
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(4,6,15,.72);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease;
+}
+.modal-backdrop.open{
+  opacity:1;
+  pointer-events:auto;
+}
+.modal-panel{
+  width:100%;
+  max-width:640px;
+  max-height:88vh;
+  overflow-y:auto;
+  border-radius:var(--radius-lg);
+  background:radial-gradient(120% 140% at 50% 0%, rgba(93,240,168,.12), transparent 55%), rgba(12,18,38,.92);
+  border:1px solid var(--line-strong);
+  box-shadow:var(--shadow);
+  padding:32px;
+  transform:translateY(16px) scale(.98);
+  transition:transform .28s cubic-bezier(.22,.8,.2,1);
+}
+.modal-backdrop.open .modal-panel{
+  transform:none;
+}
+.modal-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:20px;
+}
+.modal-close{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid var(--line-strong);
+  background:rgba(255,255,255,.05);
+  color:var(--muted);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:18px;
+  transition:background .2s ease,color .2s ease;
+}
+.modal-close:hover{
+  background:rgba(255,255,255,.12);
+  color:var(--ink);
+}
+.modal-body p{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.6;
+  margin-bottom:18px;
+}
+.plan-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:16px;
+}
+.plan-card{
+  padding:18px;
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.plan-card.featured{
+  border-color:rgba(93,240,168,.45);
+  background:rgba(93,240,168,.06);
+}
+.plan-name{
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--accent);
+}
+.plan-price{
+  font-size:26px;
+  font-weight:800;
+  color:var(--ink);
+}
+.plan-price span{
+  font-size:13px;
+  font-weight:500;
+  color:var(--muted);
+}
+.plan-list{
+  list-style:none;
+  font-size:13px;
+  color:var(--muted);
+  display:grid;
+  gap:6px;
+  margin:8px 0 12px;
+}
+.form-grid{
+  display:grid;
+  gap:14px;
+  margin-top:14px;
+}
+.form-field{
+  display:grid;
+  gap:6px;
+}
+.form-field label{
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--muted);
+}
+.form-field input,.form-field select{
+  width:100%;
+  padding:11px 14px;
+  border-radius:11px;
+  border:1px solid var(--line-strong);
+  background:rgba(4,6,15,.65);
+  color:var(--ink);
+  font-family:inherit;
+  font-size:14px;
+  outline:none;
+}
+.form-field input:focus,.form-field select:focus{
+  border-color:var(--accent);
+}
+.toast-msg{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  z-index:120;
+  padding:12px 18px;
+  border-radius:999px;
+  background:rgba(12,18,38,.92);
+  border:1px solid rgba(93,240,168,.38);
+  color:var(--ink);
+  font-size:13.5px;
+  font-weight:500;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  display:flex;
+  align-items:center;
+  gap:9px;
+  opacity:0;
+  transform:translateY(12px);
+  pointer-events:none;
+  transition:opacity .25s ease,transform .25s ease;
+}
+.toast-msg.show{
+  opacity:1;
+  transform:none;
+}
+
+/* Responsive */
+@media (max-width:980px){
+  .feature-grid{grid-template-columns:repeat(2,1fr)}
+  .showcase-grid{grid-template-columns:1fr;text-align:center}
+  .showcase-copy{display:flex;flex-direction:column;align-items:center}
+  .showcase-copy p{max-width:580px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:720px){
+  .nav-links{display:none}
+  .nav{padding:18px 20px}
+  .section{padding:clamp(64px,16vw,110px) 20px}
+  .plan-grid{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .feature-grid{grid-template-columns:1fr}
+  .dash-row{grid-template-columns:90px 1fr}
+  .hero-actions{width:100%}
+  .hero-actions .btn{flex:1;justify-content:center}
+  .cta-card{padding:40px 22px}
+  .footer{flex-direction:column}
+}
+@media (max-width:380px){
+  .stats{grid-template-columns:1fr}
+  .logo{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  [data-reveal]{opacity:1 !important;transform:none !important;transition:none !important}
+  .dash-bar,.dash-fill,.dash-dot{animation:none !important}
+}
+  </style>
+</head>
+<body>
+  <canvas class="planet-canvas"></canvas>
+
+  <div class="page" id="top">
+    <!-- SECTION 1 · HERO -->
+    <header class="hero">
+      <nav class="nav">
+        <a href="#top" class="brand">
+          <span class="brand-mark">▲</span>
+          <span>Ascend</span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#solutions">Solutions</a>
+          <a href="#cta" data-modal="plans">Plans</a>
+          <a href="#features" data-modal="learning">Learning</a>
+        </div>
+        <a href="#cta" class="btn btn-ghost" data-modal="signup">Sign Up</a>
+      </nav>
+
+      <div class="hero-inner">
+        <h1 class="hero-title" data-reveal style="--rd:60ms">
+          Scale Smarter,<br>Not <em>Harder</em>
+        </h1>
+        <p class="hero-sub" data-reveal style="--rd:180ms">
+          Drive your funnel forward with clever workflows, analytics, and seamless lead management — all in one immersive command center.
+        </p>
+        <div class="hero-actions" data-reveal style="--rd:300ms">
+          <a href="#cta" class="btn btn-primary" data-modal="signup">
+            <span>Start Free Right Now</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="#solutions" class="btn btn-outline" data-modal="consult">Schedule a Consult</a>
+        </div>
+      </div>
+
+      <div class="logos" data-reveal style="--rd:420ms">
+        <div class="logos-label">Trusted by fast-moving teams</div>
+        <div class="logos-row">
+          <span class="logo" data-partner="Nimbus">Nimbus</span>
+          <span class="logo" data-partner="Pluma">Pluma</span>
+          <span class="logo" data-partner="Citrus">Citrus</span>
+          <span class="logo" data-partner="Spider">Spider</span>
+          <span class="logo" data-partner="Helod">Helod</span>
+          <span class="logo" data-partner="Vertx">Vertx</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION 2 · FEATURES -->
+    <section class="section features" id="features">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Everything in orbit</span>
+        <h2 data-reveal style="--rd:80ms">One platform to run the entire revenue engine</h2>
+        <p data-reveal style="--rd:160ms">
+          Stop stitching tools together. Ascend unifies capture, automation, and insight into a single surface your whole team actually enjoys using.
+        </p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="card" data-reveal style="--rd:0ms" data-feature="Clever workflows">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="6" height="6" rx="1.5"/>
+              <rect x="15" y="15" width="6" height="6" rx="1.5"/>
+              <path d="M6 9v3a3 3 0 0 0 3 3h3"/>
+            </svg>
+          </div>
+          <h3>Clever workflows</h3>
+          <p>Automate every hand-off with visual, branching pipelines that move deals forward while you sleep.</p>
+        </article>
+
+        <article class="card" data-reveal style="--rd:90ms" data-feature="Live analytics">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 19V5"/>
+              <path d="M4 19h16"/>
+              <path d="M8 16v-4"/>
+              <path d="M13 16V8"/>
+              <path d="M18 16v-7"/>
+            </svg>
+          </div>
+          <h3>Live analytics</h3>
+          <p>Real-time dashboards turn raw funnel data into the one number that tells you what to do next.</p>
+        </article>
+
+        <article class="card" data-reveal style="--rd:180ms" data-feature="Seamless leads">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>Seamless leads</h3>
+          <p>Capture, score, and route every lead automatically — no spreadsheet, no leak, no lag.</p>
+        </article>
+
+        <article class="card" data-reveal style="--rd:270ms" data-feature="Instant triggers">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>
+            </svg>
+          </div>
+          <h3>Instant triggers</h3>
+          <p>Fire actions across your stack the moment intent appears, in milliseconds not minutes.</p>
+        </article>
+
+        <article class="card" data-reveal style="--rd:360ms" data-feature="Enterprise-grade">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <h3>Enterprise-grade</h3>
+          <p>SOC 2, SSO, and granular roles baked in — security that scales quietly with your team.</p>
+        </article>
+
+        <article class="card" data-reveal style="--rd:450ms" data-feature="Global by default">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/>
+            </svg>
+          </div>
+          <h3>Global by default</h3>
+          <p>Multi-region, multi-currency, and low-latency everywhere your customers happen to be.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- SECTION 3 · SHOWCASE + STATS -->
+    <section class="section showcase" id="solutions">
+      <div class="showcase-grid">
+        <div class="showcase-copy">
+          <span class="eyebrow" data-reveal>Built for momentum</span>
+          <h2 data-reveal style="--rd:90ms">See the whole funnel move in real time</h2>
+          <p data-reveal style="--rd:180ms">
+            Every stage, every signal, every dollar — rendered live. Ascend gives operators the altitude to spot what’s working and the controls to double down instantly.
+          </p>
+          <div data-reveal style="--rd:270ms">
+            <a href="#cta" class="btn btn-primary" data-modal="explore">
+              <span>Explore the platform</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"/>
+                <path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="dashboard" data-reveal style="--rd:160ms" id="live-dashboard">
+          <div class="dash-top">
+            <span class="dash-title" id="dash-quarter" title="Click to cycle quarter">Pipeline · Q3</span>
+            <span class="dash-live" id="dash-refresh" title="Click to refresh live telemetry"><span class="dash-dot"></span>Live</span>
+          </div>
+          <div class="dash-bars">
+            <div class="dash-bar" style="height:62%;animation-delay:0ms" data-label="Mon · $142k"></div>
+            <div class="dash-bar" style="height:88%;animation-delay:90ms" data-label="Tue · $218k"></div>
+            <div class="dash-bar" style="height:47%;animation-delay:180ms" data-label="Wed · $114k"></div>
+            <div class="dash-bar" style="height:95%;animation-delay:270ms" data-label="Thu · $246k"></div>
+            <div class="dash-bar" style="height:71%;animation-delay:360ms" data-label="Fri · $175k"></div>
+            <div class="dash-bar" style="height:80%;animation-delay:450ms" data-label="Sat · $196k"></div>
+            <div class="dash-bar" style="height:58%;animation-delay:540ms" data-label="Sun · $134k"></div>
+          </div>
+          <div class="dash-rows">
+            <div class="dash-row" data-stage="New leads (90% SLA)">
+              <span>New leads</span>
+              <div class="dash-track"><span class="dash-fill" style="--w:90%"></span></div>
+            </div>
+            <div class="dash-row" data-stage="Qualified pipeline (72% conversion)">
+              <span>Qualified</span>
+              <div class="dash-track"><span class="dash-fill" style="--w:72%"></span></div>
+            </div>
+            <div class="dash-row" data-stage="In negotiation (48% active)">
+              <span>In negotiation</span>
+              <div class="dash-track"><span class="dash-fill" style="--w:48%"></span></div>
+            </div>
+            <div class="dash-row" data-stage="Closed won (34% win rate)">
+              <span>Closed won</span>
+              <div class="dash-track"><span class="dash-fill" style="--w:34%"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat" data-reveal style="--rd:0ms">
+          <div class="stat-value">3.4×</div>
+          <div class="stat-label">Faster pipeline velocity</div>
+        </div>
+        <div class="stat" data-reveal style="--rd:80ms">
+          <div class="stat-value">92%</div>
+          <div class="stat-label">Lead capture accuracy</div>
+        </div>
+        <div class="stat" data-reveal style="--rd:160ms">
+          <div class="stat-value">11k+</div>
+          <div class="stat-label">Teams scaling on Ascend</div>
+        </div>
+        <div class="stat" data-reveal style="--rd:240ms">
+          <div class="stat-value">$2.1B</div>
+          <div class="stat-label">Revenue influenced</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 · CTA + FOOTER -->
+    <section class="section cta" id="cta">
+      <div class="cta-card">
+        <span class="eyebrow" data-reveal style="--rd:60ms">Ready when you are</span>
+        <h2 data-reveal style="--rd:140ms">Put your growth on a new trajectory</h2>
+        <p data-reveal style="--rd:220ms">
+          Launch in minutes. No credit card. Cancel anytime. Join thousands of teams compounding revenue on Ascend.
+        </p>
+        <div class="hero-actions" data-reveal style="--rd:300ms;margin-top:0">
+          <a href="#top" class="btn btn-primary" data-modal="signup">
+            <span>Start Free Right Now</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="#solutions" class="btn btn-outline" data-modal="sales">Talk to Sales</a>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <div class="footer-brand">
+          <a href="#top" class="brand">
+            <span class="brand-mark">▲</span>
+            <span>Ascend</span>
+          </a>
+          <p>The revenue command center for ambitious teams.</p>
+        </div>
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h4>Product</h4>
+            <a href="#features">Features</a>
+            <a href="#solutions">Solutions</a>
+            <a href="#cta" data-modal="plans">Plans</a>
+          </div>
+          <div class="footer-col">
+            <h4>Company</h4>
+            <a href="#top" data-modal="about">About</a>
+            <a href="#features" data-modal="careers">Careers</a>
+            <a href="#solutions" data-modal="learning">Blog</a>
+          </div>
+          <div class="footer-col">
+            <h4>Legal</h4>
+            <a href="#cta" data-modal="legal">Privacy</a>
+            <a href="#cta" data-modal="legal">Terms</a>
+            <a href="#cta" data-modal="legal">Security</a>
+          </div>
+        </div>
+      </footer>
+
+      <div class="copyright">
+        © <span id="year"></span> Ascend, Inc. — Built among the stars.
+      </div>
+    </section>
+  </div>
+
+  <!-- Interactive Command Center Modal -->
+  <div class="modal-backdrop" id="command-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-panel" data-lenis-prevent>
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow" id="modal-eyebrow" style="margin-bottom:6px">Ascend Command</span>
+          <h3 id="modal-title" style="font-size:24px;font-weight:800;letter-spacing:-.02em">Start Free on Ascend</h3>
+        </div>
+        <button type="button" class="modal-close" id="modal-close" aria-label="Close modal">×</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Live Telemetry Toast -->
+  <div class="toast-msg" id="toast-msg">
+    <span class="dash-dot"></span>
+    <span id="toast-text">Telemetry synchronized</span>
+  </div>
+
+  <script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import Lenis from 'https://unpkg.com/lenis@1.3.23/dist/lenis.mjs';
+
+// Copyright year
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+// Reduced motion check
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Lenis smooth scroll
+let lenis = null;
+if (!prefersReducedMotion) {
+  lenis = new Lenis({ duration: 1.15, smoothWheel: true, touchMultiplier: 1.5 });
+  function raf(t) {
+    lenis.raf(t);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+}
+
+// Staggered scroll reveal
+const revealEls = document.querySelectorAll('[data-reveal]');
+if (prefersReducedMotion) {
+  revealEls.forEach((el) => el.classList.add('in'));
+} else {
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.18, rootMargin: '0px 0px -8% 0px' }
+  );
+  revealEls.forEach((el) => io.observe(el));
+}
+
+// Interactive UI: Toast helper
+const toastEl = document.getElementById('toast-msg');
+const toastText = document.getElementById('toast-text');
+let toastTimer = null;
+function showToast(msg) {
+  if (!toastEl || !toastText) return;
+  toastText.textContent = msg;
+  toastEl.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+}
+
+// Interactive Dashboard Telemetry (Section 3)
+const QUARTERS = [
+  { label: 'Pipeline · Q3', bars: [62, 88, 47, 95, 71, 80, 58], rows: [90, 72, 48, 34] },
+  { label: 'Pipeline · Q4', bars: [74, 92, 66, 98, 84, 89, 73], rows: [94, 79, 56, 41] },
+  { label: 'Pipeline · Q1', bars: [54, 76, 52, 84, 65, 72, 61], rows: [86, 68, 44, 31] },
+  { label: 'Pipeline · Q2', bars: [68, 82, 59, 91, 77, 75, 64], rows: [88, 70, 46, 33] },
+];
+let qIdx = 0;
+const dashQuarter = document.getElementById('dash-quarter');
+const dashRefresh = document.getElementById('dash-refresh');
+const dashBars = document.querySelectorAll('.dash-bar');
+const dashFills = document.querySelectorAll('.dash-fill');
+
+function applyQuarter(q) {
+  if (dashQuarter) dashQuarter.textContent = q.label;
+  dashBars.forEach((bar, i) => {
+    bar.style.height = `${q.bars[i]}%`;
+  });
+  dashFills.forEach((fill, i) => {
+    fill.style.setProperty('--w', `${q.rows[i]}%`);
+  });
+}
+
+if (dashQuarter) {
+  dashQuarter.addEventListener('click', () => {
+    qIdx = (qIdx + 1) % QUARTERS.length;
+    applyQuarter(QUARTERS[qIdx]);
+    showToast(`Switched telemetry view to ${QUARTERS[qIdx].label}`);
+  });
+}
+if (dashRefresh) {
+  dashRefresh.addEventListener('click', () => {
+    qIdx = (qIdx + 1) % QUARTERS.length;
+    applyQuarter(QUARTERS[qIdx]);
+    showToast(`Live stream synced · ${QUARTERS[qIdx].label}`);
+  });
+}
+dashBars.forEach((bar) => {
+  bar.addEventListener('click', () => {
+    showToast(`Cohort velocity: ${bar.getAttribute('data-label') || bar.style.height}`);
+  });
+});
+document.querySelectorAll('.dash-row').forEach((row) => {
+  row.addEventListener('click', () => {
+    showToast(`Stage telemetry: ${row.getAttribute('data-stage')}`);
+  });
+});
+document.querySelectorAll('.logo').forEach((logo) => {
+  logo.addEventListener('click', () => {
+    showToast(`${logo.getAttribute('data-partner')} scales global revenue on Ascend`);
+  });
+});
+document.querySelectorAll('.card[data-feature]').forEach((card) => {
+  card.addEventListener('click', () => {
+    const feat = card.getAttribute('data-feature');
+    showToast(`${feat} module active in live sandbox`);
+  });
+});
+
+// Interactive Modals for Plans, Learning, Sign Up, Consult, Sales, Legal
+const modalBackdrop = document.getElementById('command-modal');
+const modalClose = document.getElementById('modal-close');
+const modalEyebrow = document.getElementById('modal-eyebrow');
+const modalTitle = document.getElementById('modal-title');
+const modalBody = document.getElementById('modal-body');
+
+const MODAL_VIEWS = {
+  plans: {
+    eyebrow: 'Pricing in orbit',
+    title: 'Transparent plans for every stage',
+    html: `
+      <p>Start free with full workflow automation and real-time analytics. Upgrade as your revenue engine compounds.</p>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name">Launch</div>
+          <div class="plan-price">$0 <span>/ mo</span></div>
+          <ul class="plan-list">
+            <li>Up to 5 operators</li>
+            <li>Visual branching pipelines</li>
+            <li>Live Q3 funnel dashboard</li>
+          </ul>
+          <button type="button" class="btn btn-outline" data-action-toast="Launch workspace provisioned!">Start Free</button>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-name">Orbit Pro</div>
+          <div class="plan-price">$79 <span>/ seat</span></div>
+          <ul class="plan-list">
+            <li>Unlimited workflows &amp; triggers</li>
+            <li>Multi-region low-latency routing</li>
+            <li>Predictive revenue scoring</li>
+          </ul>
+          <button type="button" class="btn btn-primary" data-action-toast="14-day Orbit Pro trial activated!">Start 14-Day Trial</button>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Enterprise</div>
+          <div class="plan-price">Custom</div>
+          <ul class="plan-list">
+            <li>SOC 2 Type II, SAML SSO</li>
+            <li>Dedicated solutions architect</li>
+            <li>Custom SLA &amp; multi-currency</li>
+          </ul>
+          <button type="button" class="btn btn-outline" data-action-toast="Enterprise team notified!">Contact Sales</button>
+        </div>
+      </div>
+    `
+  },
+  signup: {
+    eyebrow: 'Instant onboarding',
+    title: 'Launch your Ascend command center',
+    html: `
+      <p>Provision your multi-region workspace in under 60 seconds. No credit card required.</p>
+      <form class="form-grid" id="modal-form">
+        <div class="form-field">
+          <label for="su-email">Work email</label>
+          <input id="su-email" type="email" required placeholder="alex@company.com" />
+        </div>
+        <div class="form-field">
+          <label for="su-team">Team size</label>
+          <select id="su-team">
+            <option>1 – 15 operators</option>
+            <option>16 – 100 operators</option>
+            <option>100+ global revenue team</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="justify-content:center;margin-top:6px">Create Free Workspace</button>
+      </form>
+    `
+  },
+  consult: {
+    eyebrow: 'Architecture review',
+    title: 'Schedule a 1-on-1 revenue consult',
+    html: `
+      <p>Map your current funnel, CRM hand-offs, and automation bottlenecks with an Ascend solutions engineer.</p>
+      <form class="form-grid" id="modal-form">
+        <div class="form-field">
+          <label for="co-name">Your name</label>
+          <input id="co-name" type="text" required placeholder="Jordan Vance" />
+        </div>
+        <div class="form-field">
+          <label for="co-email">Work email</label>
+          <input id="co-email" type="email" required placeholder="jordan@company.com" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="justify-content:center;margin-top:6px">Confirm Consult Slot</button>
+      </form>
+    `
+  },
+  sales: {
+    eyebrow: 'Enterprise & Custom Scale',
+    title: 'Talk to our revenue engineering team',
+    html: `
+      <p>Get custom multi-region deployment, SOC 2 security documentation, and volume seat pricing tailored to your org.</p>
+      <form class="form-grid" id="modal-form">
+        <div class="form-field">
+          <label for="sa-email">Work email</label>
+          <input id="sa-email" type="email" required placeholder="vp-revops@enterprise.io" />
+        </div>
+        <div class="form-field">
+          <label for="sa-region">Primary deployment region</label>
+          <select id="sa-region">
+            <option>US-East / North America</option>
+            <option>EU-Central / Frankfurt</option>
+            <option>APAC / Tokyo &amp; Singapore</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="justify-content:center;margin-top:6px">Request Enterprise Deck</button>
+      </form>
+    `
+  },
+  learning: {
+    eyebrow: 'Learning & Playbooks',
+    title: 'Revenue Operations Architecture Guides',
+    html: `
+      <p>Explore battle-tested blueprints from 11,000+ fast-moving teams scaling on Ascend:</p>
+      <div class="form-grid">
+        <div class="plan-card">
+          <div class="plan-name">Playbook 01 · Sub-second Routing</div>
+          <p style="margin:0;font-size:13.5px">How Nimbus cut lead response latency from 42 minutes to 180 milliseconds using Instant Triggers.</p>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Playbook 02 · Zero-Leak Pipelines</div>
+          <p style="margin:0;font-size:13.5px">Unifying capture, enrichment, and territory scoring without brittle spreadsheet syncs.</p>
+        </div>
+      </div>
+    `
+  },
+  explore: {
+    eyebrow: 'Live Telemetry Engine',
+    title: 'Real-time global revenue command',
+    html: `
+      <p>Ascend ingests intent signals, CRM mutations, and billing events across 60+ global edge nodes (visualized as golden radar pings on the planet).</p>
+      <button type="button" class="btn btn-primary" data-action-toast="Interactive telemetry mode active!">Launch Interactive Tour</button>
+    `
+  },
+  about: {
+    eyebrow: 'About Ascend',
+    title: 'Built among the stars for modern RevOps',
+    html: `<p>Ascend was founded to replace fragmented spreadsheets and sluggish legacy CRMs with one cohesive, high-velocity revenue command center influencing over $2.1B in pipeline.</p>`
+  },
+  careers: {
+    eyebrow: 'Careers at Ascend',
+    title: 'Join our distributed orbital team',
+    html: `<p>We are hiring Senior WebGL Systems Engineers, Distributed Rust Telemetry Architects, and Product Designers across North America and Europe.</p>`
+  },
+  legal: {
+    eyebrow: 'Trust & Security',
+    title: 'SOC 2 Type II, GDPR & Enterprise Compliance',
+    html: `<p>Ascend encrypts all customer telemetry in transit (TLS 1.3) and at rest (AES-256), with strict regional data residency, SAML 2.0 SSO, and role-based access control.</p>`
+  }
+};
+
+function openModal(key) {
+  const view = MODAL_VIEWS[key] || MODAL_VIEWS.signup;
+  modalEyebrow.textContent = view.eyebrow;
+  modalTitle.textContent = view.title;
+  modalBody.innerHTML = view.html;
+  modalBackdrop.classList.add('open');
+
+  const form = document.getElementById('modal-form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      modalBackdrop.classList.remove('open');
+      showToast('Request confirmed — check your inbox for workspace credentials!');
+    });
+  }
+  modalBody.querySelectorAll('[data-action-toast]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      modalBackdrop.classList.remove('open');
+      showToast(btn.getAttribute('data-action-toast'));
+    });
+  });
+}
+
+document.querySelectorAll('[data-modal]').forEach((el) => {
+  el.addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal(el.getAttribute('data-modal'));
+  });
+});
+if (modalClose) {
+  modalClose.addEventListener('click', () => modalBackdrop.classList.remove('open'));
+}
+if (modalBackdrop) {
+  modalBackdrop.addEventListener('click', (e) => {
+    if (e.target === modalBackdrop) modalBackdrop.classList.remove('open');
+  });
+}
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modalBackdrop) modalBackdrop.classList.remove('open');
+});
+
+// Assets & Config
+const ASSET_BASE_URL = 'https://api.getlayers.ai/storage/v1/object/public/public/assets/ascend-d9857ad1f2';
+const PLANET_GLB = `${ASSET_BASE_URL}/planet.glb`;
+const PLANET_LIGHTS_GLB = `${ASSET_BASE_URL}/planet-lights.glb`;
+const PLANET_CLOUDS_PNG = `${ASSET_BASE_URL}/planet-clouds.png`;
+
+const CONFIG = {
+  rimColor:'#c1faff', rimPower:2.4, nightLights:10, terrainDepth:0.33, terrainShade:1.3,
+  oceanGlint:0.45, oceanDeep:0.12, oceanFlow:3, oceanFlowSpeed:0.8, oceanFlowScale:2.1,
+  glowColor:'#3a6cff', glowIntensity:3.35, planetRadius:1.95, spin:0.03, initRotation:2.07,
+  tilt:0.37, autoRotate:0,
+  cloud1Height:1.005, cloud1Opacity:0.6, cloud1Spin:0.06,
+  cloud2Height:1.03, cloud2Opacity:0.5, cloud2Spin:0.14,
+  cloud3Height:1.075, cloud3Opacity:0.5, cloud3Spin:0.1,
+  bgColor:'#040a1e', flameColor:'#3a6cff', flameColor2:'#c1faff', flameAmt:0.15,
+  atmoColor:'#9fc4ff', atmoCount:320, atmoSize:22, atmoSpeed:0.8,
+  starColor:'#cfe0ff', starCount:1400, starSize:1.6, starFlicker:1,
+  markerColor:'#ffd27a', markerCount:60, markerSize:16, markerSpeed:0.5,
+};
+const LAYERS = { NONE:0, TORUS_SCENE:1, BLOOM_SCENE:2, ENTIRE_SCENE:3 };
+
+const Lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const hexToVec3 = (hex) => {
+  const c = hex.replace('#', '');
+  const n = parseInt(c, 16);
+  return new THREE.Vector3(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+};
+const sample = (stops, p) => {
+  if (p <= stops[0].p) return stops[0].v;
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i];
+    const b = stops[i + 1];
+    if (p <= b.p) {
+      const t = clamp((p - a.p) / (b.p - a.p), 0, 1);
+      const s = t * t * (3 - 2 * t);
+      return Lerp(a.v, b.v, s);
+    }
+  }
+  return stops[stops.length - 1].v;
+};
+
+const SNOISE = `
+vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+float snoise(vec3 v){
+  const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+  vec3 i = floor(v + dot(v, C.yyy)); vec3 x0 = v - i + dot(i, C.xxx);
+  vec3 g = step(x0.yzx, x0.xyz); vec3 l = 1.0 - g;
+  vec3 i1 = min(g.xyz, l.zxy); vec3 i2 = max(g.xyz, l.zxy);
+  vec3 x1 = x0 - i1 + 1.0 * C.xxx; vec3 x2 = x0 - i2 + 2.0 * C.xxx; vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
+  i = mod(i, 289.0);
+  vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+  float n_ = 1.0/7.0; vec3 ns = n_ * D.wyz - D.xzx;
+  vec4 j = p - 49.0 * floor(p * ns.z *ns.z);
+  vec4 x_ = floor(j * ns.z); vec4 y_ = floor(j - 7.0 * x_);
+  vec4 x = x_ *ns.x + ns.yyyy; vec4 y = y_ *ns.x + ns.yyyy; vec4 h = 1.0 - abs(x) - abs(y);
+  vec4 b0 = vec4(x.xy, y.xy); vec4 b1 = vec4(x.zw, y.zw);
+  vec4 s0 = floor(b0)*2.0 + 1.0; vec4 s1 = floor(b1)*2.0 + 1.0; vec4 sh = -step(h, vec4(0.0));
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy; vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+  vec3 p0 = vec3(a0.xy,h.x); vec3 p1 = vec3(a0.zw,h.y); vec3 p2 = vec3(a1.xy,h.z); vec3 p3 = vec3(a1.zw,h.w);
+  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+  p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0); m = m * m;
+  return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+}
+`;
+
+// Procedural fallback textures so the Earth & clouds render even if remote bucket is offline
+function createFallbackTextures() {
+  const cw = 1024, ch = 512;
+  const dayCanvas = document.createElement('canvas');
+  dayCanvas.width = cw; dayCanvas.height = ch;
+  const dCtx = dayCanvas.getContext('2d');
+
+  const nightCanvas = document.createElement('canvas');
+  nightCanvas.width = cw; nightCanvas.height = ch;
+  const nCtx = nightCanvas.getContext('2d');
+
+  const dImg = dCtx.createImageData(cw, ch);
+  const nImg = nCtx.createImageData(cw, ch);
+
+  const hash = (x, y, z) => {
+    const s = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453;
+    return s - Math.floor(s);
+  };
+  const vnoise = (x, y, z) => {
+    const ix = Math.floor(x), iy = Math.floor(y), iz = Math.floor(z);
+    const fx = x - ix, fy = y - iy, fz = z - iz;
+    const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy), uz = fz * fz * (3 - 2 * fz);
+    const n000 = hash(ix, iy, iz), n100 = hash(ix + 1, iy, iz);
+    const n010 = hash(ix, iy + 1, iz), n110 = hash(ix + 1, iy + 1, iz);
+    const n001 = hash(ix, iy, iz + 1), n101 = hash(ix + 1, iy, iz + 1);
+    const n011 = hash(ix, iy + 1, iz + 1), n111 = hash(ix + 1, iy + 1, iz + 1);
+    return Lerp(
+      Lerp(Lerp(n000, n100, ux), Lerp(n010, n110, ux), uy),
+      Lerp(Lerp(n001, n101, ux), Lerp(n011, n111, ux), uy),
+      uz
+    );
+  };
+  const fbm = (x, y, z) => {
+    let v = 0, amp = 0.5, f = 1.8;
+    for (let i = 0; i < 5; i++) {
+      v += amp * vnoise(x * f, y * f, z * f);
+      f *= 2.05; amp *= 0.5;
+    }
+    return v;
+  };
+
+  for (let py = 0; py < ch; py++) {
+    const v = py / ch;
+    const phi = v * Math.PI;
+    const sinPhi = Math.sin(phi), cosPhi = Math.cos(phi);
+    const polar = Math.abs(v - 0.5) * 2;
+    for (let px = 0; px < cw; px++) {
+      const u = px / cw;
+      const theta = u * Math.PI * 2;
+      const nx = sinPhi * Math.cos(theta);
+      const ny = cosPhi;
+      const nz = sinPhi * Math.sin(theta);
+
+      const n = fbm(nx + 2.4, ny + 1.7, nz + 3.1);
+      const idx = (py * cw + px) * 4;
+      const isLand = n > 0.51 && polar < 0.88;
+
+      if (isLand) {
+        const elev = clamp((n - 0.51) / 0.35, 0, 1);
+        dImg.data[idx] = Math.floor(38 + elev * 75);
+        dImg.data[idx + 1] = Math.floor(72 + elev * 64);
+        dImg.data[idx + 2] = Math.floor(48 + elev * 38);
+        dImg.data[idx + 3] = 255;
+
+        const city = vnoise(nx * 26, ny * 26, nz * 26) * vnoise(nx * 9, ny * 9, nz * 9);
+        const coast = 1.0 - clamp(Math.abs(n - 0.54) * 14, 0, 1);
+        const cVal = city > 0.36 ? Math.pow((city - 0.36) / 0.64, 1.5) * (0.6 + 0.8 * coast) : 0;
+        nImg.data[idx] = Math.min(255, Math.floor(cVal * 255));
+        nImg.data[idx + 1] = Math.min(255, Math.floor(cVal * 195));
+        nImg.data[idx + 2] = Math.min(255, Math.floor(cVal * 95));
+        nImg.data[idx + 3] = 255;
+      } else {
+        const depth = clamp((0.51 - n) / 0.35, 0, 1);
+        dImg.data[idx] = Math.floor(8 + (1 - depth) * 14);
+        dImg.data[idx + 1] = Math.floor(28 + (1 - depth) * 32);
+        dImg.data[idx + 2] = Math.floor(68 + (1 - depth) * 58);
+        dImg.data[idx + 3] = 255;
+
+        nImg.data[idx] = 0;
+        nImg.data[idx + 1] = 0;
+        nImg.data[idx + 2] = 0;
+        nImg.data[idx + 3] = 255;
+      }
+    }
+  }
+  dCtx.putImageData(dImg, 0, 0);
+  nCtx.putImageData(nImg, 0, 0);
+
+  const cloudCanvas = document.createElement('canvas');
+  cloudCanvas.width = 512; cloudCanvas.height = 512;
+  const cCtx = cloudCanvas.getContext('2d');
+  const cImg = cCtx.createImageData(512, 512);
+  for (let y = 0; y < 512; y++) {
+    for (let x = 0; x < 512; x++) {
+      const c = fbm((x / 512) * 4, (y / 512) * 4, 1.2);
+      const a = clamp((c - 0.46) * 3.2, 0, 1);
+      const i = (y * 512 + x) * 4;
+      cImg.data[i] = 255;
+      cImg.data[i + 1] = 255;
+      cImg.data[i + 2] = 255;
+      cImg.data[i + 3] = Math.floor(a * 255);
+    }
+  }
+  cCtx.putImageData(cImg, 0, 0);
+
+  const dayTex = new THREE.CanvasTexture(dayCanvas);
+  dayTex.encoding = THREE.sRGBEncoding;
+  const nightTex = new THREE.CanvasTexture(nightCanvas);
+  const cloudFallbackTex = new THREE.CanvasTexture(cloudCanvas);
+  cloudFallbackTex.wrapS = THREE.RepeatWrapping;
+  cloudFallbackTex.wrapT = THREE.RepeatWrapping;
+  cloudFallbackTex.repeat.set(5, 5);
+
+  return { dayTex, nightTex, cloudFallbackTex };
+}
+
+// Renderer, Scene, Camera, Composers
+const canvas = document.querySelector('.planet-canvas');
+let w = window.innerWidth;
+let h = window.innerHeight;
+
+const renderer = new THREE.WebGL1Renderer({ canvas, antialias: true });
+renderer.setSize(w, h);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.VSMShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 200);
+camera.position.set(0, 0, 8);
+camera.layers.enable(LAYERS.TORUS_SCENE);
+camera.layers.enable(LAYERS.BLOOM_SCENE);
+camera.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(camera);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+ambientLight.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(ambientLight);
+
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+dirLight.position.set(0, 10, 2);
+dirLight.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(dirLight);
+
+const FinalPass = {
+  uniforms: {
+    iTime:{value:0}, tDiffuse:{value:null}, torusTexture:{value:null}, bloomTexture:{value:null}, haloTexture:{value:null},
+    uBg:{value:hexToVec3(CONFIG.bgColor)}, uFlameA:{value:hexToVec3(CONFIG.flameColor)},
+    uFlameB:{value:hexToVec3(CONFIG.flameColor2)}, uFlameAmt:{value:CONFIG.flameAmt},
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform float iTime; uniform sampler2D tDiffuse; uniform sampler2D bloomTexture; uniform sampler2D torusTexture; uniform sampler2D haloTexture;
+    uniform vec3 uBg; uniform vec3 uFlameA; uniform vec3 uFlameB; uniform float uFlameAmt;
+    varying vec2 vUv;
+    vec3 warp3d(vec3 pos, float t){ float curv=.8,a=1.9,b=0.7; pos*=2.;
+      pos.x+=curv*sin(t+a*pos.y)+t*b; pos.y+=curv*cos(t+a*pos.x);
+      pos.y+=curv*sin(t+a*pos.z)+t*b; pos.z+=curv*cos(t+a*pos.y);
+      pos.z+=curv*sin(t+a*pos.x)+t*b; pos.x+=curv*cos(t+a*pos.z);
+      return 0.5+0.5*cos(pos.xyz+vec3(1,2,4)); }
+    void main(){
+      vec2 uv = 2.*vUv - 1.;
+      vec3 w = pow(warp3d(vec3(uv.x, sin(uv.y), uv.y), iTime*1.5), vec3(1.5));
+      vec3 flame = 1.5*uFlameA*w.x; flame*=w.y; flame += uFlameB*w.z;
+      flame *= smoothstep(0.25, 1., abs(uv.y));
+      float md = smoothstep(-0.7, 1., -uv.y*uv.x); flame *= md*md;
+      vec3 bg = uBg * (1.0 - 0.4 * length(uv));
+      vec3 halo = texture2D(haloTexture, vUv).xyz;
+      gl_FragColor = vec4(bg + flame*uFlameAmt + texture2D(bloomTexture, vUv).xyz + texture2D(torusTexture, vUv).xyz + texture2D(tDiffuse, vUv).xyz + halo, 1.);
+    }`,
+};
+
+const renderScene = new RenderPass(scene, camera);
+
+const torusComposer = new EffectComposer(renderer);
+torusComposer.renderToScreen = false;
+torusComposer.setSize(w, h);
+torusComposer.setPixelRatio(window.devicePixelRatio);
+torusComposer.addPass(renderScene);
+torusComposer.addPass(new ShaderPass(GammaCorrectionShader));
+torusComposer.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.22, 0.2, 0));
+torusComposer.addPass(new ShaderPass(CopyShader));
+
+const bloomComposer = new EffectComposer(renderer);
+bloomComposer.renderToScreen = false;
+bloomComposer.setSize(w, h);
+bloomComposer.setPixelRatio(window.devicePixelRatio);
+bloomComposer.addPass(renderScene);
+bloomComposer.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.5, 0.6, 0));
+bloomComposer.addPass(new ShaderPass(GammaCorrectionShader));
+
+const finalPass = new ShaderPass(FinalPass);
+finalPass.uniforms.bloomTexture.value = bloomComposer.renderTarget1.texture;
+finalPass.uniforms.torusTexture.value = torusComposer.renderTarget1.texture;
+
+const finalComposer = new EffectComposer(renderer);
+finalComposer.setSize(w, h);
+finalComposer.setPixelRatio(window.devicePixelRatio);
+finalComposer.addPass(renderScene);
+finalComposer.addPass(finalPass);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.enablePan = false;
+controls.enabled = false;
+controls.autoRotate = true;
+controls.autoRotateSpeed = CONFIG.autoRotate;
+controls.minDistance = 3.5;
+controls.maxDistance = 16;
+controls.target.set(0, 0, 0);
+
+// Scroll stops & scene hierarchy
+const STOPS_X = [{p:0,v:0},{p:0.32,v:-3.1},{p:0.64,v:3.2},{p:1,v:0}];
+const STOPS_Y = [{p:0,v:-4.5},{p:0.32,v:0.55},{p:0.64,v:0.45},{p:1,v:0.15}];
+const STOPS_S = [{p:0,v:2.15},{p:0.32,v:1.0},{p:0.64,v:0.92},{p:1,v:1.12}];
+
+const worldGroup = new THREE.Group();
+worldGroup.position.set(STOPS_X[0].v, STOPS_Y[0].v, 0);
+worldGroup.scale.setScalar(STOPS_S[0].v);
+scene.add(worldGroup);
+
+const planetGroup = new THREE.Group();
+planetGroup.rotation.z = CONFIG.tilt;
+worldGroup.add(planetGroup);
+
+const cloudGroup = new THREE.Group();
+cloudGroup.rotation.z = CONFIG.tilt;
+cloudGroup.visible = false;
+worldGroup.add(cloudGroup);
+
+// Atmosphere halo glow
+const glowMat = new THREE.ShaderMaterial({
+  transparent: true,
+  side: THREE.DoubleSide,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+  uniforms: {
+    uGlow: { value: hexToVec3(CONFIG.glowColor) },
+    uIntensity: { value: CONFIG.glowIntensity },
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+  fragmentShader: `
+    uniform vec3 uGlow; uniform float uIntensity; varying vec2 vUv;
+    void main(){
+      float d = length(vUv - 0.5) * 2.0;
+      float a = pow(clamp(1.0 - d, 0.0, 1.0), 2.2);
+      gl_FragColor = vec4(uGlow * a * uIntensity, a);
+    }
+  `,
+});
+const glowMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), glowMat);
+glowMesh.scale.setScalar(CONFIG.planetRadius * 2.3);
+glowMesh.layers.enable(LAYERS.ENTIRE_SCENE);
+worldGroup.add(glowMesh);
+
+// Shared time uniforms & shader refs
+let planetTime = 0;
+let cloudTime = 0;
+let starTime = 0;
+let markerTime = 0;
+let planetShaderUniforms = null;
+const cloudUniformsList = [];
+const cloudMeshes = [];
+
+const fallbackAssets = createFallbackTextures();
+
+// Cloud shells (3 layers)
+const texLoader = new THREE.TextureLoader();
+texLoader.setCrossOrigin('anonymous');
+const cloudTex = texLoader.load(
+  PLANET_CLOUDS_PNG,
+  undefined,
+  undefined,
+  () => {
+    cloudMeshes.forEach(({ mesh }) => {
+      mesh.material.map = fallbackAssets.cloudFallbackTex;
+      mesh.material.needsUpdate = true;
+    });
+  }
+);
+cloudTex.wrapS = THREE.RepeatWrapping;
+cloudTex.wrapT = THREE.RepeatWrapping;
+cloudTex.repeat.set(5, 5);
+
+const cloudDefs = [
+  { hKey: 'cloud1Height', oKey: 'cloud1Opacity', sKey: 'cloud1Spin', ry: 0.0, phase: 0.0 },
+  { hKey: 'cloud2Height', oKey: 'cloud2Opacity', sKey: 'cloud2Spin', ry: 2.2, phase: 13.0 },
+  { hKey: 'cloud3Height', oKey: 'cloud3Opacity', sKey: 'cloud3Spin', ry: 4.3, phase: 27.0 },
+];
+
+cloudDefs.forEach((layer) => {
+  const geo = new THREE.SphereGeometry(CONFIG.planetRadius * CONFIG[layer.hKey], 64, 64);
+  const mat = new THREE.MeshStandardMaterial({
+    map: cloudTex,
+    transparent: true,
+    depthWrite: false,
+  });
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = { value: 0 };
+    shader.uniforms.noiseScale = { value: 20.0 };
+    shader.uniforms.uSpeedX = { value: 1.0 };
+    shader.uniforms.uSpeedY = { value: 2.0 };
+    shader.uniforms.uSpeedZ = { value: 2.0 };
+    shader.uniforms.uOpacity = { value: CONFIG[layer.oKey] };
+    shader.uniforms.uPhase = { value: layer.phase };
+    cloudUniformsList.push(shader.uniforms);
+
+    shader.vertexShader = 'varying vec2 vCloudUv;\n' + shader.vertexShader.replace(
+      /void\s+main\s*\(\s*\)\s*\{/,
+      'void main() {\nvCloudUv = uv;'
+    );
+    shader.fragmentShader = `
+      uniform float uTime;
+      uniform float noiseScale;
+      uniform float uSpeedX;
+      uniform float uSpeedY;
+      uniform float uSpeedZ;
+      uniform float uOpacity;
+      uniform float uPhase;
+      varying vec2 vCloudUv;
+      ${SNOISE}
+    ` + shader.fragmentShader.replace(
+      '#include <dithering_fragment>',
+      `#include <dithering_fragment>
+      gl_FragColor.rgb = vec3(1.0);
+      float cloudNoise = snoise(vec3(vCloudUv.x * noiseScale + uTime * uSpeedX + uPhase, vCloudUv.y * noiseScale - uTime * uSpeedY + uPhase, uTime * uSpeedZ + uPhase));
+      float cloudNdv = max(dot(normalize(vNormal), normalize(vViewPosition)), 0.0);
+      float cloudEdge = pow(1.0 - cloudNdv, 3.0);
+      float cloudMod = mix(cloudNoise, 1.0, cloudEdge);
+      float cloudNdl = dot(normalize(vNormal), normalize(vec3(-0.9, 0.18, 0.4)));
+      float cloudDay = 1.0 - smoothstep(0.30, -0.30, cloudNdl) * 0.9;
+      gl_FragColor.a *= cloudMod * uOpacity * cloudDay;`
+    );
+  };
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.y = layer.ry;
+  mesh.renderOrder = 2;
+  mesh.layers.enable(LAYERS.ENTIRE_SCENE);
+  cloudGroup.add(mesh);
+  cloudMeshes.push({ mesh, spinKey: layer.sKey });
+});
+
+// Ambient atmosphere motes (Points)
+const atmoGeo = new THREE.BufferGeometry();
+const atmoPos = new Float32Array(CONFIG.atmoCount * 3);
+const atmoSizes = new Float32Array(CONFIG.atmoCount);
+const atmoSeeds = new Float32Array(CONFIG.atmoCount);
+for (let i = 0; i < CONFIG.atmoCount; i++) {
+  atmoPos[i * 3 + 0] = Math.random() * 2 - 1;
+  atmoPos[i * 3 + 1] = Math.random() * 2 - 1;
+  atmoPos[i * 3 + 2] = Math.random() * 2 - 1;
+  atmoSizes[i] = CONFIG.atmoSize * (0.4 + Math.random());
+  atmoSeeds[i] = Math.random() * 100.0;
+}
+atmoGeo.setAttribute('position', new THREE.BufferAttribute(atmoPos, 3));
+atmoGeo.setAttribute('size', new THREE.BufferAttribute(atmoSizes, 1));
+atmoGeo.setAttribute('seed', new THREE.BufferAttribute(atmoSeeds, 1));
+
+const atmoMat = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  depthTest: false,
+  blending: THREE.AdditiveBlending,
+  uniforms: {
+    uTime: { value: 0 },
+    uRes: { value: new THREE.Vector2(w, h) },
+    uColor: { value: hexToVec3(CONFIG.atmoColor) },
+  },
+  vertexShader: `
+    attribute float size; attribute float seed; uniform float uTime; uniform vec2 uRes;
+    varying float vA;
+    vec3 warp(vec3 p, float t){ float c=0.9,a=1.9,b=0.02,s=0.05; p*=2.;
+      p.x+=c*sin(s*t+a*p.y)+t*b; p.y+=c*cos(s*t+a*p.x); p.y+=c*sin(s*t+a*p.z)+t*b;
+      p.z+=c*cos(s*t+a*p.y); p.z+=c*sin(s*t+a*p.x)+t*b; p.x+=c*cos(s*t+a*p.z);
+      return cos(p+vec3(1,2,4)); }
+    void main(){
+      vec3 v = position*4.0 + warp(position, uTime)*1.2;
+      vec4 mv = modelViewMatrix * vec4(v, 1.0);
+      float r = length(v); float farF = 1.0 - smoothstep(5.0, 6.5, r); float nearF = smoothstep(0.0, 0.5, -mv.z);
+      vA = farF * nearF;
+      gl_PointSize = size * uRes.y / 900.0 / -mv.z; gl_PointSize = max(gl_PointSize, 1.0);
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 uColor; varying float vA;
+    void main(){ vec2 p = gl_PointCoord - 0.5; float l = length(p); if (l > 0.5) discard;
+      float tex = smoothstep(0.5, 0.0, l); gl_FragColor = vec4(uColor * tex, tex * vA * 0.55); }
+  `,
+});
+const atmoPoints = new THREE.Points(atmoGeo, atmoMat);
+atmoPoints.frustumCulled = false;
+atmoPoints.layers.enable(LAYERS.ENTIRE_SCENE);
+atmoPoints.onBeforeRender = () => {
+  const t = performance.now() * 0.001;
+  atmoMat.uniforms.uTime.value = t * CONFIG.atmoSpeed * 8.0;
+  atmoPoints.position.copy(camera.position);
+  atmoPoints.updateMatrixWorld();
+  finalPass.uniforms.iTime.value = t * 0.12;
+};
+scene.add(atmoPoints);
+
+// Starfield (Points on a sphere, r=90)
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(CONFIG.starCount * 3);
+const starSeeds = new Float32Array(CONFIG.starCount);
+const starBright = new Float32Array(CONFIG.starCount);
+for (let i = 0; i < CONFIG.starCount; i++) {
+  const u = Math.random();
+  const v = Math.random();
+  const theta = 2 * Math.PI * u;
+  const phi = Math.acos(2 * v - 1);
+  const r = 90.0;
+  starPos[i * 3 + 0] = r * Math.sin(phi) * Math.cos(theta);
+  starPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+  starPos[i * 3 + 2] = r * Math.cos(phi);
+  starSeeds[i] = Math.random() * 100.0;
+  starBright[i] = 0.35 + Math.random() * 0.65;
+}
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+starGeo.setAttribute('seed', new THREE.BufferAttribute(starSeeds, 1));
+starGeo.setAttribute('bright', new THREE.BufferAttribute(starBright, 1));
+
+const starMat = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  depthTest: true,
+  blending: THREE.AdditiveBlending,
+  uniforms: {
+    uTime: { value: 0 },
+    uSize: { value: CONFIG.starSize },
+    uFlicker: { value: CONFIG.starFlicker },
+    uColor: { value: hexToVec3(CONFIG.starColor) },
+    uRes: { value: new THREE.Vector2(w, h) },
+  },
+  vertexShader: `
+    attribute float seed; attribute float bright;
+    uniform float uTime; uniform float uSize; uniform float uFlicker; uniform vec2 uRes;
+    varying float vTw;
+    void main(){
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      float tw = 0.6 + 0.4 * sin(uTime * uFlicker + seed);
+      vTw = bright * tw;
+      gl_PointSize = max(uSize * uRes.y / 900.0 * (90.0 / max(-mv.z, 1.0)), 1.0);
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 uColor; varying float vTw;
+    void main(){
+      vec2 p = gl_PointCoord - 0.5; float l = length(p); if (l > 0.5) discard;
+      float core = smoothstep(0.5, 0.0, l);
+      gl_FragColor = vec4(uColor, core * vTw);
+    }
+  `,
+});
+const starPoints = new THREE.Points(starGeo, starMat);
+starPoints.frustumCulled = false;
+starPoints.layers.enable(LAYERS.ENTIRE_SCENE);
+scene.add(starPoints);
+
+// Land markers builder
+let markerMat = null;
+function buildLandMarkers(planetMesh, baseTex) {
+  const img = baseTex && baseTex.image;
+  if (!img || !img.width || !img.height) return;
+
+  const cw = img.width;
+  const ch = img.height;
+  let imgData = null;
+  try {
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = cw;
+    offCanvas.height = ch;
+    const ctx = offCanvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, cw, ch);
+    imgData = ctx.getImageData(0, 0, cw, ch).data;
+  } catch (_e) {
+    imgData = null;
+  }
+
+  const geo = planetMesh.geometry;
+  const posAttr = geo.attributes.position;
+  const uvAttr = geo.attributes.uv;
+  if (!posAttr || !uvAttr) return;
+
+  const indexAttr = geo.index;
+  const triCount = indexAttr ? indexAttr.count / 3 : posAttr.count / 3;
+  const cumAreas = new Float32Array(triCount);
+  const vA = new THREE.Vector3();
+  const vB = new THREE.Vector3();
+  const vC = new THREE.Vector3();
+  const ab = new THREE.Vector3();
+  const ac = new THREE.Vector3();
+  let totalArea = 0;
+
+  for (let i = 0; i < triCount; i++) {
+    const i0 = indexAttr ? indexAttr.getX(i * 3) : i * 3;
+    const i1 = indexAttr ? indexAttr.getX(i * 3 + 1) : i * 3 + 1;
+    const i2 = indexAttr ? indexAttr.getX(i * 3 + 2) : i * 3 + 2;
+    vA.fromBufferAttribute(posAttr, i0);
+    vB.fromBufferAttribute(posAttr, i1);
+    vC.fromBufferAttribute(posAttr, i2);
+    ab.subVectors(vB, vA);
+    ac.subVectors(vC, vA);
+    totalArea += ab.cross(ac).length() * 0.5;
+    cumAreas[i] = totalArea;
+  }
+
+  const mPos = [];
+  const mSeeds = [];
+  const uvA = new THREE.Vector2();
+  const uvB = new THREE.Vector2();
+  const uvC = new THREE.Vector2();
+  let attempts = 0;
+  const maxAttempts = CONFIG.markerCount * 80;
+
+  while (mSeeds.length < CONFIG.markerCount && attempts < maxAttempts) {
+    attempts++;
+    const target = Math.random() * totalArea;
+    let lo = 0;
+    let hi = triCount - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (cumAreas[mid] < target) lo = mid + 1;
+      else hi = mid;
+    }
+    const i0 = indexAttr ? indexAttr.getX(lo * 3) : lo * 3;
+    const i1 = indexAttr ? indexAttr.getX(lo * 3 + 1) : lo * 3 + 1;
+    const i2 = indexAttr ? indexAttr.getX(lo * 3 + 2) : lo * 3 + 2;
+
+    let r1 = Math.random();
+    let r2 = Math.random();
+    if (r1 + r2 > 1) {
+      r1 = 1 - r1;
+      r2 = 1 - r2;
+    }
+    const r0 = 1 - r1 - r2;
+
+    uvA.fromBufferAttribute(uvAttr, i0);
+    uvB.fromBufferAttribute(uvAttr, i1);
+    uvC.fromBufferAttribute(uvAttr, i2);
+    const u = (((uvA.x * r0 + uvB.x * r1 + uvC.x * r2) % 1) + 1) % 1;
+    const v = (((uvA.y * r0 + uvB.y * r1 + uvC.y * r2) % 1) + 1) % 1;
+
+    if (imgData) {
+      const px = clamp(Math.floor(u * cw), 0, cw - 1);
+      const py = clamp(Math.floor((baseTex.flipY ? 1 - v : v) * ch), 0, ch - 1);
+      const idx = (py * cw + px) * 4;
+      const cr = imgData[idx];
+      const cg = imgData[idx + 1];
+      const cb = imgData[idx + 2];
+      if (cb > cr + 6 && cb > cg + 6) continue;
+    }
+
+    vA.fromBufferAttribute(posAttr, i0);
+    vB.fromBufferAttribute(posAttr, i1);
+    vC.fromBufferAttribute(posAttr, i2);
+    const p = new THREE.Vector3()
+      .addScaledVector(vA, r0)
+      .addScaledVector(vB, r1)
+      .addScaledVector(vC, r2)
+      .multiplyScalar(1.012);
+
+    mPos.push(p.x, p.y, p.z);
+    mSeeds.push(Math.random());
+  }
+
+  const mGeo = new THREE.BufferGeometry();
+  mGeo.setAttribute('position', new THREE.Float32BufferAttribute(mPos, 3));
+  mGeo.setAttribute('seed', new THREE.Float32BufferAttribute(mSeeds, 1));
+
+  markerMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthTest: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 },
+      uColor: { value: hexToVec3(CONFIG.markerColor) },
+      uSize: { value: CONFIG.markerSize },
+      uSpeed: { value: CONFIG.markerSpeed },
+      uRes: { value: new THREE.Vector2(w, h) },
+    },
+    vertexShader: `
+      attribute float seed; uniform float uSize; uniform vec2 uRes;
+      varying float vSeed; varying float vFade;
+      void main(){
+        vSeed = seed;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vec3 vn = normalize(normalMatrix * normalize(position));
+        vec3 vd = normalize(-mv.xyz);
+        vFade = smoothstep(0.15, 0.5, dot(vn, vd));
+        gl_PointSize = max(uSize * uRes.y / 900.0 * (7.0 / max(-mv.z, 1.0)), 2.0);
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor; uniform float uTime; uniform float uSpeed;
+      varying float vSeed; varying float vFade;
+      void main(){
+        if (vFade <= 0.001) discard;
+        vec2 p = gl_PointCoord - 0.5;
+        float d = length(p) * 2.0;
+        if (d > 1.0) discard;
+        float core = smoothstep(0.30, 0.0, d) * 1.2;
+        float ph = fract(uTime * uSpeed + vSeed);
+        float ring = smoothstep(0.07, 0.0, abs(d - ph)) * (1.0 - ph);
+        gl_FragColor = vec4(uColor, clamp(core + ring, 0.0, 1.0) * vFade);
+      }
+    `,
+  });
+
+  const markerPoints = new THREE.Points(mGeo, markerMat);
+  markerPoints.layers.enable(LAYERS.ENTIRE_SCENE);
+  planetMesh.add(markerPoints);
+}
+
+// Apply custom planet shader & mount mesh
+const ENTRY_DUR = 1.9;
+const ENTRY_START_Y = -6.5;
+let planetLoaded = false;
+let entryElapsed = 0;
+
+function mountPlanetMesh(planetMesh, nightTex) {
+  if (planetLoaded) return;
+  planetMesh.geometry.computeBoundingSphere();
+  const bsRadius = planetMesh.geometry.boundingSphere.radius || 1;
+  planetMesh.scale.setScalar(CONFIG.planetRadius / bsRadius);
+
+  const mat = planetMesh.material.clone();
+  mat.metalness = 0;
+  mat.roughness = 1;
+  mat.envMapIntensity = 0;
+  mat.extensions = { ...(mat.extensions || {}), derivatives: true };
+
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.time = { value: 0 };
+    shader.uniforms.noiseScale = { value: 30.0 };
+    shader.uniforms.speedX = { value: 1.5 };
+    shader.uniforms.speedY = { value: 2.0 };
+    shader.uniforms.speedZ = { value: 2.5 };
+    shader.uniforms.rimColor = { value: hexToVec3(CONFIG.rimColor) };
+    shader.uniforms.rimPower = { value: CONFIG.rimPower };
+    shader.uniforms.nightBlendTexture = { value: nightTex || fallbackAssets.nightTex };
+    shader.uniforms.nightLights = { value: CONFIG.nightLights };
+    shader.uniforms.terrainDepth = { value: CONFIG.terrainDepth };
+    shader.uniforms.terrainShade = { value: CONFIG.terrainShade };
+    shader.uniforms.oceanGlint = { value: CONFIG.oceanGlint };
+    shader.uniforms.oceanDeep = { value: CONFIG.oceanDeep };
+    shader.uniforms.oceanFlow = { value: CONFIG.oceanFlow };
+    shader.uniforms.oceanFlowSpeed = { value: CONFIG.oceanFlowSpeed };
+    shader.uniforms.oceanFlowScale = { value: CONFIG.oceanFlowScale };
+    planetShaderUniforms = shader.uniforms;
+
+    shader.vertexShader = 'varying vec2 vCustomUv;\n' + shader.vertexShader.replace(
+      /void\s+main\s*\(\s*\)\s*\{/,
+      'void main() {\nvCustomUv = uv;'
+    );
+
+    shader.fragmentShader = `
+      uniform float time;
+      uniform float noiseScale;
+      uniform float speedX;
+      uniform float speedY;
+      uniform float speedZ;
+      uniform vec3 rimColor;
+      uniform float rimPower;
+      uniform sampler2D nightBlendTexture;
+      uniform float nightLights;
+      uniform float terrainDepth;
+      uniform float terrainShade;
+      uniform float oceanGlint;
+      uniform float oceanDeep;
+      uniform float oceanFlow;
+      uniform float oceanFlowSpeed;
+      uniform float oceanFlowScale;
+      varying vec2 vCustomUv;
+      ${SNOISE}
+    ` + shader.fragmentShader.replace(
+      '#include <dithering_fragment>',
+      `#include <dithering_fragment>
+      vec3 normalizedNormal = normalize(vNormal);
+      vec3 viewDir = normalize(vViewPosition);
+      float rim = 1.0 - max(dot(viewDir, normalizedNormal), 0.0);
+      rim = pow(rim, rimPower); rim = pow(rim, 1.5); rim *= 0.7;
+      vec3 currentColor = gl_FragColor.rgb;
+      float blueDom = currentColor.b - max(currentColor.r, currentColor.g);
+      float waterMask = clamp(smoothstep(-0.005, 0.03, blueDom), 0.0, 1.0);
+      float shimmer = snoise(vec3(vCustomUv.x * noiseScale + time * speedX, vCustomUv.y * noiseScale - time * speedY, time * speedZ));
+      gl_FragColor.rgb += waterMask * shimmer * 0.025;
+      float fT = time * oceanFlowSpeed * 4.0;
+      float fS = 4.0 * oceanFlowScale;
+      float warp = snoise(vec3(vCustomUv.x * fS - fT * 0.5, vCustomUv.y * fS + fT * 0.4, fT * 0.5));
+      float flow = snoise(vec3(vCustomUv.x * fS * 2.0 + fT * 0.6 + warp, vCustomUv.y * fS * 2.0 - fT * 0.5, fT * 0.7));
+      flow = warp * 0.6 + flow * 0.4;
+      gl_FragColor.rgb += waterMask * flow * 0.12 * oceanFlow;
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.01, 0.06, 0.16), waterMask * oceanDeep);
+      vec3 finalColor = mix(gl_FragColor.rgb, rimColor, rim);
+      gl_FragColor = vec4(finalColor, 1.0);
+      vec3 surfPos = -vViewPosition;
+      float terrH = dot(texture2D(map, vCustomUv).rgb, vec3(0.299, 0.587, 0.114));
+      vec3 sigX = dFdx(surfPos), sigY = dFdy(surfPos);
+      vec3 vR1 = cross(sigY, normalizedNormal), vR2 = cross(normalizedNormal, sigX);
+      float fDet = dot(sigX, vR1);
+      vec3 vGrad = sign(fDet) * (dFdx(terrH) * vR1 + dFdy(terrH) * vR2);
+      vec3 bumpedNormal = normalize(abs(fDet) * normalizedNormal - terrainDepth * vGrad);
+      vec3 shadeNormal = mix(bumpedNormal, normalizedNormal, waterMask);
+      vec3 cityLights = texture2D(nightBlendTexture, vCustomUv).rgb * gl_FragColor.rgb * nightLights;
+      vec3 viewSunDir = normalize(vec3(-0.9, 0.18, 0.4));
+      float ndl = dot(normalizedNormal, viewSunDir);
+      float dayAmt = smoothstep(-0.05, 0.35, ndl);
+      float relief = dot(shadeNormal, viewSunDir) - ndl;
+      gl_FragColor.rgb *= clamp(1.0 + relief * terrainShade * dayAmt, 0.55, 1.6);
+      float nightFactor  = smoothstep(0.18, -0.30, ndl);
+      float lightsFactor = smoothstep(0.30, -0.35, ndl);
+      gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * 0.08, nightFactor);
+      gl_FragColor.rgb += cityLights * lightsFactor;
+      vec3 halfDir = normalize(viewSunDir + viewDir);
+      float ripple = snoise(vec3(vCustomUv * 240.0, time * 4.0));
+      float ndh = max(dot(normalizedNormal, halfDir) + ripple * 0.02, 0.0);
+      float glint = pow(ndh, 140.0);
+      gl_FragColor.rgb += glint * waterMask * dayAmt * oceanGlint * vec3(1.0, 0.97, 0.88);`
+    );
+  };
+
+  planetMesh.material = mat;
+  planetMesh.layers.enable(LAYERS.ENTIRE_SCENE);
+  planetGroup.add(planetMesh);
+  cloudGroup.visible = true;
+  buildLandMarkers(planetMesh, mat.map);
+  planetLoaded = true;
+}
+
+function mountFallbackPlanet() {
+  if (planetLoaded) return;
+  const fallbackGeo = new THREE.SphereGeometry(CONFIG.planetRadius, 96, 96);
+  const fallbackMat = new THREE.MeshStandardMaterial({
+    map: fallbackAssets.dayTex,
+    metalness: 0,
+    roughness: 1,
+  });
+  const fallbackMesh = new THREE.Mesh(fallbackGeo, fallbackMat);
+  mountPlanetMesh(fallbackMesh, fallbackAssets.nightTex);
+}
+
+// Planet GLTF loading with DRACO + automatic fallback if asset host is unreachable
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
+const gltfLoader = new GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
+
+const fallbackTimer = setTimeout(mountFallbackPlanet, 3800);
+
+gltfLoader.load(
+  PLANET_LIGHTS_GLB,
+  (lightsGltf) => {
+    let nightTex = null;
+    lightsGltf.scene.traverse((child) => {
+      if (child.isMesh && !nightTex && child.material && child.material.map) {
+        nightTex = child.material.map;
+      }
+    });
+
+    gltfLoader.load(
+      PLANET_GLB,
+      (planetGltf) => {
+        clearTimeout(fallbackTimer);
+        let planetMesh = null;
+        planetGltf.scene.traverse((child) => {
+          if (child.isMesh && !planetMesh) planetMesh = child;
+        });
+        if (planetMesh) {
+          mountPlanetMesh(planetMesh, nightTex);
+        } else {
+          mountFallbackPlanet();
+        }
+      },
+      undefined,
+      () => {
+        clearTimeout(fallbackTimer);
+        mountFallbackPlanet();
+      }
+    );
+  },
+  undefined,
+  () => {
+    clearTimeout(fallbackTimer);
+    mountFallbackPlanet();
+  }
+);
+
+// Resize handling
+window.addEventListener('resize', () => {
+  w = window.innerWidth;
+  h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  torusComposer.setSize(w, h);
+  torusComposer.setPixelRatio(window.devicePixelRatio);
+
+  bloomComposer.setSize(w, h);
+  bloomComposer.setPixelRatio(window.devicePixelRatio);
+
+  finalComposer.setSize(w, h);
+  finalComposer.setPixelRatio(window.devicePixelRatio);
+
+  atmoMat.uniforms.uRes.value.set(w, h);
+  starMat.uniforms.uRes.value.set(w, h);
+  if (markerMat) markerMat.uniforms.uRes.value.set(w, h);
+});
+
+// Scroll & animation loop
+let curP = 0;
+let curX = STOPS_X[0].v;
+let curY = STOPS_Y[0].v;
+let curS = STOPS_S[0].v;
+let spinPhase = 0;
+let lastTime = performance.now();
+
+function animate(now) {
+  requestAnimationFrame(animate);
+
+  const dt = Math.min((now - lastTime) * 0.001, 0.05);
+  lastTime = now;
+
+  // Scroll progress & damped planet transforms
+  const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  const pTarget = clamp(window.scrollY / maxScroll, 0, 1);
+  curP += (pTarget - curP) * Math.min(1, dt * 4.5);
+
+  const sideScale = clamp(window.innerWidth / 1200, 0.5, 1);
+  const targetX = sample(STOPS_X, curP) * sideScale;
+  const targetY = sample(STOPS_Y, curP);
+  const targetS = sample(STOPS_S, curP);
+  const k = Math.min(1, dt * 3.2);
+
+  curX += (targetX - curX) * k;
+  curY += (targetY - curY) * k;
+  curS += (targetS - curS) * k;
+
+  // Float-up entrance
+  let entryY = prefersReducedMotion ? 0 : ENTRY_START_Y;
+  if (planetLoaded && !prefersReducedMotion) {
+    entryElapsed = Math.min(ENTRY_DUR, entryElapsed + dt);
+    const t = clamp(entryElapsed / ENTRY_DUR, 0, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    entryY = ENTRY_START_Y * (1 - ease);
+  }
+
+  worldGroup.position.set(curX, curY + entryY, 0);
+  worldGroup.scale.setScalar(curS);
+
+  // Spin & scroll rotation
+  spinPhase += dt * CONFIG.spin;
+  planetGroup.rotation.y = CONFIG.initRotation + spinPhase + curP * Math.PI * 1.6;
+
+  // Cloud spin
+  cloudMeshes.forEach(({ mesh, spinKey }) => {
+    mesh.rotation.y += dt * CONFIG[spinKey];
+  });
+
+  // Billboard atmosphere halo
+  glowMesh.quaternion.copy(camera.quaternion);
+
+  // Time advances
+  planetTime += dt / 12;
+  cloudTime += dt / 20;
+  starTime += dt;
+  markerTime += dt;
+
+  if (planetShaderUniforms) planetShaderUniforms.time.value = planetTime;
+  cloudUniformsList.forEach((u) => {
+    u.uTime.value = cloudTime;
+  });
+  starMat.uniforms.uTime.value = starTime;
+  if (markerMat) markerMat.uniforms.uTime.value = markerTime;
+
+  controls.update();
+
+  // Render order across layers
+  camera.layers.set(LAYERS.TORUS_SCENE);
+  torusComposer.render();
+
+  camera.layers.set(LAYERS.BLOOM_SCENE);
+  bloomComposer.render();
+
+  camera.layers.set(LAYERS.ENTIRE_SCENE);
+  finalComposer.render();
+}
+
+requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
