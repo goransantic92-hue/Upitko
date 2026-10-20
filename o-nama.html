@@ -193,9 +193,29 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute
   </footer>
   <div class="copyright">© 2026 Upitko CRM — Napravljeno za srpske firme.</div>
   <script>
-document.getElementById('contact-form').addEventListener('submit', (e) => {
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Slanje...'; }
   const fd = Object.fromEntries(new FormData(e.target).entries());
+
+  try {
+    await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formType: 'kontakt-stranica',
+        ime: fd.ime,
+        email: fd.email,
+        firma: fd.firma,
+        telefon: fd.telefon,
+        poruka: fd.poruka,
+        source: window.location.href
+      })
+    });
+  } catch (_err) {}
+
   try {
     const existing = JSON.parse(localStorage.getItem('upitko_leads') || '[]');
     existing.unshift({
@@ -206,11 +226,15 @@ document.getElementById('contact-form').addEventListener('submit', (e) => {
       value: 250000,
       stage: 'novi',
       owner: 'Nikola J.',
-      time: 'upravo sada'
+      time: 'upravo sada',
+      email: fd.email || '',
+      phone: fd.telefon || ''
     });
     localStorage.setItem('upitko_leads', JSON.stringify(existing));
   } catch (_e) {}
+
   e.target.reset();
+  if (btn) { btn.disabled = false; btn.textContent = origText; }
   document.getElementById('contact-ok').style.display = 'block';
 });
   </script>

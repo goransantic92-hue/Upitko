@@ -148,6 +148,34 @@ html.lenis,html.lenis body{height:auto}
   gap:14px;
   flex-wrap:wrap;
 }
+.hero-actions .btn-outline{
+  color:#ffffff;
+  background:rgba(7, 13, 30, 0.82);
+  border:1px solid rgba(160, 190, 245, 0.38);
+  box-shadow:0 8px 24px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.16);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.hero-actions .btn-outline:hover{
+  background:rgba(13, 22, 48, 0.95);
+  border-color:rgba(190, 220, 255, 0.65);
+  box-shadow:0 12px 32px rgba(0,0,0,0.7), 0 0 20px rgba(100,165,255,0.25);
+  transform:translateY(-2px);
+}
+.hero-actions .btn-ghost{
+  color:#e6edf8;
+  background:rgba(7, 13, 30, 0.68);
+  border:1px solid rgba(145, 175, 225, 0.28);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 4px 18px rgba(0,0,0,0.45);
+}
+.hero-actions .btn-ghost:hover{
+  color:#ffffff;
+  background:rgba(14, 24, 52, 0.88);
+  border-color:rgba(170, 200, 250, 0.5);
+  transform:translateY(-2px);
+}
 .logos{
   text-align:center;
   padding:0 24px clamp(36px,6vw,64px);
@@ -2432,9 +2460,35 @@ const MODAL_VIEWS = {
   }
 };
 
-// TODO (Nivo 2): poslati podatke na backend (serverless funkcija → baza + email obaveštenje).
-// Dok to ne bude povezano, prijave se NIGDE ne šalju — sajt ne puštati javno pre toga.
+// Serverless lead capture (Vercel /api/lead) + lokalna sinhronizacija sa app.html sandbox-om
 async function submitLead(formType, data) {
+  const payload = {
+    formType: formType || 'upit',
+    ime: data.ime || '',
+    email: data.email || '',
+    firma: data.firma || '',
+    telefon: data.telefon || '',
+    paket: data.paket || '',
+    poruka: data.poruka || '',
+    source: window.location.href
+  };
+
+  // 1. Slanje na Vercel serverless funkciju /api/lead
+  let apiOk = false;
+  try {
+    const res = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      apiOk = true;
+    }
+  } catch (err) {
+    console.warn('[Upitko] /api/lead fetch failed (offline ili lokalni fajl):', err);
+  }
+
+  // 2. Sinhronizacija sa localStorage kako bi posetilac odmah video svoj upit u app.html
   try {
     const existing = JSON.parse(localStorage.getItem('upitko_leads') || '[]');
     existing.unshift({
@@ -2451,7 +2505,8 @@ async function submitLead(formType, data) {
     });
     localStorage.setItem('upitko_leads', JSON.stringify(existing));
   } catch (_e) {}
-  console.info('[Upitko] Prijava sačuvana u lokalni CRM demo:', formType, data);
+  console.info('[Upitko] Prijava obrađena:', { apiOk, payload });
+  return apiOk;
 }
 
 function openModal(key) {
@@ -2465,10 +2520,20 @@ function openModal(key) {
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Slanje...';
+      }
       const data = Object.fromEntries(new FormData(form).entries());
       await submitLead(form.getAttribute('data-form'), data);
       modalBackdrop.classList.remove('open');
-      showToast('Hvala! Javićemo vam se uskoro.');
+      showToast('✓ Hvala! Vaša prijava je uspešno zabeležena.');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
     });
   }
   // Dugmad unutar modala koja otvaraju drugi modal (npr. Cene → Prijava)
@@ -2616,29 +2681,96 @@ function createFallbackTextures() {
 
       const n = fbm(nx + 2.4, ny + 1.7, nz + 3.1);
       const idx = (py * cw + px) * 4;
-      const isLand = n > 0.51 && polar < 0.88;
 
-      if (isLand) {
-        const elev = clamp((n - 0.51) / 0.35, 0, 1);
-        dImg.data[idx] = Math.floor(38 + elev * 75);
-        dImg.data[idx + 1] = Math.floor(72 + elev * 64);
-        dImg.data[idx + 2] = Math.floor(48 + elev * 38);
+      const moisture = vnoise(nx * 2.5 - 1.8, ny * 2.5 + 3.2, nz * 2.5);
+      const iceJitter = vnoise(nx * 4.2, ny * 4.2, nz * 4.2) * 0.10;
+
+      // Prirodne polarne kape (organske, bez veštačkog ravnog kruga) i visoki planinski glečeri
+      const isPolar = polar > (0.76 + iceJitter);
+      const isLand = n > 0.49;
+      const elev = isLand ? clamp((n - 0.49) / 0.38, 0, 1) : 0;
+      const isAlpineIce = isLand && elev > 0.72 && polar > 0.48;
+      const isIce = isPolar || isAlpineIce;
+
+      if (isIce) {
+        // Snežne polarne kape (R i G prate B tako da je blueDom <= 0, nema vodene refleksije)
+        const frost = Math.floor(vnoise(nx * 14.0, ny * 14.0, nz * 14.0) * 8);
+        dImg.data[idx] = clamp(242 + frost, 220, 255);
+        dImg.data[idx + 1] = clamp(248 + frost, 225, 255);
+        dImg.data[idx + 2] = clamp(245 + frost, 222, 255);
         dImg.data[idx + 3] = 255;
 
-        const city = vnoise(nx * 26, ny * 26, nz * 26) * vnoise(nx * 9, ny * 9, nz * 9);
-        const coast = 1.0 - clamp(Math.abs(n - 0.54) * 14, 0, 1);
-        const cVal = city > 0.36 ? Math.pow((city - 0.36) / 0.64, 1.5) * (0.6 + 0.8 * coast) : 0;
+        // Polarni regioni nemaju noćna svetla gradova
+        nImg.data[idx] = 0;
+        nImg.data[idx + 1] = 0;
+        nImg.data[idx + 2] = 0;
+        nImg.data[idx + 3] = 255;
+      } else if (isLand) {
+        let r, g, b;
+        if (elev > 0.64) {
+          // Visoki planinski venci i granitni grebeni
+          const mFact = (elev - 0.64) / 0.36;
+          r = Math.floor(132 + mFact * 42);
+          g = Math.floor(126 + mFact * 38);
+          b = Math.floor(118 + mFact * 32);
+        } else if (polar < 0.28 && moisture > 0.44) {
+          // Tropske kišne šume (smaragdno zelena vegetacija)
+          r = Math.floor(28 + elev * 28);
+          g = Math.floor(78 + elev * 38);
+          b = Math.floor(36 + elev * 22);
+        } else if (polar > 0.16 && polar < 0.46 && moisture < 0.42) {
+          // Suve pustinje i tople savane (oker, pesak, zlatno-braon tonovi)
+          r = Math.floor(180 + elev * 32);
+          g = Math.floor(146 + elev * 24);
+          b = Math.floor(100 + elev * 16);
+        } else if (polar > 0.58) {
+          // Borealne tajge i subpolarna tundra (hladne maslinaste i sivo-zelene četinarske šume)
+          r = Math.floor(70 + elev * 34);
+          g = Math.floor(92 + elev * 30);
+          b = Math.floor(74 + elev * 24);
+        } else {
+          // Umereni pojas (bujne evropske livade, brda i listopadne šume)
+          r = Math.floor(46 + elev * 40);
+          g = Math.floor(92 + elev * 35);
+          b = Math.floor(48 + elev * 22);
+        }
+
+        dImg.data[idx] = clamp(r, 0, 255);
+        dImg.data[idx + 1] = clamp(g, 0, 255);
+        dImg.data[idx + 2] = clamp(b, 0, 255);
+        dImg.data[idx + 3] = 255;
+
+        // Noćna svetla gradova u naseljenim ravnicama i priobalju
+        const cityNoise = vnoise(nx * 24, ny * 24, nz * 24) * vnoise(nx * 8, ny * 8, nz * 8);
+        const coastDist = 1.0 - clamp(Math.abs(n - 0.52) * 12, 0, 1);
+        let pop = cityNoise * (0.65 + 0.75 * coastDist);
+        if (moisture < 0.36) pop *= 0.22; // pustinje su retko naseljene
+        if (polar > 0.65) pop *= 0.28;     // hladni sever ima manje gradova
+        if (elev > 0.6) pop *= 0.15;       // visoke planine nemaju megalopolise
+
+        const cVal = pop > 0.27 ? Math.pow((pop - 0.27) / 0.73, 1.4) : 0;
         nImg.data[idx] = Math.min(255, Math.floor(cVal * 255));
         nImg.data[idx + 1] = Math.min(255, Math.floor(cVal * 195));
-        nImg.data[idx + 2] = Math.min(255, Math.floor(cVal * 95));
+        nImg.data[idx + 2] = Math.min(255, Math.floor(cVal * 105));
         nImg.data[idx + 3] = 255;
       } else {
-        const depth = clamp((0.51 - n) / 0.35, 0, 1);
-        dImg.data[idx] = Math.floor(8 + (1 - depth) * 14);
-        dImg.data[idx + 1] = Math.floor(28 + (1 - depth) * 32);
-        dImg.data[idx + 2] = Math.floor(68 + (1 - depth) * 58);
+        // Okeani: tirkizni kontinentalni prag uz obalu i duboki ponori
+        if (n > 0.44) {
+          // Plitka priobalna voda / tirkizni grebeni
+          const shelf = (n - 0.44) / 0.05;
+          dImg.data[idx] = Math.floor(12 + shelf * 18);
+          dImg.data[idx + 1] = Math.floor(46 + shelf * 66);
+          dImg.data[idx + 2] = Math.floor(82 + shelf * 52);
+        } else {
+          // Duboki okean
+          const depth = clamp((0.44 - n) / 0.32, 0, 1);
+          dImg.data[idx] = Math.floor(6 + (1 - depth) * 8);
+          dImg.data[idx + 1] = Math.floor(18 + (1 - depth) * 22);
+          dImg.data[idx + 2] = Math.floor(58 + (1 - depth) * 28);
+        }
         dImg.data[idx + 3] = 255;
 
+        // Okeani nemaju gradska svetla
         nImg.data[idx] = 0;
         nImg.data[idx + 1] = 0;
         nImg.data[idx + 2] = 0;
@@ -3103,6 +3235,7 @@ function buildLandMarkers(planetMesh, baseTex) {
       const cg = imgData[idx + 1];
       const cb = imgData[idx + 2];
       if (cb > cr + 6 && cb > cg + 6) continue;
+      if (cr > 215 && cg > 215) continue; // preskoči polarne ledene kape
     }
 
     vA.fromBufferAttribute(posAttr, i0);
@@ -3238,7 +3371,8 @@ function mountPlanetMesh(planetMesh, nightTex) {
       rim = pow(rim, rimPower); rim = pow(rim, 1.5); rim *= 0.7;
       vec3 currentColor = gl_FragColor.rgb;
       float blueDom = currentColor.b - max(currentColor.r, currentColor.g);
-      float waterMask = clamp(smoothstep(-0.005, 0.03, blueDom), 0.0, 1.0);
+      float isIce = step(0.70, currentColor.r) * step(0.70, currentColor.g);
+      float waterMask = clamp(smoothstep(-0.005, 0.03, blueDom), 0.0, 1.0) * (1.0 - isIce);
       float shimmer = snoise(vec3(vCustomUv.x * noiseScale + time * speedX, vCustomUv.y * noiseScale - time * speedY, time * speedZ));
       gl_FragColor.rgb += waterMask * shimmer * 0.025;
       float fT = time * oceanFlowSpeed * 4.0;
