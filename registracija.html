@@ -251,20 +251,27 @@
         }
 
         // 2. Automatsko kreiranje organizacije i profila preko RPC procedure
-        try {
-          await sb.rpc('handle_new_company_signup', {
-            p_company_name: companyName,
-            p_full_name: fullName,
-            p_phone: phone
-          });
-        } catch (_rpcErr) {
-          console.warn('[Upitko] RPC error (proverite da li je uneta SQL šema):', _rpcErr);
-        }
+        if (authData.session) {
+          try {
+            await sb.rpc('handle_new_company_signup', {
+              p_company_name: companyName,
+              p_full_name: fullName,
+              p_phone: phone
+            });
+          } catch (_rpcErr) {
+            console.warn('[Upitko] RPC error:', _rpcErr);
+          }
 
-        showAlert('✓ Čestitamo! Radni prostor je uspešno kreiran. Preusmeravanje...', false);
-        setTimeout(() => {
-          window.location.href = 'app.html';
-        }, 1200);
+          showAlert('✓ Čestitamo! Radni prostor je uspešno kreiran. Preusmeravanje...', false);
+          setTimeout(() => {
+            window.location.href = 'app.html';
+          }, 1200);
+        } else {
+          // Ako je u Supabase uključen email confirm
+          showAlert('✓ Nalog je kreiran! Poslat je verifikacioni email na ' + email + '. Potvrdite email pa se prijavite na stranici za prijavu.', false);
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Uspešno kreirano!</span>';
+        }
 
       } catch (err) {
         showAlert('Došlo je do greške: ' + err.message);
