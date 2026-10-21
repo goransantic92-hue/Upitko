@@ -1,6 +1,16 @@
 // Upitko — Serverless Lead Capture API (Vercel)
 // Renders directly on Vercel as /api/lead
 
+function cleanSupabaseUrl(rawUrl) {
+  if (!rawUrl) return '';
+  let url = String(rawUrl).trim();
+  const dashMatch = url.match(/supabase\.com\/dashboard\/project\/([a-zA-Z0-9_-]+)/);
+  if (dashMatch) return 'https://' + dashMatch[1] + '.supabase.co';
+  url = url.replace(/\/rest\/v1\/?$/, '').replace(/\/auth\/v1\/?$/, '').replace(/\/+$/, '');
+  if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+  return url;
+}
+
 module.exports = async function handler(req, res) {
   // Postavljanje CORS hedera
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -85,7 +95,49 @@ module.exports = async function handler(req, res) {
     // 1. Zapis u Vercel Function Logs (uvek dostupno u Vercel dashboardu)
     console.log('[UPITKO LEAD]', JSON.stringify(lead, null, 2));
 
-    // 2. Ako je postavljen TELEGRAM_BOT_TOKEN i TELEGRAM_CHAT_ID, pošalji instant poruku na Telegram
+    // 2. Automatski upis u Supabase PostgreSQL bazu radnog prostora
+    const rawSbUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+    const sbUrl = cleanSupabaseUrl(rawSbUrl);
+
+    if (sbUrl && sbKey) {
+      try {
+        const orgRes = await fetch(`${sbUrl}/rest/v1/organizations?select=id,name&order=created_at.desc&limit=1`, {
+          headers: {
+            'apikey': sbKey,
+            'Authorization': `Bearer ${sbKey}`
+          }
+        });
+        const orgs = await orgRes.json();
+        if (Array.isArray(orgs) && orgs.length > 0) {
+          const targetOrg = orgs[0];
+          await fetch(`${sbUrl}/rest/v1/leads`, {
+            method: 'POST',
+            headers: {
+              'apikey': sbKey,
+              'Authorization': `Bearer ${sbKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              organization_id: targetOrg.id,
+              contact_name: contactName || 'Novi kontakt sa sajta',
+              company_name: contactCompany || null,
+              email: contactEmail || null,
+              phone: contactPhone || null,
+              channel: 'web',
+              stage: 'novi',
+              value_rsd: 180000,
+              notes: `Prijava sa marketing sajta (${type}). Paket: ${contactPlan || '/'}. Poruka: ${contactMsg || '/'}`
+            })
+          });
+          console.log('[Upitko] Lid uspešno upisan u Supabase za firmu:', targetOrg.name);
+        }
+      } catch (sbErr) {
+        console.warn('[Upitko] Supabase lead insert greška:', sbErr.message);
+      }
+    }
+
+    // 3. Ako je postavljen TELEGRAM_BOT_TOKEN i TELEGRAM_CHAT_ID, pošalji instant poruku na Telegram
     if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
       try {
         const tgText = `🚀 *Novi Upitko Lid!* (${lead.formType})\n\n` +
@@ -111,7 +163,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 3. Ako je postavljen LEAD_WEBHOOK_URL (Zapier, Make, Slack, Google Sheets, n8n)
+    // 4. Ako je postavljen LEAD_WEBHOOK_URL (Zapier, Make, Slack, Google Sheets, n8n)
     if (process.env.LEAD_WEBHOOK_URL) {
       try {
         await fetch(process.env.LEAD_WEBHOOK_URL, {
@@ -124,7 +176,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 4. Ako je postavljen RESEND_API_KEY i NOTIFY_EMAIL
+    // 5. Ako je postavljen RESEND_API_KEY i NOTIFY_EMAIL
     if (process.env.RESEND_API_KEY && process.env.NOTIFY_EMAIL) {
       try {
         await fetch('https://api.resend.com/emails', {
