@@ -572,6 +572,34 @@ button,input,select,textarea{font-family:inherit;color:inherit}
             </tbody>
           </table>
         </div>
+
+        <!-- Inbound API Key & Webhook Box -->
+        <div style="margin-top:24px; padding:24px; background:var(--glass); border:1px solid var(--line-strong); border-radius:var(--radius);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:var(--ink);">Prijem upita sa vašeg sajta (Inbound Webhook API)</h3>
+              <p style="font-size:13px; color:var(--muted); margin-top:4px;">Povežite formu sa vašeg WordPress, Webflow ili custom sajta da novi upiti automatski uleću u Upitko CRM.</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-test-inbound">🧪 Testiraj prijem uživo sa sajta</button>
+          </div>
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div style="padding:14px; border-radius:10px; background:rgba(4,6,15,.6); border:1px solid var(--line);">
+              <span style="font-size:12px; color:var(--muted); text-transform:uppercase; font-weight:700;">Vaš jedinstveni API Ključ firme:</span>
+              <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+                <code id="display-api-key" style="font-size:13px; color:var(--accent); word-break:break-all; font-family:monospace; background:rgba(93,240,168,.1); padding:4px 8px; border-radius:6px; flex:1;">Prijavite se da vidite ključ</code>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-copy-api-key">Kopiraj</button>
+              </div>
+            </div>
+
+            <div style="padding:14px; border-radius:10px; background:rgba(4,6,15,.6); border:1px solid var(--line);">
+              <span style="font-size:12px; color:var(--muted); text-transform:uppercase; font-weight:700;">Endpoint za slanje (POST):</span>
+              <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+                <code id="display-api-url" style="font-size:13px; color:var(--ink); word-break:break-all; font-family:monospace; background:rgba(255,255,255,.05); padding:4px 8px; border-radius:6px; flex:1;">/api/v1/inbound</code>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- TAB 4: COMPANIES & PIB -->
@@ -776,6 +804,13 @@ function renderBoard(filterText = '') {
           saveLeads();
           renderBoard();
           showToast(`Posao „${item.name}“ prebačen u fazu: ${STAGE_LABELS[item.stage]}`);
+
+          // Trajno čuvanje u Supabase PostgreSQL bazi
+          const sb = window.getSupabase();
+          if (sb && currentOrg && item.raw_id) {
+            const stageDbMap = { novi: 'novi', kvalifikovani: 'kvalifikovan', ponuda: 'ponuda', zatvoreno: 'dobijeno' };
+            sb.from('leads').update({ stage: stageDbMap[item.stage] || item.stage }).eq('id', item.raw_id).then(() => {});
+          }
         }
       }
     });
@@ -926,24 +961,47 @@ document.getElementById('btn-print-inv').addEventListener('click', () => {
   window.print();
 });
 
-document.getElementById('form-new-lead').addEventListener('submit', (e) => {
+document.getElementById('form-new-lead').addEventListener('submit', async (e) => {
   e.preventDefault();
   const fd = Object.fromEntries(new FormData(e.target).entries());
+  const newLeadVal = Number(fd.value) || 150000;
+
+  // 1. Ako je aktivna Supabase baza, upiši direktno u PostgreSQL
+  const sb = window.getSupabase();
+  let rawId = null;
+  if (sb && currentOrg) {
+    const chMap = { 'Instagram DM':'instagram', 'Viber Business':'viber', 'Sajt forma':'web', 'Facebook Lead Ad':'facebook', 'Preporuka / Telefon':'telefon' };
+    try {
+      const { data: created } = await sb.from('leads').insert({
+        organization_id: currentOrg.id,
+        contact_name: fd.name,
+        company_name: fd.company || null,
+        channel: chMap[fd.channel] || 'web',
+        value_rsd: newLeadVal,
+        stage: 'novi'
+      }).select().single();
+      if (created) rawId = created.id;
+    } catch (_sbErr) {
+      console.warn('[Upitko] Supabase insert warning:', _sbErr);
+    }
+  }
+
   leads.unshift({
-    id: 'UP-' + Math.floor(110 + Math.random() * 890),
+    id: rawId ? 'LID-' + rawId.slice(0, 4).toUpperCase() : 'UP-' + Math.floor(110 + Math.random() * 890),
+    raw_id: rawId,
     name: fd.name,
     company: fd.company,
     channel: fd.channel,
-    value: Number(fd.value) || 150000,
+    value: newLeadVal,
     stage: 'novi',
-    owner: 'Nikola J.',
+    owner: currentProfile?.full_name?.split(' ')[0] || 'Prodavac',
     time: 'upravo sada'
   });
   saveLeads();
   renderBoard();
   e.target.reset();
   document.getElementById('modal-new').classList.remove('open');
-  showToast(`Novi upit (${fd.name}) dodat i dodeljen prodavcu!`);
+  showToast(`Novi upit (${fd.name}) dodat u bazu i dodeljen prodavcu!`);
 });
 
 const SIM_POOL = [
