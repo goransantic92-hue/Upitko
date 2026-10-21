@@ -215,6 +215,10 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
+      if (!window.UPITKO_CONFIG.isConfigured()) {
+        await window.UPITKO_CONFIG.fetchServerConfig();
+      }
+
       const sb = window.getSupabase();
       if (!sb) {
         configPanel.style.display = 'block';
