@@ -1,29 +1,49 @@
-# Upitko — Savremeni CRM za srpske firme
+# Upitko — Savremeni B2B Sales & RevOps CRM za srpske firme
 
-Kompletan veb-sajt i interaktivna CRM veb-aplikacija za **Upitko** (`upitko.rs`), izgrađeni u 3D WebGL stilu sa **100% proceduralnom 3D planetom** (bez eksternih GLB modela ili licencnih zavisnosti).
+Kompletan veb-sajt i SaaS CRM veb-aplikacija za **Upitko** (`upitko.rs`), izgrađeni u 3D WebGL stilu sa **100% proceduralnom 3D planetom** i povezanim **Supabase PostgreSQL (EU)** backendom.
 
-## Struktura projekta
+---
+
+## 🚀 Struktura projekta
 
 ```text
-world site/
-├── index.html              # Glavna 3D WebGL stranica (Hero, 6 kartica, 6 detaljnih pod-sekcija, Poređenje, Cene, FAQ)
-├── app.html                # Interaktivna Upitko CRM Web Aplikacija (Kanban levak, Omnichannel Inbox, Automatizacije, Predračuni u RSD)
-├── cene.html               # Stranica sa paketima u RSD, interaktivnim ROI kalkulatorom i tabelom funkcija
-├── integracije.html        # Katalog domaćih i globalnih integracija (Instagram, Viber, Sajt, Oglasnici, PIB/APR, SEF)
-├── vodici.html             # Playbook vodiči za prodajne timove i prelazak sa Excela na CRM
-├── o-nama.html             # O nama, misija i kontakt forma (povezana sa lokalnim CRM sandboxom)
+├── index.html              # Glavna 3D WebGL stranica (Hero, 6 modula, poređenje, cene, FAQ, lead forme)
+├── app.html                # Upitko CRM Web Aplikacija (Kanban levak, Omnichannel Inbox, Automatizacije, Predračuni u RSD)
+├── prijava.html            # Prijava u radni prostor (Supabase Auth)
+├── registracija.html       # Registracija firme i onboarding (14 dana besplatno)
+├── cene.html               # Paketi u RSD, interaktivni ROI kalkulator i tabela funkcija
+├── integracije.html        # Katalog integracija (Instagram, Viber, Web forme, Meta Ads, SEF)
+├── vodici.html             # Vodiči i playbook-ovi za prodajne timove
+├── o-nama.html             # O nama i kontakt forma
 ├── pravno.html             # Politika privatnosti (ZZPL), Uslovi korišćenja, DPA i Bezbednost
-├── ascend-original.html    # Rezervna kopija originalnog engleskog Ascend šablona
-└── README.md               # Dokumentacija projekta
+├── api/
+│   ├── config.js           # Serverless endpoint za bezbednu distribuciju javnih Supabase ključeva
+│   ├── lead.js             # Lead capture endpoint sa marketing formi (Vercel serverless)
+│   └── v1/inbound.js       # Javni webhook gateway za prijem upita sa klijentskih sajtova
+├── supabase/
+│   └── schema.sql          # Kompletna PostgreSQL RLS šema za višekorisnički rad (multi-tenancy)
+└── vercel.json             # Vercel konfiguracija (Clean URLs, sigurnosni hederi)
 ```
 
-## Kako funkcioniše 3D proceduralna planeta?
+---
 
-`index.html` koristi `createFallbackTextures()` i `mountFallbackPlanet()` za generisanje kontinenata, okeana, obalskih noćnih svetala gradova i 3 sloja oblaka direktno u memoriji pregledača pomoću 3D FBM šuma (noise) i prilagođenih GLSL šejdera:
-- Nema poziva ka `api.getlayers.ai` niti `gstatic.com` DRACO dekoderu.
-- Zadržani su svi 3D efekti: odsjaj sunca na okeanu (*ocean glint*), 3D reljef kontinenata (*bumped normal*), noćna svetla gradova, 60 pulsirajućih zlatnih radarskih tačaka na kopnu, 1.400 zvezda i glatko pomeranje planete pri skrolovanju (*Lenis*).
+## ⚙️ Environment Variables (Vercel)
 
-## Pokretanje
+Za punu funkcionalnost baze i slanja notifikacija, podesite sledeće promenljive u **Vercel Settings -> Environment Variables**:
 
-1. Možete direktno otvoriti `index.html` ili `app.html` dvoklikom u pregledaču, ili
-2. Pokrenuti lokalni server iz ovog foldera (npr. `npx serve .` ili `python -m http.server 8080`) i otvoriti `http://localhost:8080`.
+| Promenljiva | Opis | Gde se nalazi |
+|---|---|---|
+| `SUPABASE_URL` | Supabase Project URL | Supabase Dashboard -> Project Settings -> API |
+| `SUPABASE_ANON_KEY` | Javni anon ključ | Supabase Dashboard -> Project Settings -> API |
+| `SUPABASE_SERVICE_ROLE_KEY` | *(Opciono)* Servisni ključ za Inbound gateway | Supabase Dashboard -> Project Settings -> API |
+| `TELEGRAM_BOT_TOKEN` | *(Opciono)* Bot token za instant alert na mobilni | @BotFather na Telegramu |
+| `TELEGRAM_CHAT_ID` | *(Opciono)* Tvoj Telegram ID | @userinfobot na Telegramu |
+| `LEAD_WEBHOOK_URL` | *(Opciono)* Webhook za Zapier/Make/Slack/Sheets | Webhook URL servisa |
+
+---
+
+## 🛠️ Pokretanje i Testiranje
+
+1. Otvorite sajt live na Vercelu ili lokalno.
+2. Posetite `/registracija.html` da registrujete prvu firmu i vlasnički nalog.
+3. Radite uživo na Kanban tabli u `/app.html` uz automatsku sinhronizaciju u realnom vremenu!
