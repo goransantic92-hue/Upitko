@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="sr-Latn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registracija radnog prostora — Upitko CRM</title>
+  <meta name="description" content="Otvorite besplatan radni prostor za prodajni tim vaše firme. Svi upiti sa sajta, Instagrama i Vibera na jednom mestu." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="sr_RS" />
+  <meta property="og:title" content="Registracija firme — Upitko CRM" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- Supabase JS SDK v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    :root {
+      --bg:#04060f; --bg-2:#060a18; --ink:#f3f6ff; --muted:#9aa6c4; --muted-2:#6b7796;
+      --line:rgba(150,175,230,.14); --line-strong:rgba(150,175,230,.25);
+      --accent:#5df0a8; --accent-2:#2fd38a; --accent-ink:#032018;
+      --glass:rgba(12,18,38,.72); --radius:18px;
+      --font:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:var(--font); color:var(--ink); background:var(--bg);
+      min-height:100vh; display:flex; flex-direction:column;
+      -webkit-font-smoothing:antialiased;
+      background:radial-gradient(100% 70% at 50% -10%, rgba(20,40,90,.32) 0%, rgba(4,6,15,1) 85%);
+      position:relative; overflow-x:hidden;
+    }
+    .nav {
+      max-width:1180px; width:100%; margin:0 auto; padding:24px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .brand {
+      display:inline-flex; align-items:center; gap:9px; font-weight:800; font-size:20px;
+      letter-spacing:.16em; text-transform:uppercase; color:var(--ink); text-decoration:none;
+    }
+    .brand-mark { color:var(--accent); font-size:15px; }
+    .auth-container {
+      flex:1; display:flex; align-items:center; justify-content:center;
+      padding:32px 24px 60px;
+    }
+    .auth-card {
+      width:100%; max-width:500px; background:var(--glass);
+      border:1px solid var(--line-strong); border-radius:var(--radius);
+      padding:36px 36px; backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+      box-shadow:0 30px 80px -20px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.1);
+      position:relative;
+    }
+    .auth-card::before {
+      content:''; position:absolute; top:-1px; left:30px; right:30px; height:2px;
+      background:linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .auth-head { text-align:center; margin-bottom:24px; }
+    .badge {
+      display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:999px;
+      background:rgba(93,240,168,.12); border:1px solid rgba(93,240,168,.3);
+      color:var(--accent); font-size:12px; font-weight:700; margin-bottom:12px;
+    }
+    .auth-head h1 { font-size:26px; font-weight:800; letter-spacing:-.02em; margin-bottom:8px; }
+    .auth-head p { font-size:14px; color:var(--muted); line-height:1.5; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:520px) { .form-row { grid-template-columns:1fr; } }
+    .form-group { margin-bottom:16px; display:grid; gap:6px; }
+    .form-group label { font-size:13px; font-weight:600; color:var(--ink); }
+    .form-control {
+      width:100%; padding:11px 14px; border-radius:12px;
+      border:1px solid var(--line-strong); background:rgba(4,6,15,.75);
+      color:var(--ink); font-size:14px; font-family:inherit; outline:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .form-control:focus {
+      border-color:var(--accent); box-shadow:0 0 0 3px rgba(93,240,168,.18);
+    }
+    .btn-submit {
+      width:100%; padding:13px; border-radius:999px; border:none;
+      background:linear-gradient(180deg, var(--accent), var(--accent-2));
+      color:var(--accent-ink); font-weight:700; font-size:15px; font-family:inherit;
+      cursor:pointer; margin-top:8px; transition:transform .18s, box-shadow .2s;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .btn-submit:hover { transform:translateY(-2px); box-shadow:0 12px 30px -6px rgba(93,240,168,.6); }
+    .btn-submit:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .auth-foot {
+      margin-top:20px; text-align:center; font-size:13px; color:var(--muted);
+    }
+    .auth-foot a { color:var(--accent); font-weight:600; text-decoration:none; }
+    .auth-foot a:hover { text-decoration:underline; }
+    .alert-box {
+      padding:12px 14px; border-radius:10px; font-size:13.5px; margin-bottom:18px; display:none;
+    }
+    .alert-error { background:rgba(255,80,80,.12); border:1px solid rgba(255,80,80,.3); color:#ff9090; }
+    .alert-info { background:rgba(93,240,168,.1); border:1px solid rgba(93,240,168,.3); color:var(--accent); }
+    .config-trigger {
+      font-size:12px; color:var(--muted-2); text-align:center; margin-top:20px;
+      cursor:pointer; text-decoration:underline;
+    }
+    .config-panel {
+      display:none; margin-top:16px; padding:16px; border-radius:12px;
+      background:rgba(2,4,10,.8); border:1px dashed var(--line-strong); font-size:12.5px;
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a href="index.html" class="brand"><span class="brand-mark">▲</span><span>Upitko</span></a>
+    <a href="prijava.html" style="font-size:14px; color:var(--muted); text-decoration:none;">Već imate nalog? <strong style="color:var(--accent);">Prijavite se</strong></a>
+  </header>
+
+  <main class="auth-container">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="badge"><span>✓</span> 14 dana besplatno • Bez platne kartice</div>
+        <h1>Registrujte vaš tim</h1>
+        <p>Postavite CRM radni prostor za vašu firmu za manje od 60 sekundi</p>
+      </div>
+
+      <div id="alert" class="alert-box"></div>
+
+      <form id="signup-form">
+        <div class="form-group">
+          <label for="company_name">Naziv vaše firme / preduzeća</label>
+          <input type="text" id="company_name" required placeholder="npr. TehnoGradnja d.o.o." class="form-control" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="full_name">Vaše ime i prezime</label>
+            <input type="text" id="full_name" required placeholder="npr. Marko Jovanović" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="phone">Broj telefona</label>
+            <input type="tel" id="phone" required placeholder="064 123 4567" class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Poslovni email</label>
+          <input type="email" id="email" required placeholder="marko@firma.rs" class="form-control" autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Lozinka za nalog (min. 6 karaktera)</label>
+          <input type="password" id="password" required minlength="6" placeholder="••••••••" class="form-control" autocomplete="new-password" />
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn-submit">
+          <span>Kreirajte radni prostor &rarr;</span>
+        </button>
+      </form>
+
+      <div class="auth-foot">
+        Registracijom prihvatate <a href="pravno.html#uslovi" target="_blank">Uslove korišćenja</a> i <a href="pravno.html#privatnost" target="_blank">Politiku privatnosti</a> (ZZPL).
+      </div>
+
+      <div class="config-trigger" id="config-toggle">⚙️ Povezivanje sopstvenog Supabase projekta</div>
+      <div class="config-panel" id="config-panel">
+        <div style="font-weight:600; margin-bottom:8px; color:var(--ink);">Supabase API ključevi:</div>
+        <div class="form-group" style="margin-bottom:8px;">
+          <input type="text" id="sb-url" placeholder="https://xyz.supabase.co" class="form-control" style="font-size:12px; padding:8px 10px;" />
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <input type="text" id="sb-anon" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6Ik..." class="form-control" style="font-size:12px; padding:8px 10px;" />
+        </div>
+        <button type="button" id="sb-save" class="btn-submit" style="padding:8px; font-size:13px;">Sačuvaj ključeve</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const alertBox = document.getElementById('alert');
+    const form = document.getElementById('signup-form');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function showAlert(msg, isError = true) {
+      alertBox.textContent = msg;
+      alertBox.className = 'alert-box ' + (isError ? 'alert-error' : 'alert-info');
+      alertBox.style.display = 'block';
+    }
+
+    // Config panel toggle
+    const configToggle = document.getElementById('config-toggle');
+    const configPanel = document.getElementById('config-panel');
+    const sbUrlInput = document.getElementById('sb-url');
+    const sbAnonInput = document.getElementById('sb-anon');
+    const sbSaveBtn = document.getElementById('sb-save');
+
+    sbUrlInput.value = window.UPITKO_CONFIG.supabaseUrl;
+    sbAnonInput.value = window.UPITKO_CONFIG.supabaseAnonKey;
+
+    configToggle.addEventListener('click', () => {
+      configPanel.style.display = configPanel.style.display === 'block' ? 'none' : 'block';
+    });
+
+    sbSaveBtn.addEventListener('click', () => {
+      window.UPITKO_CONFIG.saveConfig(sbUrlInput.value, sbAnonInput.value);
+      showAlert('✓ Supabase konfiguracija sačuvana!', false);
+      setTimeout(() => { configPanel.style.display = 'none'; }, 1000);
+    });
+
+    // Signup submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const companyName = document.getElementById('company_name').value.trim();
+      const fullName = document.getElementById('full_name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      const sb = window.getSupabase();
+      if (!sb) {
+        configPanel.style.display = 'block';
+        showAlert('Molimo unesite Supabase Project URL i Anon Key da biste povezali bazu.', true);
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Kreiranje radnog prostora...</span>';
+
+      try {
+        // 1. Registracija korisnika u auth.users
+        const { data: authData, error: authErr } = await sb.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              company_name: companyName,
+              phone: phone
+            }
+          }
+        });
+
+        if (authErr) {
+          showAlert('Greška pri registraciji: ' + authErr.message);
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>Kreirajte radni prostor &rarr;</span>';
+          return;
+        }
+
+        // 2. Automatsko kreiranje organizacije i profila preko RPC procedure
+        try {
+          await sb.rpc('handle_new_company_signup', {
+            p_company_name: companyName,
+            p_full_name: fullName,
+            p_phone: phone
+          });
+        } catch (_rpcErr) {
+          console.warn('[Upitko] RPC error (proverite da li je uneta SQL šema):', _rpcErr);
+        }
+
+        showAlert('✓ Čestitamo! Radni prostor je uspešno kreiran. Preusmeravanje...', false);
+        setTimeout(() => {
+          window.location.href = 'app.html';
+        }, 1200);
+
+      } catch (err) {
+        showAlert('Došlo je do greške: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Kreirajte radni prostor &rarr;</span>';
+      }
+    });
+  </script>
+</body>
+</html>

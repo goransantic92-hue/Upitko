@@ -358,6 +358,8 @@ button,input,select,textarea{font-family:inherit;color:inherit}
   <meta name="twitter:image" content="/og-image.png" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="alternate icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,12 92,88 8,88' fill='%235df0a8'/%3E%3C/svg%3E" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -400,10 +402,17 @@ button,input,select,textarea{font-family:inherit;color:inherit}
   </aside>
 
   <div class="main">
+    <div id="auth-banner" style="background:rgba(93,240,168,.08); border-bottom:1px solid rgba(93,240,168,.2); padding:10px 24px; font-size:13px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <span>⚡ <strong>Gledate interaktivni sandbox.</strong> Povežite bazu i pređite na rad sa pravim podacima:</span>
+      <div style="display:flex; gap:8px;">
+        <a href="prijava.html" class="btn btn-outline btn-sm" style="padding:5px 14px;">Prijava</a>
+        <a href="registracija.html" class="btn btn-primary btn-sm" style="padding:5px 14px;">Registrujte firmu (14 dana gratis)</a>
+      </div>
+    </div>
     <header class="topbar">
       <div class="topbar-title">
         <h1 id="view-title">Prodajni levak i pregled prihoda</h1>
-        <p>Radni prostor: <strong>Demo Firma d.o.o. Beograd</strong> · Valuta: <strong>RSD</strong> · SLA cilj: &lt; 60 sekundi</p>
+        <p id="workspace-sub">Radni prostor: <strong id="company-name-display">Demo Firma d.o.o. Beograd</strong> · Valuta: <strong>RSD</strong> · SLA cilj: &lt; 60 sekundi</p>
       </div>
       <div class="topbar-actions">
         <button type="button" class="btn btn-outline" id="btn-simulate">⚡ Simuliraj novi upit (IG / Viber)</button>
@@ -974,6 +983,103 @@ document.getElementById('btn-export-csv').addEventListener('click', () => {
   a.download = 'upitko-klijenti.csv';
   a.click();
   showToast('CSV fajl uspešno preuzet (upitko-klijenti.csv)');
+});
+
+
+// ==============================================================================
+// SUPABASE LIVE INTEGRACIJA (Nivo 3 — SaaS Multi-tenant Režim)
+// ==============================================================================
+let currentSession = null;
+let currentProfile = null;
+let currentOrg = null;
+
+async function initSupabaseLive() {
+  const sb = window.getSupabase();
+  if (!sb) return;
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    currentSession = session;
+
+    // Sakrij demo banner kada je korisnik ulogovan
+    const banner = document.getElementById('auth-banner');
+    if (banner) banner.style.display = 'none';
+
+    // 1. Učitaj profil i organizaciju korisnika
+    const { data: profile } = await sb
+      .from('profiles')
+      .select('*, organizations(*)')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    if (profile && profile.organizations) {
+      currentProfile = profile;
+      currentOrg = profile.organizations;
+
+      const sub = document.getElementById('workspace-sub');
+      if (sub) {
+        sub.innerHTML = `Radni prostor: <strong style="color:var(--accent);">${currentOrg.name}</strong> · Valuta: <strong>RSD</strong> · Prijavljeni: <strong>${currentProfile.full_name} (${currentProfile.role.toUpperCase()})</strong>`;
+      }
+
+      const foot = document.querySelector('.sidebar-foot');
+      if (foot) {
+        foot.innerHTML = `
+          <strong style="color:var(--accent); display:block; margin-bottom:4px;">🟢 Baza povezana (EU)</strong>
+          <span style="font-size:12px; color:var(--muted); display:block; line-height:1.4;">Radite uživo u bazi firme <strong>${currentOrg.name}</strong>.</span>
+          <button type="button" id="btn-logout" class="btn btn-outline btn-sm" style="margin-top:10px; width:100%; justify-content:center;">Odjavi se</button>
+        `;
+        document.getElementById('btn-logout')?.addEventListener('click', async () => {
+          await sb.auth.signOut();
+          window.location.reload();
+        });
+      }
+
+      // 2. Učitaj lidove iz Supabase tabele
+      await fetchSupabaseLeads();
+
+      // 3. Prijavi se na Realtime promene (WebSockets)
+      sb.channel('realtime-leads')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
+          console.log('[Upitko Realtime]', payload);
+          fetchSupabaseLeads();
+          showToast('🔔 Baza osvežena uživo!');
+        })
+        .subscribe();
+    }
+  } catch (err) {
+    console.warn('[Upitko] Supabase live init greška:', err);
+  }
+}
+
+async function fetchSupabaseLeads() {
+  const sb = window.getSupabase();
+  if (!sb || !currentOrg) return;
+  try {
+    const { data: sbLeads, error } = await sb
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && Array.isArray(sbLeads) && sbLeads.length > 0) {
+      leads = sbLeads.map((l) => ({
+        id: 'LID-' + l.id.slice(0, 4).toUpperCase(),
+        raw_id: l.id,
+        name: l.contact_name,
+        company: l.company_name || 'Nije navedeno',
+        channel: (l.channel || 'web').toUpperCase(),
+        value: Number(l.value_rsd || 0),
+        stage: l.stage === 'kvalifikovan' ? 'kvalifikovani' : (l.stage === 'dobijeno' ? 'zatvoreno' : l.stage),
+        owner: currentProfile?.full_name?.split(' ')[0] || 'Prodavac',
+        time: new Date(l.created_at).toLocaleTimeString('sr-RS', { hour: '2-digit', minute: '2-digit' })
+      }));
+      renderBoard();
+    }
+  } catch (_e) {}
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initSupabaseLive();
 });
 
 renderBoard();
