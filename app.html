@@ -398,6 +398,70 @@ button,input,select,textarea{font-family:inherit;color:inherit}
   .invoice-sheet{box-shadow:none !important;border-radius:0 !important;padding:10mm !important}
 }
 
+
+/* AD DIRECTOR MODE (Režim za snimanje video reklame) */
+@keyframes adCardEnter {
+  0% { opacity:0; transform:translateY(-22px) scale(0.94); box-shadow:0 0 0 rgba(93,240,168,0); }
+  60% { opacity:1; transform:translateY(3px) scale(1.02); box-shadow:0 0 36px rgba(93,240,168,0.65); }
+  100% { opacity:1; transform:translateY(0) scale(1); box-shadow:0 0 18px rgba(93,240,168,0.25); }
+}
+.deal-card.ad-highlight {
+  animation: adCardEnter 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 26px rgba(93,240,168,0.4) !important;
+}
+.kpi-val.ad-bump {
+  transition: transform 0.35s ease, color 0.35s ease;
+  transform: scale(1.08);
+  color: var(--accent) !important;
+}
+#ad-cursor {
+  position: fixed; top: 50%; left: 50%; width: 28px; height: 28px;
+  pointer-events: none; z-index: 9998; display: none;
+  transition: top 0.75s cubic-bezier(0.25, 1, 0.5, 1), left 0.75s cubic-bezier(0.25, 1, 0.5, 1), transform 0.18s ease;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.75));
+}
+#ad-cursor.clicking {
+  transform: scale(0.82);
+}
+#ad-cursor::after {
+  content: ''; position: absolute; top: -6px; left: -6px; width: 32px; height: 32px;
+  border-radius: 50%; border: 2px solid var(--accent); opacity: 0;
+  transform: scale(0.4); transition: all 0.35s ease;
+}
+#ad-cursor.clicking::after {
+  opacity: 1; transform: scale(1.45);
+}
+#ad-caption {
+  position: fixed; bottom: 34px; left: 50%; transform: translateX(-50%);
+  z-index: 9990; background: rgba(4, 8, 22, 0.92);
+  border: 1px solid rgba(93, 240, 168, 0.5); border-radius: 999px;
+  padding: 14px 28px; font-size: 16px; font-weight: 700; color: #ffffff;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 30px rgba(93,240,168,0.2);
+  backdrop-filter: blur(16px); display: none; align-items: center; gap: 12px;
+  white-space: nowrap; letter-spacing: -0.01em;
+}
+#ad-countdown {
+  position: fixed; inset: 0; z-index: 9999; background: rgba(4, 6, 15, 0.86);
+  backdrop-filter: blur(14px); display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; text-align: center;
+}
+#ad-countdown-num {
+  font-size: 96px; font-weight: 900; color: var(--accent);
+  text-shadow: 0 0 50px rgba(93,240,168,0.6); line-height: 1;
+}
+#ad-outro {
+  position: fixed; inset: 0; z-index: 9995;
+  background: radial-gradient(80% 70% at 50% 40%, rgba(16, 34, 74, 0.96), rgba(4, 6, 15, 0.98));
+  backdrop-filter: blur(20px); display: none; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; padding: 32px;
+  animation: fadeInOutro 0.6s ease forwards;
+}
+@keyframes fadeInOutro {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
   </style>
   <meta property="og:image" content="/og-image.png" />
   <meta property="og:image:width" content="1200" />
@@ -464,6 +528,7 @@ button,input,select,textarea{font-family:inherit;color:inherit}
         <p id="workspace-sub">Radni prostor: <strong id="company-name-display">Demo Firma d.o.o. Beograd</strong> · Valuta: <strong>RSD</strong> · SLA cilj: &lt; 60 sekundi</p>
       </div>
       <div class="topbar-actions">
+        <button type="button" class="btn btn-outline" id="btn-ad-mode" style="border-color:rgba(93,240,168,.5); color:var(--accent); background:rgba(93,240,168,.08);" title="Automatska prezentacija za snimanje video reklame (Prečica: Alt+D)">🎬 Režim za reklamu</button>
         <button type="button" class="btn btn-outline" id="btn-simulate">⚡ Simuliraj novi upit (IG / Viber)</button>
         <button type="button" class="btn btn-primary" id="btn-new-lead">+ Dodaj upit ručno</button>
       </div>
@@ -729,6 +794,44 @@ button,input,select,textarea{font-family:inherit;color:inherit}
   </div>
 
   <div class="toast" id="toast"><span class="dot"></span><span id="toast-msg">Sačuvano</span></div>
+
+
+  <!-- AD DIRECTOR MODE OVERLAYS -->
+  <div id="ad-countdown">
+    <div style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:.18em; color:var(--muted);">Pripremite snimanje ekrana (Win+G ili OBS)</div>
+    <div id="ad-countdown-num">3</div>
+    <div style="font-size:15px; color:var(--ink);">Automatska koreografija počinje...</div>
+  </div>
+
+  <div id="ad-cursor">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path d="M4 3L11.5 20L14.2 13.2L21 10.5L4 3Z" fill="#5df0a8" stroke="#04060f" stroke-width="2" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div id="ad-caption">
+    <span class="dot"></span>
+    <span id="ad-caption-text">Upitko — Komandni centar prodaje</span>
+  </div>
+
+  <div id="ad-outro">
+    <div style="display:inline-flex; align-items:center; gap:12px; font-size:28px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; margin-bottom:18px;">
+      <span style="color:var(--accent);">▲</span><span>UPITKO</span>
+    </div>
+    <h2 style="font-size:clamp(34px, 5vw, 56px); font-weight:900; letter-spacing:-.03em; line-height:1.06; max-width:720px;">
+      Prodajte pametnije,<br>ne <span style="color:var(--accent);">napornije.</span>
+    </h2>
+    <p style="margin-top:18px; font-size:19px; color:var(--muted); max-width:580px; line-height:1.5;">
+      Svi upiti sa sajta, Instagrama i Vibera na jednom mestu. Predračun sa NBS IPS QR kodom na jedan klik.
+    </p>
+    <div style="margin-top:32px; display:inline-flex; align-items:center; gap:12px; padding:16px 34px; border-radius:999px; background:linear-gradient(180deg, var(--accent), var(--accent-2)); color:var(--accent-ink); font-size:18px; font-weight:800; box-shadow:0 16px 40px -8px rgba(93,240,168,.6);">
+      <span>Isprobajte 14 dana besplatno · upitko.rs</span>
+    </div>
+    <div class="no-print" style="margin-top:36px; display:flex; gap:12px;">
+      <button type="button" class="btn btn-outline" id="btn-ad-replay">🔄 Ponovi animaciju</button>
+      <button type="button" class="btn btn-outline" id="btn-ad-exit">✕ Zatvori i vrati se u CRM</button>
+    </div>
+  </div>
 
   <script>
 const DEFAULT_LEADS = [
@@ -1332,6 +1435,265 @@ async function fetchSupabaseLeads() {
 
 window.addEventListener('DOMContentLoaded', () => {
   initSupabaseLive();
+});
+
+
+// ==============================================================================
+// AD DIRECTOR MODE — Automatska koreografija za snimanje reklame (Alt+D)
+// ==============================================================================
+let adRunning = false;
+let adTimers = [];
+let savedLeadsBeforeAd = null;
+
+function playAdSound(type) {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const now = ctx.currentTime;
+
+    if (type === 'beep') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now); osc.stop(now + 0.16);
+    } else if (type === 'lead') {
+      // Prijatan dvotonski chime za novi upit
+      [587.33, 880].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + i * 0.09);
+        gain.gain.setValueAtTime(0.14, now + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.35);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(now + i * 0.09); osc.stop(now + i * 0.09 + 0.36);
+      });
+    } else if (type === 'click') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, now);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now); osc.stop(now + 0.07);
+    } else if (type === 'cash') {
+      // Bogati akord za naplatu (Ka-ching!)
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.06);
+        gain.gain.setValueAtTime(0.12, now + i * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.55);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(now + i * 0.06); osc.stop(now + i * 0.06 + 0.56);
+      });
+    }
+  } catch (_e) {}
+}
+
+function moveAdCursorToElement(selector, clickAfter = true) {
+  const cursor = document.getElementById('ad-cursor');
+  const el = typeof selector === 'string' ? document.querySelector(selector) : selector;
+  if (!cursor || !el) return;
+  const rect = el.getBoundingClientRect();
+  cursor.style.display = 'block';
+  cursor.style.left = (rect.left + rect.width * 0.55) + 'px';
+  cursor.style.top = (rect.top + rect.height * 0.55) + 'px';
+  if (clickAfter) {
+    setTimeout(() => {
+      cursor.classList.add('clicking');
+      playAdSound('click');
+      setTimeout(() => cursor.classList.remove('clicking'), 240);
+    }, 680);
+  }
+}
+
+function setAdCaption(text) {
+  const box = document.getElementById('ad-caption');
+  const span = document.getElementById('ad-caption-text');
+  if (!box || !span) return;
+  if (!text) {
+    box.style.display = 'none';
+    return;
+  }
+  span.textContent = text;
+  box.style.display = 'inline-flex';
+}
+
+function bumpKpi(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('ad-bump');
+  setTimeout(() => el.classList.remove('ad-bump'), 650);
+}
+
+function clearAdTimers() {
+  adTimers.forEach((t) => clearTimeout(t));
+  adTimers = [];
+}
+
+function stopAdDirectorMode(restore = true) {
+  clearAdTimers();
+  adRunning = false;
+  document.getElementById('ad-countdown').style.display = 'none';
+  document.getElementById('ad-cursor').style.display = 'none';
+  document.getElementById('ad-caption').style.display = 'none';
+  document.getElementById('ad-outro').style.display = 'none';
+  document.getElementById('modal-invoice').classList.remove('open');
+  if (restore && savedLeadsBeforeAd) {
+    leads = JSON.parse(JSON.stringify(savedLeadsBeforeAd));
+    renderBoard();
+  }
+}
+
+function startAdDirectorMode() {
+  if (adRunning) stopAdDirectorMode(true);
+  adRunning = true;
+  savedLeadsBeforeAd = JSON.parse(JSON.stringify(leads));
+
+  // Prebaci na glavni Kanban tab i sakrij nepotrebne banere za čist snimak
+  document.querySelector('.side-btn[data-tab="pipeline"]')?.click();
+  const banner = document.getElementById('auth-banner');
+  if (banner) banner.style.display = 'none';
+  document.getElementById('ad-outro').style.display = 'none';
+
+  // Odbrojavanje 3, 2, 1
+  const cdBox = document.getElementById('ad-countdown');
+  const cdNum = document.getElementById('ad-countdown-num');
+  cdBox.style.display = 'flex';
+  cdNum.textContent = '3';
+  playAdSound('beep');
+
+  adTimers.push(setTimeout(() => { cdNum.textContent = '2'; playAdSound('beep'); }, 900));
+  adTimers.push(setTimeout(() => { cdNum.textContent = '1'; playAdSound('beep'); }, 1800));
+  adTimers.push(setTimeout(() => {
+    cdBox.style.display = 'none';
+    runAdChoreography();
+  }, 2600));
+}
+
+function runAdChoreography() {
+  const cursor = document.getElementById('ad-cursor');
+  cursor.style.display = 'block';
+  cursor.style.left = '50%';
+  cursor.style.top = '50%';
+
+  // 0.0s: Početni titl
+  setAdCaption('1. Kupac šalje upit sa Vibera ili Instagrama...');
+
+  // 1.2s: Uleće prvi novi upit (Milan Petrović - PVC Stolarija)
+  adTimers.push(setTimeout(() => {
+    const adLead1 = {
+      id: 'AD-901',
+      name: 'Milan Petrović',
+      company: 'PVC Stolarija Zemun (3 prozora)',
+      channel: 'Viber Business',
+      value: 240000,
+      stage: 'novi',
+      owner: 'Nikola J.',
+      time: 'upravo sada'
+    };
+    leads.unshift(adLead1);
+    renderBoard();
+    const firstCard = document.querySelector('#col-novi .deal-card');
+    if (firstCard) firstCard.classList.add('ad-highlight');
+    playAdSound('lead');
+    bumpKpi('kpi-total');
+    showToast('⚡ Novi upit (Viber): Milan Petrović · 240.000 RSD — dodeljen prodavcu za 0.2s!');
+    setAdCaption('⚡ Upitko ga hvata u 0.2 sekunde i alarmira slobodnog prodavca!');
+  }, 1200));
+
+  // 4.5s: Prodavac zove za 40 sekundi i kvalifikuje kupca
+  adTimers.push(setTimeout(() => {
+    setAdCaption('📞 Prodavac zove kupca za 40 sekundi — pre konkurencije!');
+    const advBtn = document.querySelector('[data-advance="AD-901"]');
+    if (advBtn) moveAdCursorToElement(advBtn, true);
+  }, 4300));
+
+  adTimers.push(setTimeout(() => {
+    const item = leads.find((x) => x.id === 'AD-901');
+    if (item) {
+      item.stage = 'kvalifikovani';
+      item.time = 'poziv: 38 sek';
+      renderBoard();
+      const movedCard = document.querySelector('#col-kvalifikovani .deal-card');
+      if (movedCard) movedCard.classList.add('ad-highlight');
+      showToast('📞 Kupac Milan Petrović kvalifikovan posle 38 sekundi!');
+    }
+  }, 5200));
+
+  // 8.0s: Jednim klikom kreira zvaničan predračun sa NBS IPS QR kodom
+  adTimers.push(setTimeout(() => {
+    setAdCaption('🧾 Jednim klikom: Zvaničan predračun sa NBS IPS QR kodom!');
+    const invBtn = document.querySelector('[data-inv="AD-901"]');
+    if (invBtn) moveAdCursorToElement(invBtn, true);
+  }, 7800));
+
+  adTimers.push(setTimeout(() => {
+    const item = leads.find((x) => x.id === 'AD-901');
+    if (item) openInvoiceModal(item);
+  }, 8700));
+
+  // 12.5s: Slanje predračuna klijentu na Viber i Email
+  adTimers.push(setTimeout(() => {
+    setAdCaption('📲 Kupac skenira NBS IPS QR kod m-bankingom i plaća za 2 sekunde!');
+    const sendBtn = document.getElementById('btn-send-inv');
+    if (sendBtn) moveAdCursorToElement(sendBtn, true);
+  }, 12200));
+
+  adTimers.push(setTimeout(() => {
+    document.getElementById('modal-invoice').classList.remove('open');
+    const item = leads.find((x) => x.id === 'AD-901');
+    if (item) {
+      item.stage = 'ponuda';
+      renderBoard();
+      showToast('✓ Predračun sa IPS QR kodom poslat kupcu na Viber!');
+    }
+  }, 13100));
+
+  // 15.8s: Uplata leže, posao prelazi u Zatvoreno (Dobijeno) uz Ka-ching zvuk!
+  adTimers.push(setTimeout(() => {
+    const item = leads.find((x) => x.id === 'AD-901');
+    if (item) {
+      item.stage = 'zatvoreno';
+      item.time = 'PLAĆENO (IPS QR)';
+      renderBoard();
+      const wonCard = document.querySelector('#col-zatvoreno .deal-card');
+      if (wonCard) wonCard.classList.add('ad-highlight');
+      playAdSound('cash');
+      bumpKpi('kpi-won');
+      setAdCaption('💸 Uplata evidentirana: +240.000 RSD! Vlasnik sve vidi uživo.');
+      showToast('💸 NBS IPS Uplata legla na račun: +240.000 RSD (PVC Stolarija Zemun)!');
+    }
+  }, 15800));
+
+  // 19.5s: Završni Hero ekran sa pozivom na akciju
+  adTimers.push(setTimeout(() => {
+    document.getElementById('ad-cursor').style.display = 'none';
+    setAdCaption('');
+    document.getElementById('ad-outro').style.display = 'flex';
+    playAdSound('lead');
+  }, 19500));
+}
+
+document.getElementById('btn-ad-mode')?.addEventListener('click', startAdDirectorMode);
+document.getElementById('btn-ad-replay')?.addEventListener('click', startAdDirectorMode);
+document.getElementById('btn-ad-exit')?.addEventListener('click', () => stopAdDirectorMode(true));
+
+window.addEventListener('keydown', (e) => {
+  if (e.altKey && (e.key === 'd' || e.key === 'D')) {
+    e.preventDefault();
+    startAdDirectorMode();
+  } else if (e.key === 'Escape' && adRunning) {
+    stopAdDirectorMode(true);
+  }
 });
 
 renderBoard();
