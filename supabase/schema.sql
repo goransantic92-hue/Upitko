@@ -90,6 +90,24 @@ CREATE TABLE IF NOT EXISTS public.invoices (
 
 CREATE INDEX IF NOT EXISTS idx_invoices_org ON public.invoices(organization_id);
 
+-- 7. Tabela: POVEZANI KANALI I TOKENI (Meta OAuth, Viber Bot, itd.)
+CREATE TABLE IF NOT EXISTS public.channel_connections (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
+    channel TEXT NOT NULL CHECK (channel IN ('instagram', 'facebook', 'whatsapp', 'viber', 'email', 'web')),
+    account_identifier TEXT NOT NULL, -- npr. Instagram business ID, Page ID, Viber Bot Token, @handle
+    account_name TEXT,                -- npr. @lenkolino, Moja Firma FB Stranica
+    access_token TEXT,                -- Dugoživeći Meta Page Token ili Viber Token
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(organization_id, channel)
+);
+
+CREATE INDEX IF NOT EXISTS idx_channel_conn_org ON public.channel_connections(organization_id);
+CREATE INDEX IF NOT EXISTS idx_channel_conn_id ON public.channel_connections(account_identifier);
+
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) — VIŠEKORISNIČKA IZOLACIJA PODATAKA
 -- Nijedna firma ne može ni pod kojim uslovima videti ili menjati podatke druge firme!

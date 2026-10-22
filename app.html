@@ -1391,7 +1391,16 @@ document.querySelectorAll('.side-btn[data-tab]').forEach((btn) => {
   });
 });
 
-// Check URL hash on load
+// Check URL hash & OAuth callback params on load
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('connected') === 'meta') {
+  const acc = urlParams.get('account') || '@lenkolino';
+  saveConnectedChannel('instagram', acc);
+  saveConnectedChannel('facebook', 'Meta Stranica');
+  showToast('✓ Zvanično povezano preko Meta naloga: ' + acc);
+  history.replaceState(null, '', window.location.pathname + '#channels');
+}
+
 if (location.hash === '#inbox') document.querySelector('[data-tab="inbox"]').click();
 if (location.hash === '#channels') document.querySelector('[data-tab="channels"]').click();
 if (location.hash === '#workflows') document.querySelector('[data-tab="workflows"]').click();
@@ -1903,13 +1912,10 @@ function openChannelSetupModal(chKey) {
     document.getElementById('btn-oauth-connect')?.addEventListener('click', () => {
       const btn = document.getElementById('btn-oauth-connect');
       btn.disabled = true;
-      btn.innerHTML = '<span>Povezivanje sa Meta / Instagram serverom...</span>';
-      setTimeout(() => {
-        saveConnectedChannel(chKey, '@' + (orgSlug || 'mojafirma') + '_official');
-        document.getElementById('modal-channel-setup').classList.remove('open');
-        showToast(`✓ Uspešno povezano sa vašom ${ch.name} stranicom!`);
-        createAndSaveLead(ch.sampleLead);
-      }, 1100);
+      btn.innerHTML = '<span>Preusmeravanje na zvaničnu Meta prijavu...</span>';
+      const orgId = currentOrg?.id || '';
+      const returnUrl = encodeURIComponent(window.location.origin + window.location.pathname + '#channels');
+      window.location.href = `/api/auth/meta/connect?org_id=${orgId}&return_url=${returnUrl}`;
     });
 
     document.getElementById('btn-save-manual-handle')?.addEventListener('click', () => {
