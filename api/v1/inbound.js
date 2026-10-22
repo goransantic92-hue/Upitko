@@ -1,6 +1,16 @@
 // Upitko CRM — Inbound Lead Gateway (Vercel Serverless Function)
 // Endpoint: POST /api/v1/inbound
-// Klijenti u Srbiji koriste ovaj endpoint za automatski prijem upita sa WordPress/Webflow/custom sajtova
+// Klijenti u Srbiji koriste ovaj endpoint za automatski prijem upita sa WordPress/Webflow/custom sajtova, Vibera, IG, FB, WhatsAppa i Emaila
+
+function cleanSupabaseUrl(rawUrl) {
+  if (!rawUrl) return '';
+  let url = String(rawUrl).trim();
+  const dashMatch = url.match(/supabase\.com\/dashboard\/project\/([a-zA-Z0-9_-]+)/);
+  if (dashMatch) return 'https://' + dashMatch[1] + '.supabase.co';
+  url = url.replace(/\/rest\/v1\/?$/, '').replace(/\/auth\/v1\/?$/, '').replace(/\/+$/, '');
+  if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+  return url;
+}
 
 module.exports = async function handler(req, res) {
   // CORS podrška kako bi klijenti mogli da šalju forme direktno sa svog domena
@@ -76,12 +86,49 @@ module.exports = async function handler(req, res) {
     }
 
     // 2. Ako su podešene Supabase Environment promenljive na Vercelu, upiši direktno u PostgreSQL
-    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+    const rawSupabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseUrl = cleanSupabaseUrl(rawSupabaseUrl);
+    const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
 
     if (supabaseUrl && supabaseKey) {
+      const validChannels = ['web', 'viber', 'whatsapp', 'instagram', 'facebook', 'telefon', 'preporuka', 'ostalo'];
+      const normalizedChannel = validChannels.includes(leadChannel) ? leadChannel : 'ostalo';
+
       try {
-        // Proveri organizaciju preko API ključa
+        // Prvo pokušaj preko RPC funkcije receive_inbound_lead (radi i sa ANON ključem zahvaljujući SECURITY DEFINER)
+        const rpcRes = await fetch(`${supabaseUrl}/rest/v1/rpc/receive_inbound_lead`, {
+          method: 'POST',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            p_api_key: apiKey,
+            p_contact_name: leadName || 'Novi kontakt sa sajta',
+            p_company_name: leadCompany || null,
+            p_email: leadEmail || null,
+            p_phone: leadPhone || null,
+            p_channel: normalizedChannel,
+            p_value_rsd: leadVal,
+            p_notes: leadMsg || null,
+            p_source_url: source_url || req.headers.referer || null
+          })
+        });
+
+        if (rpcRes.ok) {
+          const rpcData = await rpcRes.json();
+          if (rpcData && rpcData.success) {
+            return res.status(201).json({
+              success: true,
+              message: 'Upit je uspešno primljen i prosleđen u radni prostor firme!',
+              lead_id: rpcData.lead_id,
+              organization: rpcData.organization
+            });
+          }
+        }
+
+        // Fallback: Direktna provera organizacije preko API ključa (ako se koristi SERVICE_ROLE_KEY)
         const orgRes = await fetch(`${supabaseUrl}/rest/v1/organizations?api_key=eq.${encodeURIComponent(apiKey)}&select=id,name,webhook_url`, {
           headers: {
             'apikey': supabaseKey,
@@ -114,7 +161,7 @@ module.exports = async function handler(req, res) {
             company_name: leadCompany || null,
             email: leadEmail || null,
             phone: leadPhone || null,
-            channel: ['web','viber','whatsapp','instagram','facebook','telefon'].includes(leadChannel) ? leadChannel : 'web',
+            channel: normalizedChannel,
             stage: 'novi',
             value_rsd: leadVal,
             notes: leadMsg,

@@ -492,6 +492,10 @@ button,input,select,textarea{font-family:inherit;color:inherit}
         <span>Omnichannel Sanduče</span>
         <span class="side-count" id="nav-inbox-count">4</span>
       </button>
+      <button type="button" class="side-btn" data-tab="channels">
+        <span>🔌 Kanali &amp; Integracije</span>
+        <span class="side-count" id="nav-channels-count">6</span>
+      </button>
       <button type="button" class="side-btn" data-tab="workflows">
         <span>Automatizacije &amp; SLA</span>
       </button>
@@ -739,6 +743,98 @@ button,input,select,textarea{font-family:inherit;color:inherit}
           </table>
         </div>
       </section>
+
+      <!-- TAB 5: KANALI & INTEGRACIJE (Viber, Instagram, FB, WhatsApp, Email, Web Sajt) -->
+      <section class="tab-pane" id="tab-channels">
+        <!-- Interaktivni vodič za simulaciju svih koraka i faza -->
+        <div style="padding:20px 24px; border-radius:var(--radius); background:radial-gradient(120% 140% at 0% 0%, rgba(93,240,168,.14), rgba(12,18,38,.85)); border:1px solid rgba(93,240,168,.38); display:grid; gap:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; color:var(--accent);">🎯 Kompletan test protokola na vašem nalogu</span>
+              <h3 style="font-size:17px; font-weight:800; margin-top:4px;">Kako da isprobate svaki kanal i svaku fazu prodaje (1 → 4)</h3>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-sim-all-channels">🚀 Pošalji po 1 test upit sa svih 6 kanala odjednom</button>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; font-size:12.5px;">
+            <div style="padding:12px; border-radius:10px; background:rgba(4,6,15,.65); border:1px solid var(--line);">
+              <strong style="color:var(--accent); display:block; margin-bottom:4px;">1. Prijem upita sa kanala</strong>
+              Kliknite na <strong>„⚡ Testiraj upit“</strong> na bilo kojoj kartici ispod (Viber, IG, FB, WhatsApp, Email ili Sajt). Upit leže u vašu bazu.
+            </div>
+            <div style="padding:12px; border-radius:10px; background:rgba(4,6,15,.65); border:1px solid var(--line);">
+              <strong style="color:var(--accent); display:block; margin-bottom:4px;">2. Odgovor u Sandučetu &amp; Kvalifikacija</strong>
+              Otvorite <strong>Omnichannel Sanduče</strong>, pošaljite odgovor kupcu, a u <strong>Prodajnom levku</strong> kliknite <em>„U fazu: Kvalifikovan →“</em>.
+            </div>
+            <div style="padding:12px; border-radius:10px; background:rgba(4,6,15,.65); border:1px solid var(--line);">
+              <strong style="color:var(--accent); display:block; margin-bottom:4px;">3. Predračun sa NBS IPS QR kodom</strong>
+              Kliknite na <strong>🧾</strong> na kartici upita, pregledajte PDF predračun i kliknite <em>„✓ Pošalji klijentu i pomeri u fazu Ponuda“</em>.
+            </div>
+            <div style="padding:12px; border-radius:10px; background:rgba(4,6,15,.65); border:1px solid var(--line);">
+              <strong style="color:var(--accent); display:block; margin-bottom:4px;">4. Zatvaranje posla (Naplaćeno)</strong>
+              U koloni Ponuda kliknite <em>„U fazu: Zatvoreno →“</em>. Prihod i stopa konverzije na vrhu ekrana se odmah uvećavaju!
+            </div>
+          </div>
+        </div>
+
+        <!-- Mreža 6 kanala (Viber, Instagram, Facebook, WhatsApp, Email, Web sajt) -->
+        <div id="channels-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(310px, 1fr)); gap:16px;"></div>
+
+        <!-- Uživo Simulator Web Forme + Copy-Paste HTML snippet za sajt klijenta -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start;">
+          <div style="padding:22px; border-radius:var(--radius); background:var(--glass); border:1px solid var(--line-strong); display:grid; gap:14px;">
+            <div>
+              <span class="ch-badge" style="margin-bottom:6px; display:inline-block;">Uživo Simulator</span>
+              <h3 style="font-size:16px; font-weight:800;">Pošaljite prilagođeni upit u vaš CRM (kao pravi kupac)</h3>
+              <p style="font-size:12.5px; color:var(--muted); margin-top:4px;">Izaberite kanal, unesite ime i poruku kupca i gledajte kako upit uživo stiže u vaš Kanban levak i Omnichannel sanduče.</p>
+            </div>
+            <form id="form-channel-simulator" style="display:grid; gap:10px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="field">
+                  <label>Kanal odakle kupac piše</label>
+                  <select name="channel" required>
+                    <option value="Viber Business">🟣 Viber Business</option>
+                    <option value="Instagram DM">🩷 Instagram DM</option>
+                    <option value="Facebook Lead Ad">🔵 Facebook Lead Ad</option>
+                    <option value="WhatsApp Business">🟢 WhatsApp Business (WP)</option>
+                    <option value="Email / Oglasnik">🟡 Email / KupujemProdajem</option>
+                    <option value="Sajt forma">🌐 Web Sajt / WordPress forma</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Vrednost upita (RSD)</label>
+                  <input type="number" name="value" value="285000" min="1000" step="5000" required />
+                </div>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div class="field">
+                  <label>Ime i prezime kupca</label>
+                  <input type="text" name="name" placeholder="npr. Dragan Marković" required />
+                </div>
+                <div class="field">
+                  <label>Firma ili grad (opciono PIB)</label>
+                  <input type="text" name="company" placeholder="npr. MetalFlex d.o.o. Užice" required />
+                </div>
+              </div>
+              <div class="field">
+                <label>Tekst poruke kupca (pojaviće se u Omnichannel Sandučetu)</label>
+                <input type="text" name="notes" placeholder="npr. Dobar dan, pošaljite nam predračun na PIB 107382910 za 5 kompleta..." required />
+              </div>
+              <button type="submit" class="btn btn-primary" style="justify-content:center; margin-top:4px;">⚡ Pošalji upit u moj CRM i Sanduče</button>
+            </form>
+          </div>
+
+          <div style="padding:22px; border-radius:var(--radius); background:var(--glass); border:1px solid var(--line-strong); display:grid; gap:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
+              <div>
+                <span class="ch-badge" style="margin-bottom:6px; display:inline-block;">Web Sajt &amp; WordPress</span>
+                <h3 style="font-size:16px; font-weight:800;">Gotov HTML kod za vaš sajt</h3>
+                <p style="font-size:12.5px; color:var(--muted); margin-top:4px;">Nalepite ovaj kod na vaš WordPress (Elementor HTML widget), Webflow ili custom sajt. Svaka prijava direktno ulazi u vaš Upitko nalog.</p>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-copy-embed-code">📋 Kopiraj kod</button>
+            </div>
+            <pre id="embed-code-preview" style="background:rgba(4,6,15,.85); border:1px solid var(--line); border-radius:10px; padding:12px; font-size:11.5px; color:#a7f3d0; overflow-x:auto; line-height:1.45; font-family:monospace; white-space:pre-wrap;"></pre>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -763,17 +859,48 @@ button,input,select,textarea{font-family:inherit;color:inherit}
           <select name="channel">
             <option>Instagram DM</option>
             <option>Viber Business</option>
-            <option>Sajt forma</option>
+            <option>WhatsApp Business</option>
             <option>Facebook Lead Ad</option>
-            <option>KupujemProdajem / Oglasnik</option>
+            <option>Sajt forma</option>
+            <option>Email / Oglasnik</option>
             <option>Telefonski poziv</option>
           </select>
+        </div>
+        <div class="field">
+          <label>Poruka kupca / napomena (za Sanduče)</label>
+          <input type="text" name="notes" placeholder="npr. Zanima nas ponuda i rok isporuke za Novi Sad..." />
         </div>
         <div class="field">
           <label>Procenjena vrednost posla (RSD)</label>
           <input type="number" name="value" required value="240000" min="1000" step="1000" />
         </div>
         <button type="submit" class="btn btn-primary" style="justify-content:center;margin-top:6px">Sačuvaj i dodeli prodavcu</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: POVEZIVANJE KANALA (Viber, IG, FB, WhatsApp, Email, Web) -->
+  <div class="modal-backdrop" id="modal-channel-setup">
+    <div class="modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 id="ch-modal-title">Povezivanje kanala</h3>
+        <button type="button" class="btn btn-outline btn-sm" id="close-channel-setup">✕</button>
+      </div>
+      <p id="ch-modal-desc" style="font-size:13px; color:var(--muted); line-height:1.5;"></p>
+      <div style="padding:12px; border-radius:10px; background:rgba(4,6,15,.75); border:1px solid var(--line); display:grid; gap:6px;">
+        <span style="font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase;">Webhook URL za prijem poruka i upita:</span>
+        <code id="ch-modal-webhook" style="font-size:12px; color:var(--accent); word-break:break-all; font-family:monospace;"></code>
+      </div>
+      <form id="form-channel-setup" style="display:grid; gap:12px;">
+        <input type="hidden" name="channel_key" id="ch-modal-key" />
+        <div class="field">
+          <label id="ch-modal-input-label">Identifikator naloga / API Token / Broj</label>
+          <input type="text" name="identifier" id="ch-modal-input" required placeholder="Unesite podatak za povezivanje..." />
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+          <button type="button" class="btn btn-outline" id="btn-ch-modal-test">⚡ Pošalji probni upit</button>
+          <button type="submit" class="btn btn-primary">✓ Sačuvaj i aktiviraj kanal</button>
+        </div>
       </form>
     </div>
   </div>
@@ -1214,7 +1341,8 @@ function openInvoiceModal(lead) {
 // Tabs switching
 const TAB_TITLES = {
   pipeline: 'Prodajni levak i pregled prihoda',
-  inbox: 'Omnichannel Sanduče (Instagram, Viber, Sajt, Oglasnici)',
+  inbox: 'Omnichannel Sanduče (Instagram, Viber, WhatsApp, Sajt, Email)',
+  channels: 'Kanali i Integracije (Viber, Instagram, FB, WhatsApp, Email, Sajt)',
   workflows: 'Aktivne automatizacije i SLA pravila',
   companies: 'Baza klijenata, PIB podaci i predračuni'
 };
@@ -1231,7 +1359,31 @@ document.querySelectorAll('.side-btn[data-tab]').forEach((btn) => {
 
 // Check URL hash on load
 if (location.hash === '#inbox') document.querySelector('[data-tab="inbox"]').click();
+if (location.hash === '#channels') document.querySelector('[data-tab="channels"]').click();
 if (location.hash === '#workflows') document.querySelector('[data-tab="workflows"]').click();
+
+const CHANNEL_TO_DB = {
+  'Instagram DM': 'instagram',
+  'Viber Business': 'viber',
+  'WhatsApp Business': 'whatsapp',
+  'Facebook Lead Ad': 'facebook',
+  'Sajt forma': 'web',
+  'Email / Oglasnik': 'ostalo',
+  'KupujemProdajem / Oglasnik': 'ostalo',
+  'Oglasnik parser': 'ostalo',
+  'Telefonski poziv': 'telefon'
+};
+
+const DB_TO_CHANNEL = {
+  instagram: 'Instagram DM',
+  viber: 'Viber Business',
+  whatsapp: 'WhatsApp Business',
+  facebook: 'Facebook Lead Ad',
+  web: 'Sajt forma',
+  ostalo: 'Email / Oglasnik',
+  telefon: 'Telefonski poziv',
+  preporuka: 'Preporuka'
+};
 
 // Inbox threads
 const DEFAULT_THREADS = [
@@ -1444,23 +1596,22 @@ document.getElementById('btn-print-inv').addEventListener('click', () => {
   window.print();
 });
 
-document.getElementById('form-new-lead').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const fd = Object.fromEntries(new FormData(e.target).entries());
-  const newLeadVal = Number(fd.value) || 150000;
-
-  // 1. Ako je aktivna Supabase baza, upiši direktno u PostgreSQL
+async function createAndSaveLead({ name, company, channel, value, notes }) {
+  const cleanVal = Number(value) || 180000;
+  const displayChannel = DB_TO_CHANNEL[channel] || channel || 'Sajt forma';
+  const dbChannel = CHANNEL_TO_DB[displayChannel] || 'web';
   const sb = window.getSupabase();
   let rawId = null;
+
   if (sb && currentOrg) {
-    const chMap = { 'Instagram DM':'instagram', 'Viber Business':'viber', 'Sajt forma':'web', 'Facebook Lead Ad':'facebook', 'Preporuka / Telefon':'telefon' };
     try {
       const { data: created } = await sb.from('leads').insert({
         organization_id: currentOrg.id,
-        contact_name: fd.name,
-        company_name: fd.company || null,
-        channel: chMap[fd.channel] || 'web',
-        value_rsd: newLeadVal,
+        contact_name: name,
+        company_name: company || null,
+        channel: dbChannel,
+        value_rsd: cleanVal,
+        notes: notes || null,
         stage: 'novi'
       }).select().single();
       if (created) rawId = created.id;
@@ -1469,63 +1620,294 @@ document.getElementById('form-new-lead').addEventListener('submit', async (e) =>
     }
   }
 
+  // Izbegni duplikat ako je Realtime već ubacio isti lid
+  if (rawId && leads.some((x) => x.raw_id === rawId)) {
+    renderBoard();
+    return;
+  }
+
   leads.unshift({
     id: rawId ? 'LID-' + rawId.slice(0, 4).toUpperCase() : 'UP-' + Math.floor(110 + Math.random() * 890),
     raw_id: rawId,
-    name: fd.name,
-    company: fd.company,
-    channel: fd.channel,
-    value: newLeadVal,
+    name,
+    company: company || 'Nije navedeno',
+    channel: displayChannel,
+    value: cleanVal,
+    notes: notes || '',
     stage: 'novi',
     owner: currentProfile?.full_name?.split(' ')[0] || 'Prodavac',
     time: 'upravo sada'
   });
   saveLeads();
   renderBoard();
+}
+
+document.getElementById('form-new-lead').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = Object.fromEntries(new FormData(e.target).entries());
+  await createAndSaveLead({
+    name: fd.name,
+    company: fd.company,
+    channel: fd.channel,
+    value: fd.value,
+    notes: fd.notes
+  });
   e.target.reset();
   document.getElementById('modal-new').classList.remove('open');
-  showToast(`Novi upit (${fd.name}) dodat u bazu i dodeljen prodavcu!`);
+  showToast(`✓ Novi upit (${fd.name} · ${fd.channel}) dodat u levak i Sanduče!`);
 });
 
 const SIM_POOL = [
-  { name: 'Bojan Стевановић', company: 'EuroStolarija Čačak', channel: 'Viber Business', value: 390000 },
-  { name: 'Tamara Крстић', company: 'estetika-bg.rs · Novi Beograd', channel: 'Instagram DM', value: 275000 },
-  { name: 'Aleksandar М.', company: 'TermoMont d.o.o. Subotica', channel: 'Sajt forma', value: 840000 },
-  { name: 'Miloš Радовановић', company: 'KupujemProdajem izlog', channel: 'Oglasnik parser', value: 165000 }
+  { name: 'Bojan Stevanović', company: 'EuroStolarija Čačak (PIB 106492811)', channel: 'Viber Business', value: 390000, notes: 'Zdravo, potrebna nam je ponuda i predračun na PIB 106492811 za kompletan paket.' },
+  { name: 'Tamara Krstić', company: 'Estetika Centar · Novi Beograd', channel: 'Instagram DM', value: 275000, notes: 'Ćao! Videli smo vaš profil na Instagramu, zanima nas cena i koliko brzo možemo da počnemo?' },
+  { name: 'Aleksandar Milić', company: 'TermoMont d.o.o. Subotica', channel: 'Sajt forma', value: 840000, notes: 'Popunjena kontakt forma na sajtu: Tražimo B2B ponudu za 8 komada sa isporukom u Subotici.' },
+  { name: 'Nikola Đurić', company: 'Transport Đurić Kragujevac', channel: 'WhatsApp Business', value: 320000, notes: 'Pozdrav sa WhatsApp-a! Možete li mi poslati predračun sa QR kodom da uplatim odmah m-bankingom?' },
+  { name: 'Marija Nikolić', company: 'Optika Fokus Niš', channel: 'Facebook Lead Ad', value: 210000, notes: 'Prijava sa Facebook Lead reklame: Želim besplatnu konsultaciju i ponudu za naš lokal u Nišu.' },
+  { name: 'Miloš Radovanović', company: 'KupujemProdajem / Email upit', channel: 'Email / Oglasnik', value: 165000, notes: 'Prosleđen email upit: Poštovani, molim vas za zvaničan predračun i rok isporuke za Beograd.' }
 ];
-document.getElementById('btn-simulate').addEventListener('click', async () => {
-  const pick = SIM_POOL[Math.floor(Math.random() * SIM_POOL.length)];
-  const sb = window.getSupabase();
-  let rawId = null;
-  if (sb && currentOrg) {
-    const chMap = { 'Instagram DM':'instagram', 'Viber Business':'viber', 'Sajt forma':'web', 'Oglasnik parser':'ostalo' };
-    try {
-      const { data: created } = await sb.from('leads').insert({
-        organization_id: currentOrg.id,
-        contact_name: pick.name,
-        company_name: pick.company,
-        channel: chMap[pick.channel] || 'web',
-        value_rsd: pick.value,
-        stage: 'novi'
-      }).select().single();
-      if (created) rawId = created.id;
-    } catch (_e) {}
-  }
+let simIndex = 0;
 
-  leads.unshift({
-    id: rawId ? 'LID-' + rawId.slice(0, 4).toUpperCase() : 'UP-' + Math.floor(200 + Math.random() * 790),
-    raw_id: rawId,
-    name: pick.name,
-    company: pick.company,
-    channel: pick.channel,
-    value: pick.value,
-    stage: 'novi',
-    owner: currentProfile?.full_name?.split(' ')[0] || 'Prodavac',
-    time: 'pre 1 sek'
+document.getElementById('btn-simulate').addEventListener('click', async () => {
+  const pick = SIM_POOL[simIndex % SIM_POOL.length];
+  simIndex++;
+  await createAndSaveLead(pick);
+  showToast(`⚡ Novi upit (${pick.channel}): ${pick.name} · ${fmtRsd(pick.value)} — stigao u Levak i Sanduče!`);
+});
+
+// ==============================================================================
+// KANALI & INTEGRACIJE HUB (Viber, Instagram, FB, WhatsApp, Email, Web Sajt)
+// ==============================================================================
+const CHANNELS_CATALOG = [
+  {
+    key: 'viber',
+    name: 'Viber Business',
+    badge: 'Domaći favorit',
+    color: '#a78bfa',
+    desc: 'Primajte poruke sa vašeg Viber Business naloga direktno u Omnichannel Sanduče i šaljite PDF predračune sa NBS IPS QR kodom.',
+    inputLabel: 'Viber Bot / Business Auth Token ili broj telefona:',
+    inputPlaceholder: 'npr. +381 64 123 4567 ili viber-bot-token...',
+    sampleLead: SIM_POOL[0]
+  },
+  {
+    key: 'instagram',
+    name: 'Instagram DM & Lead Ads',
+    badge: 'Društvene mreže',
+    color: '#f472b6',
+    desc: 'Svaka poruka u Instagram DM ili prijava sa sponzorisanog oglasa (Meta/ManyChat/Make) automatski otvara karticu kupca.',
+    inputLabel: 'Instagram Business stranica (@handle) ili Meta Webhook Token:',
+    inputPlaceholder: 'npr. @moja_firma_rs',
+    sampleLead: SIM_POOL[1]
+  },
+  {
+    key: 'facebook',
+    name: 'Facebook Lead Ads & Messenger',
+    badge: 'Meta Ads',
+    color: '#60a5fa',
+    desc: 'Zaboravite na ručno skidanje CSV tabela iz Meta Ads Manager-a. Upiti iz FB Lead formi uleću u CRM u istoj sekundi.',
+    inputLabel: 'Naziv Facebook Stranice ili Lead Form ID:',
+    inputPlaceholder: 'npr. Moja Firma Srbija (FB Page)',
+    sampleLead: SIM_POOL[4]
+  },
+  {
+    key: 'whatsapp',
+    name: 'WhatsApp Business (WP)',
+    badge: 'Mesindžeri',
+    color: '#34d399',
+    desc: 'Dvosmerna komunikacija sa kupcima iz Srbije i dijaspore preko vašeg poslovnog WhatsApp broja (Cloud API).',
+    inputLabel: 'Poslovni WhatsApp broj telefona:',
+    inputPlaceholder: 'npr. +381 63 987 6543',
+    sampleLead: SIM_POOL[3]
+  },
+  {
+    key: 'email',
+    name: 'Email & Domaći Oglasnici (KP, 4zida)',
+    badge: 'Email Parser',
+    color: '#fbbf24',
+    desc: 'Automatski pretvara dolazne mejlove sa vašeg prodaja@sajt.rs i obaveštenja sa KupujemProdajem / 4zida / Polovni Automobili u upite.',
+    inputLabel: 'Vaša prodajna email adresa za prosleđivanje (Forwarding):',
+    inputPlaceholder: 'npr. prodaja@mojafirma.rs',
+    sampleLead: SIM_POOL[5]
+  },
+  {
+    key: 'web',
+    name: 'Web Sajt & WordPress Forma',
+    badge: 'Direktan Webhook',
+    color: '#5df0a8',
+    desc: 'Povežite Elementor, Contact Form 7, Webflow ili običnu HTML formu sa vašeg sajta pomoću vašeg API ključa firme.',
+    inputLabel: 'Domen vašeg veb sajta:',
+    inputPlaceholder: 'npr. https://www.mojafirma.rs',
+    sampleLead: SIM_POOL[2]
+  }
+];
+
+function getConnectedChannelsMap() {
+  const storageKey = 'upitko_channels_' + (currentOrg?.id || 'default');
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (raw) return JSON.parse(raw);
+  } catch (_e) {}
+  return { web: 'Aktivno (API Ključ)' };
+}
+
+function saveConnectedChannel(chKey, identifierVal) {
+  const storageKey = 'upitko_channels_' + (currentOrg?.id || 'default');
+  const map = getConnectedChannelsMap();
+  map[chKey] = identifierVal;
+  localStorage.setItem(storageKey, JSON.stringify(map));
+  renderChannelsHub();
+}
+
+function renderChannelsHub() {
+  const grid = document.getElementById('channels-grid');
+  if (!grid) return;
+  const connected = getConnectedChannelsMap();
+  const connectedCount = Object.keys(connected).length;
+  const countBadge = document.getElementById('nav-channels-count');
+  if (countBadge) countBadge.textContent = connectedCount + '/6';
+
+  grid.innerHTML = CHANNELS_CATALOG.map((ch) => {
+    const isConn = Boolean(connected[ch.key]);
+    return `
+      <div class="deal-card" style="padding:18px; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+            <span class="ch-badge" style="color:${ch.color}; border-color:${ch.color}44; background:${ch.color}18;">${ch.badge}</span>
+            <span style="font-size:11.5px; font-weight:700; color:${isConn ? 'var(--accent)' : 'var(--muted)'};">
+              ${isConn ? '🟢 Povezano (' + connected[ch.key] + ')' : '⚪ Nije povezano'}
+            </span>
+          </div>
+          <h4 style="font-size:15.5px; font-weight:800; margin-bottom:6px;">${ch.name}</h4>
+          <p style="font-size:12.5px; color:var(--muted); line-height:1.45;">${ch.desc}</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; padding-top:10px; border-top:1px solid var(--line);">
+          <button type="button" class="btn btn-primary btn-sm" data-sim-ch="${ch.key}" style="flex:1; justify-content:center;">⚡ Testiraj upit</button>
+          <button type="button" class="btn btn-outline btn-sm" data-setup-ch="${ch.key}">⚙️ ${isConn ? 'Izmeni' : 'Poveži'}</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('[data-sim-ch]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const key = btn.getAttribute('data-sim-ch');
+      const ch = CHANNELS_CATALOG.find((x) => x.key === key);
+      if (!ch) return;
+      await createAndSaveLead(ch.sampleLead);
+      showToast(`⚡ Stigao upit sa kanala ${ch.name}: ${ch.sampleLead.name} (${fmtRsd(ch.sampleLead.value)})!`);
+    });
   });
-  saveLeads();
-  renderBoard();
-  showToast(`⚡ Novi upit (${pick.channel}): ${pick.name} · ${fmtRsd(pick.value)} — automatski dodeljen!`);
+
+  grid.querySelectorAll('[data-setup-ch]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-setup-ch');
+      openChannelSetupModal(key);
+    });
+  });
+
+  updateEmbedCodePreview();
+}
+
+let activeSetupChannelKey = null;
+
+function openChannelSetupModal(chKey) {
+  const ch = CHANNELS_CATALOG.find((x) => x.key === chKey);
+  if (!ch) return;
+  activeSetupChannelKey = chKey;
+  const connected = getConnectedChannelsMap();
+  const apiKey = currentOrg?.api_key || 'VAS_API_KLJUC';
+  const webhookUrl = `${window.location.origin}/api/v1/inbound?api_key=${apiKey}&channel=${ch.key}`;
+
+  document.getElementById('ch-modal-title').textContent = `Povezivanje: ${ch.name}`;
+  document.getElementById('ch-modal-desc').textContent = `${ch.desc} Kopirajte Webhook URL ispod u podešavanja kanala (ili u Make / Zapier / ManyChat) i unesite identifikator vašeg naloga.`;
+  document.getElementById('ch-modal-webhook').textContent = webhookUrl;
+  document.getElementById('ch-modal-key').value = ch.key;
+  document.getElementById('ch-modal-input-label').textContent = ch.inputLabel;
+  const inp = document.getElementById('ch-modal-input');
+  inp.placeholder = ch.inputPlaceholder;
+  inp.value = connected[ch.key] || '';
+
+  document.getElementById('modal-channel-setup').classList.add('open');
+}
+
+document.getElementById('close-channel-setup')?.addEventListener('click', () => {
+  document.getElementById('modal-channel-setup').classList.remove('open');
+});
+
+document.getElementById('form-channel-setup')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const key = document.getElementById('ch-modal-key').value;
+  const val = document.getElementById('ch-modal-input').value.trim();
+  if (key && val) {
+    saveConnectedChannel(key, val);
+    document.getElementById('modal-channel-setup').classList.remove('open');
+    showToast('✓ Kanal je uspešno povezan i aktiviran za vaš radni prostor!');
+  }
+});
+
+document.getElementById('btn-ch-modal-test')?.addEventListener('click', async () => {
+  const ch = CHANNELS_CATALOG.find((x) => x.key === activeSetupChannelKey);
+  if (!ch) return;
+  const val = document.getElementById('ch-modal-input').value.trim() || 'Test nalog';
+  saveConnectedChannel(ch.key, val);
+  await createAndSaveLead(ch.sampleLead);
+  document.getElementById('modal-channel-setup').classList.remove('open');
+  showToast(`✓ Kanal ${ch.name} povezan i probni upit je poslat u vaš CRM!`);
+});
+
+document.getElementById('btn-sim-all-channels')?.addEventListener('click', async () => {
+  for (const ch of CHANNELS_CATALOG) {
+    await createAndSaveLead(ch.sampleLead);
+  }
+  showToast('🚀 Svih 6 kanala (Viber, IG, FB, WhatsApp, Email, Sajt) poslalo je po 1 upit u vaš Levak i Sanduče!');
+  document.querySelector('.side-btn[data-tab="pipeline"]')?.click();
+});
+
+document.getElementById('form-channel-simulator')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = Object.fromEntries(new FormData(e.target).entries());
+  await createAndSaveLead({
+    name: fd.name,
+    company: fd.company,
+    channel: fd.channel,
+    value: fd.value,
+    notes: fd.notes
+  });
+  e.target.reset();
+  showToast(`⚡ Upit sa kanala ${fd.channel} (${fd.name}) stigao je u vaš Kanban levak i Sanduče!`);
+});
+
+function updateEmbedCodePreview() {
+  const pre = document.getElementById('embed-code-preview');
+  if (!pre) return;
+  const apiKey = currentOrg?.api_key || 'VAS_API_KLJUC_FIRME';
+  const endpoint = `${window.location.origin}/api/v1/inbound`;
+  pre.textContent = `<form onsubmit="sendToUpitko(event)">
+  <input type="text" name="name" placeholder="Vaše ime" required />
+  <input type="text" name="company" placeholder="Firma / PIB" />
+  <input type="tel" name="phone" placeholder="Telefon" required />
+  <textarea name="notes" placeholder="Vaš upit..."></textarea>
+  <button type="submit">Pošalji upit</button>
+</form>
+<script>
+async function sendToUpitko(e) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  await fetch('${endpoint}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': '${apiKey}' },
+    body: JSON.stringify({ ...data, channel: 'web', value_rsd: 180000 })
+  });
+  alert('Hvala! Vaš upit je primljen.');
+}
+<\/script>`;
+}
+
+document.getElementById('btn-copy-embed-code')?.addEventListener('click', () => {
+  const code = document.getElementById('embed-code-preview')?.textContent || '';
+  if (code) {
+    navigator.clipboard.writeText(code);
+    showToast('✓ HTML kod za sajt sa vašim API ključem je kopiran!');
+  }
 });
 
 document.getElementById('company-search').addEventListener('input', (e) => {
@@ -1650,6 +2032,8 @@ async function initSupabaseLive() {
       currentProfile = profile;
       currentOrg = profile.organizations;
 
+      renderChannelsHub();
+
       const apiKeyEl = document.getElementById('display-api-key');
       const apiUrlEl = document.getElementById('display-api-url');
       if (apiKeyEl && currentOrg.api_key) apiKeyEl.textContent = currentOrg.api_key;
@@ -1717,7 +2101,7 @@ async function fetchSupabaseLeads() {
         raw_id: l.id,
         name: l.contact_name,
         company: l.company_name || 'Nije navedeno',
-        channel: (l.channel || 'web').toUpperCase(),
+        channel: DB_TO_CHANNEL[l.channel] || l.channel || 'Sajt forma',
         value: Number(l.value_rsd || 0),
         stage: l.stage === 'kvalifikovan' ? 'kvalifikovani' : (l.stage === 'dobijeno' ? 'zatvoreno' : l.stage),
         owner: currentProfile?.full_name?.split(' ')[0] || 'Prodavac',
@@ -1995,6 +2379,7 @@ window.addEventListener('keydown', (e) => {
 renderBoard();
 renderThreadList();
 renderChat();
+renderChannelsHub();
   </script>
 </body>
 </html>

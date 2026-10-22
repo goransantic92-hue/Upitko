@@ -229,3 +229,58 @@ BEGIN
     );
 END;
 $$;
+
+-- ==============================================================================
+-- JAVNI INBOUND WEBHOOK RPC (Prijem upita sa sajta / Vibera / IG / FB / WP / Emaila)
+-- Koristi api_key organizacije za bezbedan upis upita bez obzira na RLS sesiju
+-- ==============================================================================
+CREATE OR REPLACE FUNCTION public.receive_inbound_lead(
+    p_api_key UUID,
+    p_contact_name TEXT,
+    p_company_name TEXT DEFAULT NULL,
+    p_email TEXT DEFAULT NULL,
+    p_phone TEXT DEFAULT NULL,
+    p_channel TEXT DEFAULT 'web',
+    p_value_rsd NUMERIC DEFAULT 0,
+    p_notes TEXT DEFAULT NULL,
+    p_source_url TEXT DEFAULT NULL
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_org_id UUID;
+    v_org_name TEXT;
+    v_lead_id UUID;
+    v_clean_channel TEXT;
+BEGIN
+    SELECT id, name INTO v_org_id, v_org_name
+    FROM public.organizations
+    WHERE api_key = p_api_key
+    LIMIT 1;
+
+    IF v_org_id IS NULL THEN
+        RETURN jsonb_build_object('success', false, 'error', 'Nevažeći API ključ firme.');
+    END IF;
+
+    v_clean_channel := LOWER(COALESCE(p_channel, 'web'));
+    IF v_clean_channel NOT IN ('web', 'viber', 'whatsapp', 'instagram', 'facebook', 'telefon', 'preporuka', 'ostalo') THEN
+        v_clean_channel := 'ostalo';
+    END IF;
+
+    INSERT INTO public.leads (
+        organization_id, contact_name, company_name, email, phone, channel, stage, value_rsd, notes, source_url
+    ) VALUES (
+        v_org_id, COALESCE(NULLIF(TRIM(p_contact_name), ''), 'Novi kontakt'), p_company_name, p_email, p_phone,
+        v_clean_channel, 'novi', COALESCE(p_value_rsd, 0), p_notes, p_source_url
+    )
+    RETURNING id INTO v_lead_id;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'lead_id', v_lead_id,
+        'organization', v_org_name
+    );
+END;
+$$;
