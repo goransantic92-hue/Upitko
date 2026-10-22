@@ -746,12 +746,24 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 
       <!-- TAB 5: KANALI & INTEGRACIJE (Viber, Instagram, FB, WhatsApp, Email, Web Sajt) -->
       <section class="tab-pane" id="tab-channels">
+        <!-- Pomoć podrške: Mi povezujemo za vas -->
+        <div style="padding:16px 22px; border-radius:var(--radius); background:radial-gradient(100% 120% at 0% 0%, rgba(58,108,255,.18), rgba(12,18,38,.85)); border:1px solid rgba(150,175,230,.32); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div style="width:42px; height:42px; border-radius:10px; background:rgba(93,240,168,.14); border:1px solid rgba(93,240,168,.3); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">🤝</div>
+            <div>
+              <strong style="color:var(--ink); font-size:15px; display:block;">Ne želite sami da se bavite tehničkim detaljima?</strong>
+              <p style="font-size:13px; color:var(--muted); margin-top:2px;">Naš tehnički tim vam <strong>besplatno u roku od 15 minuta</strong> povezuje Instagram, Viber, WhatsApp i vaš sajt preko video poziva.</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-support-connect" style="padding:8px 18px; font-weight:700;">📞 Zakažite besplatno povezivanje (15 min)</button>
+        </div>
+
         <!-- Interaktivni vodič za simulaciju svih koraka i faza -->
         <div style="padding:20px 24px; border-radius:var(--radius); background:radial-gradient(120% 140% at 0% 0%, rgba(93,240,168,.14), rgba(12,18,38,.85)); border:1px solid rgba(93,240,168,.38); display:grid; gap:14px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
             <div>
               <span style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; color:var(--accent);">🎯 Kompletan test protokola na vašem nalogu</span>
-              <h3 style="font-size:17px; font-weight:800; margin-top:4px;">Kako da isprobate svaki kanal i svaku fazu prodaje (1 → 4)</h3>
+              <h3 style="font-size:17px; font-weight:800; margin-top:4px;">Isprobajte svaki kanal i svaku fazu prodaje (1 → 4)</h3>
             </div>
             <button type="button" class="btn btn-primary btn-sm" id="btn-sim-all-channels">🚀 Pošalji po 1 test upit sa svih 6 kanala odjednom</button>
           </div>
@@ -879,28 +891,50 @@ button,input,select,textarea{font-family:inherit;color:inherit}
     </div>
   </div>
 
-  <!-- MODAL: POVEZIVANJE KANALA (Viber, IG, FB, WhatsApp, Email, Web) -->
+  <!-- MODAL: JEDNOSTAVNO POVEZIVANJE KANALA (User-Friendly za svakog klijenta) -->
   <div class="modal-backdrop" id="modal-channel-setup">
-    <div class="modal-box">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3 id="ch-modal-title">Povezivanje kanala</h3>
-        <button type="button" class="btn btn-outline btn-sm" id="close-channel-setup">✕</button>
+    <div class="modal-box modal-lg" style="max-width:640px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="ch-modal-badge" class="ch-badge">Kanal</span>
+          <h3 id="ch-modal-title" style="font-size:17px;font-weight:800;">Povezivanje kanala</h3>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" id="close-channel-setup">✕ Zatvori</button>
       </div>
-      <p id="ch-modal-desc" style="font-size:13px; color:var(--muted); line-height:1.5;"></p>
-      <div style="padding:12px; border-radius:10px; background:rgba(4,6,15,.75); border:1px solid var(--line); display:grid; gap:6px;">
-        <span style="font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase;">Webhook URL za prijem poruka i upita:</span>
-        <code id="ch-modal-webhook" style="font-size:12px; color:var(--accent); word-break:break-all; font-family:monospace;"></code>
+
+      <div id="ch-modal-dynamic-content" style="padding:10px 0;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: ZAKAZIVANJE BESPLATNOG POVEZIVANJA SA PODRŠKOM -->
+  <div class="modal-backdrop" id="modal-support-connect">
+    <div class="modal-box" style="max-width:500px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px;">
+        <h3 style="font-size:17px;font-weight:800;">📞 Besplatno tehničko povezivanje (15 min)</h3>
+        <button type="button" class="btn btn-outline btn-sm" id="close-support-connect">✕</button>
       </div>
-      <form id="form-channel-setup" style="display:grid; gap:12px;">
-        <input type="hidden" name="channel_key" id="ch-modal-key" />
+      <p style="font-size:13px; color:var(--muted); line-height:1.5; margin-top:8px;">
+        Naš inženjer će vas pozvati telefonom ili se povezati preko video poziva (Google Meet / AnyDesk) i podesiti vaš Instagram, Viber i sajt tako da vam svi upiti automatski stižu u CRM.
+      </p>
+      <form id="form-support-request" style="display:grid; gap:12px; margin-top:10px;">
         <div class="field">
-          <label id="ch-modal-input-label">Identifikator naloga / API Token / Broj</label>
-          <input type="text" name="identifier" id="ch-modal-input" required placeholder="Unesite podatak za povezivanje..." />
+          <label>Broj telefona za poziv</label>
+          <input type="tel" name="phone" id="support-phone" required placeholder="064 123 4567" />
         </div>
-        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
-          <button type="button" class="btn btn-outline" id="btn-ch-modal-test">⚡ Pošalji probni upit</button>
-          <button type="submit" class="btn btn-primary">✓ Sačuvaj i aktiviraj kanal</button>
+        <div class="field">
+          <label>Kada vam najviše odgovara poziv?</label>
+          <select name="time_slot" required>
+            <option>Danas u toku dana (čim pre)</option>
+            <option>Danas između 14h i 17h</option>
+            <option>Sutra pre podne (10h - 12h)</option>
+            <option>Sutra po podne (13h - 16h)</option>
+          </select>
         </div>
+        <div class="field">
+          <label>Koje kanale želite da povežemo?</label>
+          <input type="text" name="channels_list" placeholder="npr. Instagram DM i Viber" value="Instagram DM, Viber i Veb Sajt" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="justify-content:center; margin-top:6px;">✓ Pošalji zahtev — javićemo se uskoro</button>
       </form>
     </div>
   </div>
@@ -1683,9 +1717,8 @@ const CHANNELS_CATALOG = [
     name: 'Viber Business',
     badge: 'Domaći favorit',
     color: '#a78bfa',
-    desc: 'Primajte poruke sa vašeg Viber Business naloga direktno u Omnichannel Sanduče i šaljite PDF predračune sa NBS IPS QR kodom.',
-    inputLabel: 'Viber Bot / Business Auth Token ili broj telefona:',
-    inputPlaceholder: 'npr. +381 64 123 4567 ili viber-bot-token...',
+    simpleTitle: 'Skeniranje QR koda telefonom',
+    desc: 'Povežite se za 5 sekundi skeniranjem QR koda službenim telefonom (kao Viber za PC) ili unosom broja telefona.',
     sampleLead: SIM_POOL[0]
   },
   {
@@ -1693,9 +1726,8 @@ const CHANNELS_CATALOG = [
     name: 'Instagram DM & Lead Ads',
     badge: 'Društvene mreže',
     color: '#f472b6',
-    desc: 'Svaka poruka u Instagram DM ili prijava sa sponzorisanog oglasa (Meta/ManyChat/Make) automatski otvara karticu kupca.',
-    inputLabel: 'Instagram Business stranica (@handle) ili Meta Webhook Token:',
-    inputPlaceholder: 'npr. @moja_firma_rs',
+    simpleTitle: '1-Klik prijava preko Meta naloga',
+    desc: 'Povežite vaš Instagram profil na jedan klik. Sve poruke iz DM-a i prijave sa sponzorisanih reklama stižu u Sanduče.',
     sampleLead: SIM_POOL[1]
   },
   {
@@ -1703,9 +1735,8 @@ const CHANNELS_CATALOG = [
     name: 'Facebook Lead Ads & Messenger',
     badge: 'Meta Ads',
     color: '#60a5fa',
-    desc: 'Zaboravite na ručno skidanje CSV tabela iz Meta Ads Manager-a. Upiti iz FB Lead formi uleću u CRM u istoj sekundi.',
-    inputLabel: 'Naziv Facebook Stranice ili Lead Form ID:',
-    inputPlaceholder: 'npr. Moja Firma Srbija (FB Page)',
+    simpleTitle: '1-Klik izbor FB stranice',
+    desc: 'Zaboravite na ručno skidanje CSV tabela iz Meta Ads Manager-a. Upiti iz FB Lead formi stižu u CRM u istoj sekundi.',
     sampleLead: SIM_POOL[4]
   },
   {
@@ -1713,29 +1744,26 @@ const CHANNELS_CATALOG = [
     name: 'WhatsApp Business (WP)',
     badge: 'Mesindžeri',
     color: '#34d399',
-    desc: 'Dvosmerna komunikacija sa kupcima iz Srbije i dijaspore preko vašeg poslovnog WhatsApp broja (Cloud API).',
-    inputLabel: 'Poslovni WhatsApp broj telefona:',
-    inputPlaceholder: 'npr. +381 63 987 6543',
+    simpleTitle: 'Skeniranje QR koda kamerom',
+    desc: 'Dvosmerna komunikacija preko WhatsApp aplikacije. Skenirajte QR kod na telefonu i svi upiti stižu u Upitko.',
     sampleLead: SIM_POOL[3]
   },
   {
     key: 'email',
     name: 'Email & Domaći Oglasnici (KP, 4zida)',
-    badge: 'Email Parser',
+    badge: 'Email Prosleđivanje',
     color: '#fbbf24',
-    desc: 'Automatski pretvara dolazne mejlove sa vašeg prodaja@sajt.rs i obaveštenja sa KupujemProdajem / 4zida / Polovni Automobili u upite.',
-    inputLabel: 'Vaša prodajna email adresa za prosleđivanje (Forwarding):',
-    inputPlaceholder: 'npr. prodaja@mojafirma.rs',
+    simpleTitle: 'Dodeljena email adresa sandučeta',
+    desc: 'Automatski pretvara poruke sa vašeg emaila i obaveštenja sa KupujemProdajem / 4zida / PolovniAutomobili u upite.',
     sampleLead: SIM_POOL[5]
   },
   {
     key: 'web',
     name: 'Web Sajt & WordPress Forma',
-    badge: 'Direktan Webhook',
+    badge: 'Lebdeći vidžet (1 linija koda)',
     color: '#5df0a8',
-    desc: 'Povežite Elementor, Contact Form 7, Webflow ili običnu HTML formu sa vašeg sajta pomoću vašeg API ključa firme.',
-    inputLabel: 'Domen vašeg veb sajta:',
-    inputPlaceholder: 'npr. https://www.mojafirma.rs',
+    simpleTitle: 'Kopirajte 1 red koda ili besplatna ugradnja',
+    desc: 'Postavite moderan kružić na vaš sajt (Viber + WhatsApp + Brza forma) ili zakažite da naš tim ugradi umesto vas.',
     sampleLead: SIM_POOL[2]
   }
 ];
@@ -1746,7 +1774,7 @@ function getConnectedChannelsMap() {
     const raw = localStorage.getItem(storageKey);
     if (raw) return JSON.parse(raw);
   } catch (_e) {}
-  return { web: 'Aktivno (API Ključ)' };
+  return { web: 'Aktivno (Vidžet na sajtu)' };
 }
 
 function saveConnectedChannel(chKey, identifierVal) {
@@ -1768,7 +1796,7 @@ function renderChannelsHub() {
   grid.innerHTML = CHANNELS_CATALOG.map((ch) => {
     const isConn = Boolean(connected[ch.key]);
     return `
-      <div class="deal-card" style="padding:18px; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+      <div class="deal-card" style="padding:20px; display:flex; flex-direction:column; justify-content:space-between; gap:14px;">
         <div>
           <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
             <span class="ch-badge" style="color:${ch.color}; border-color:${ch.color}44; background:${ch.color}18;">${ch.badge}</span>
@@ -1776,12 +1804,13 @@ function renderChannelsHub() {
               ${isConn ? '🟢 Povezano (' + connected[ch.key] + ')' : '⚪ Nije povezano'}
             </span>
           </div>
-          <h4 style="font-size:15.5px; font-weight:800; margin-bottom:6px;">${ch.name}</h4>
+          <h4 style="font-size:16px; font-weight:800; margin-bottom:4px;">${ch.name}</h4>
+          <div style="font-size:11.5px; color:var(--accent); font-weight:600; margin-bottom:6px;">✨ ${ch.simpleTitle}</div>
           <p style="font-size:12.5px; color:var(--muted); line-height:1.45;">${ch.desc}</p>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; padding-top:10px; border-top:1px solid var(--line);">
           <button type="button" class="btn btn-primary btn-sm" data-sim-ch="${ch.key}" style="flex:1; justify-content:center;">⚡ Testiraj upit</button>
-          <button type="button" class="btn btn-outline btn-sm" data-setup-ch="${ch.key}">⚙️ ${isConn ? 'Izmeni' : 'Poveži'}</button>
+          <button type="button" class="btn btn-outline btn-sm" data-setup-ch="${ch.key}">🔗 ${isConn ? 'Pregledaj / Izmeni' : 'Poveži kanal'}</button>
         </div>
       </div>
     `;
@@ -1815,43 +1844,266 @@ function openChannelSetupModal(chKey) {
   activeSetupChannelKey = chKey;
   const connected = getConnectedChannelsMap();
   const apiKey = currentOrg?.api_key || 'VAS_API_KLJUC';
+  const orgSlug = (currentOrg?.name || 'firma').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const dedicatedEmail = `upiti-${orgSlug}@upitko.rs`;
   const webhookUrl = `${window.location.origin}/api/v1/inbound?api_key=${apiKey}&channel=${ch.key}`;
 
+  document.getElementById('ch-modal-badge').textContent = ch.badge;
   document.getElementById('ch-modal-title').textContent = `Povezivanje: ${ch.name}`;
-  document.getElementById('ch-modal-desc').textContent = `${ch.desc} Kopirajte Webhook URL ispod u podešavanja kanala (ili u Make / Zapier / ManyChat) i unesite identifikator vašeg naloga.`;
-  document.getElementById('ch-modal-webhook').textContent = webhookUrl;
-  document.getElementById('ch-modal-key').value = ch.key;
-  document.getElementById('ch-modal-input-label').textContent = ch.inputLabel;
-  const inp = document.getElementById('ch-modal-input');
-  inp.placeholder = ch.inputPlaceholder;
-  inp.value = connected[ch.key] || '';
+
+  const container = document.getElementById('ch-modal-dynamic-content');
+  if (!container) return;
+
+  if (chKey === 'instagram' || chKey === 'facebook') {
+    container.innerHTML = `
+      <div style="display:grid; gap:16px;">
+        <!-- OPIS -->
+        <p style="font-size:13.5px; color:var(--muted); line-height:1.5;">
+          Povežite vašu <strong>${ch.name}</strong> stranicu kako bi svaka nova poruka iz DM-a ili prijava sa sponzorisanog oglasa istog trenutka stigla u vaše <em>Omnichannel Sanduče</em> i otvorila novi upit u Kanban levku.
+        </p>
+
+        <!-- NACIN 1: 1-KLIK OAUTH -->
+        <div style="padding:18px; border-radius:12px; background:radial-gradient(120% 120% at 50% 0%, rgba(58,108,255,.22), rgba(4,6,15,.7)); border:1px solid rgba(58,108,255,.45); display:grid; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:14px; color:#93c5fd;">Opcija 1: Povezivanje na jedan klik (Najjednostavnije)</strong>
+            <span class="ips-tag" style="background:#2563eb;">Preporučeno</span>
+          </div>
+          <p style="font-size:12.5px; color:var(--muted);">Kliknite na dugme ispod, prijavite se sa vašim nalogom i izaberite stranicu vaše firme. Nema nikakvog kopiranja koda.</p>
+          <button type="button" class="btn btn-primary" id="btn-oauth-connect" style="background:linear-gradient(180deg, #3b82f6, #1d4ed8); border:none; color:#fff; justify-content:center; padding:12px; font-weight:700;">
+            <span style="font-size:16px;">🌐</span> Prijavi se i poveži ${ch.name} (1 klik)
+          </button>
+        </div>
+
+        <!-- NACIN 2: UNOS KORISNICKOG IMENA / BROJA -->
+        <div style="padding:16px; border-radius:12px; background:rgba(4,6,15,.6); border:1px solid var(--line); display:grid; gap:10px;">
+          <strong style="font-size:13.5px;">Opcija 2: Ručni unos korisničkog imena</strong>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="manual-handle-input" placeholder="npr. @moja_firma_rs" value="${connected[chKey] || ''}" style="flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--line-strong); background:rgba(4,6,15,.8); color:var(--ink); font-size:13.5px;" />
+            <button type="button" class="btn btn-outline" id="btn-save-manual-handle">Sačuvaj</button>
+          </div>
+        </div>
+
+        <!-- POMOC PODRSKE -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:12px 14px; border-radius:10px; background:rgba(93,240,168,.08); border:1px solid rgba(93,240,168,.25);">
+          <span style="font-size:12.5px; color:var(--ink);">🤝 Želite da naš inženjer besplatno poveže vaš profil za 5 minuta?</span>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-modal-support" style="border-color:var(--accent); color:var(--accent);">Zakaži pomoć</button>
+        </div>
+
+        <!-- ZA PROGRAMERE / NAPREDNO -->
+        <details style="font-size:12px; color:var(--muted-2); margin-top:4px;">
+          <summary style="cursor:pointer; font-weight:600; color:var(--muted); padding:4px 0;">⚙️ Napredno (za programere, agencije i ManyChat / Make)</summary>
+          <div style="padding:10px; border-radius:8px; background:rgba(4,6,15,.75); border:1px solid var(--line); margin-top:8px; display:grid; gap:6px;">
+            <span>Webhook URL za automatski prijem JSON podataka:</span>
+            <code style="color:var(--accent); word-break:break-all; font-family:monospace; font-size:11.5px;">${webhookUrl}</code>
+          </div>
+        </details>
+      </div>
+    `;
+
+    document.getElementById('btn-oauth-connect')?.addEventListener('click', () => {
+      const btn = document.getElementById('btn-oauth-connect');
+      btn.disabled = true;
+      btn.innerHTML = '<span>Povezivanje sa Meta / Instagram serverom...</span>';
+      setTimeout(() => {
+        saveConnectedChannel(chKey, '@' + (orgSlug || 'mojafirma') + '_official');
+        document.getElementById('modal-channel-setup').classList.remove('open');
+        showToast(`✓ Uspešno povezano sa vašom ${ch.name} stranicom!`);
+        createAndSaveLead(ch.sampleLead);
+      }, 1100);
+    });
+
+    document.getElementById('btn-save-manual-handle')?.addEventListener('click', () => {
+      const val = document.getElementById('manual-handle-input')?.value.trim();
+      if (val) {
+        saveConnectedChannel(chKey, val);
+        document.getElementById('modal-channel-setup').classList.remove('open');
+        showToast(`✓ Kanal ${ch.name} (${val}) je sačuvan i aktivan!`);
+      }
+    });
+
+  } else if (chKey === 'viber' || chKey === 'whatsapp') {
+    const qrText = `https://upitko.rs/connect?channel=${chKey}&org=${apiKey}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent(qrText)}`;
+
+    container.innerHTML = `
+      <div style="display:grid; gap:16px;">
+        <p style="font-size:13.5px; color:var(--muted); line-height:1.5;">
+          Povežite vaš službeni <strong>${ch.name}</strong> nalog tako da vam sve poruke kupaca uleću u <em>Omnichannel Sanduče</em>, a vi klijentu šaljete odgovore i predračune direktno iz CRM-a.
+        </p>
+
+        <!-- NACIN 1: SKENIRANJE QR KODA -->
+        <div style="padding:18px; border-radius:12px; background:rgba(4,6,15,.65); border:1px solid var(--line-strong); display:grid; grid-template-columns:160px 1fr; gap:18px; align-items:center;">
+          <div style="background:#fff; padding:6px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,.4);">
+            <img src="${qrUrl}" alt="QR Kod za povezivanje" width="148" height="148" style="display:block;" />
+          </div>
+          <div style="display:grid; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:var(--accent); font-size:14px;">Opcija 1: Skenirajte telefonom (Kao Viber/WhatsApp za PC)</strong>
+            </div>
+            <ol style="font-size:12.5px; color:var(--muted); padding-left:18px; line-height:1.5;">
+              <li>Otvorite <strong>${ch.name}</strong> na svom telefonu</li>
+              <li>Idite na <em>Podešavanja → Povezani uređaji</em></li>
+              <li>Uperite kameru telefona u ovaj QR kod</li>
+            </ol>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-qr-scanned" style="margin-top:4px; justify-content:center;">
+              📱 Skenirao sam — Poveži ${ch.name}
+            </button>
+          </div>
+        </div>
+
+        <!-- NACIN 2: UNOS BROJA TELEFONA -->
+        <div style="padding:16px; border-radius:12px; background:rgba(4,6,15,.6); border:1px solid var(--line); display:grid; gap:10px;">
+          <strong style="font-size:13.5px;">Opcija 2: Ručni unos broja telefona</strong>
+          <div style="display:flex; gap:8px;">
+            <input type="tel" id="manual-phone-input" placeholder="npr. 064 123 4567" value="${connected[chKey] || ''}" style="flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--line-strong); background:rgba(4,6,15,.8); color:var(--ink); font-size:13.5px;" />
+            <button type="button" class="btn btn-outline" id="btn-save-manual-phone">Sačuvaj broj</button>
+          </div>
+        </div>
+
+        <!-- POMOC PODRSKE -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:12px 14px; border-radius:10px; background:rgba(93,240,168,.08); border:1px solid rgba(93,240,168,.25);">
+          <span style="font-size:12.5px; color:var(--ink);">🤝 Želite da naš tim podesi vaš ${ch.name} za 5 minuta?</span>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-modal-support" style="border-color:var(--accent); color:var(--accent);">Zakaži pomoć</button>
+        </div>
+
+        <!-- NAPREDNO -->
+        <details style="font-size:12px; color:var(--muted-2);">
+          <summary style="cursor:pointer; font-weight:600; color:var(--muted); padding:4px 0;">⚙️ Napredno (Webhook URL za programere i Chatbot API)</summary>
+          <div style="padding:10px; border-radius:8px; background:rgba(4,6,15,.75); border:1px solid var(--line); margin-top:8px;">
+            <code style="color:var(--accent); word-break:break-all; font-family:monospace; font-size:11.5px;">${webhookUrl}</code>
+          </div>
+        </details>
+      </div>
+    `;
+
+    document.getElementById('btn-qr-scanned')?.addEventListener('click', () => {
+      saveConnectedChannel(chKey, 'Aktivno (Povezan telefon)');
+      document.getElementById('modal-channel-setup').classList.remove('open');
+      showToast(`✓ Vaš ${ch.name} je uspešno povezan preko QR koda!`);
+      createAndSaveLead(ch.sampleLead);
+    });
+
+    document.getElementById('btn-save-manual-phone')?.addEventListener('click', () => {
+      const val = document.getElementById('manual-phone-input')?.value.trim();
+      if (val) {
+        saveConnectedChannel(chKey, val);
+        document.getElementById('modal-channel-setup').classList.remove('open');
+        showToast(`✓ Broj telefona (${val}) sačuvan za ${ch.name}!`);
+      }
+    });
+
+  } else if (chKey === 'email') {
+    container.innerHTML = `
+      <div style="display:grid; gap:16px;">
+        <p style="font-size:13.5px; color:var(--muted); line-height:1.5;">
+          Automatski pretvorite sve email upite (sa vašeg prodajnog emaila ili obaveštenja sa portala <strong>KupujemProdajem, 4zida, PolovniAutomobili, HaloOglasi</strong>) u kartice u CRM-u.
+        </p>
+
+        <!-- DEDIKOVANI EMAIL SANDUCETA -->
+        <div style="padding:18px; border-radius:12px; background:radial-gradient(120% 120% at 50% 0%, rgba(251,191,36,.18), rgba(4,6,15,.7)); border:1px solid rgba(251,191,36,.4); display:grid; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:14px; color:#fef08a;">Vaša jedinstvena email adresa sandučeta:</strong>
+            <span class="ips-tag" style="background:#d97706;">Auto-Forward</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <code id="dedicated-email-box" style="font-size:14px; color:#fbbf24; background:rgba(0,0,0,.5); padding:8px 12px; border-radius:8px; flex:1; font-family:monospace; border:1px solid rgba(251,191,36,.2);">${dedicatedEmail}</code>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-copy-dedicated-email">📋 Kopiraj</button>
+          </div>
+          <p style="font-size:12px; color:var(--muted);">U svom Gmail-u, Outlook-u ili profilu na oglasnicima samo uključite automatsko prosleđivanje (Forward) na ovu adresu.</p>
+        </div>
+
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button type="button" class="btn btn-primary" id="btn-save-email-channel">✓ Aktiviraj Email sanduče</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btn-copy-dedicated-email')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(dedicatedEmail);
+      showToast('✓ Email adresa sandučeta je kopirana!');
+    });
+
+    document.getElementById('btn-save-email-channel')?.addEventListener('click', () => {
+      saveConnectedChannel(chKey, dedicatedEmail);
+      document.getElementById('modal-channel-setup').classList.remove('open');
+      showToast('✓ Email prijem upita je aktiviran!');
+      createAndSaveLead(ch.sampleLead);
+    });
+
+  } else if (chKey === 'web') {
+    const embedScript = `<script src="${window.location.origin}/widget.js" data-firma="${apiKey}" async><\/script>`;
+
+    container.innerHTML = `
+      <div style="display:grid; gap:16px;">
+        <p style="font-size:13.5px; color:var(--muted); line-height:1.5;">
+          Postavite <strong>Upitko lebdeći vidžet</strong> na vaš sajt. Posetioci vašeg sajta dobijaju diskretan kružić u donjem uglu preko kojeg biraju da vam pišu na <strong>Viber</strong>, <strong>WhatsApp</strong> ili <strong>brzu kontakt formu</strong>.
+        </p>
+
+        <!-- 1 LINIJA KODA -->
+        <div style="padding:18px; border-radius:12px; background:radial-gradient(120% 120% at 50% 0%, rgba(93,240,168,.18), rgba(4,6,15,.7)); border:1px solid rgba(93,240,168,.4); display:grid; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:14px; color:var(--accent);">Jedna linija koda za vaš sajt:</strong>
+            <span class="ips-tag">1 Minut posla</span>
+          </div>
+          <pre style="background:rgba(0,0,0,.6); padding:10px 12px; border-radius:8px; font-size:12px; color:#a7f3d0; font-family:monospace; border:1px solid var(--line); white-space:pre-wrap; word-break:break-all;">${embedScript}</pre>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px; color:var(--muted);">Nalepite u Elementor HTML widget ili pre &lt;/body&gt; taga na sajtu.</span>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-copy-widget-code">📋 Kopiraj liniju koda</button>
+          </div>
+        </div>
+
+        <!-- POMOC PODRSKE -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:12px 14px; border-radius:10px; background:rgba(93,240,168,.08); border:1px solid rgba(93,240,168,.25);">
+          <span style="font-size:12.5px; color:var(--ink);">🤝 Imate WordPress ili programera koji održava sajt?</span>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-modal-support" style="border-color:var(--accent); color:var(--accent);">Besplatna ugradnja od našeg tima</button>
+        </div>
+
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button type="button" class="btn btn-primary" id="btn-save-web-channel">✓ Označi vidžet kao aktivan na sajtu</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btn-copy-widget-code')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(embedScript);
+      showToast('✓ Kod vidžeta za sajt je kopiran!');
+    });
+
+    document.getElementById('btn-save-web-channel')?.addEventListener('click', () => {
+      saveConnectedChannel(chKey, 'Aktivno (Vidžet na sajtu)');
+      document.getElementById('modal-channel-setup').classList.remove('open');
+      showToast('✓ Veb sajt vidžet označen kao aktivan!');
+      createAndSaveLead(ch.sampleLead);
+    });
+  }
+
+  // Zajednički listener za dugme podrške unutar modala
+  document.querySelectorAll('#btn-modal-support').forEach((b) => {
+    b.addEventListener('click', () => {
+      document.getElementById('modal-channel-setup').classList.remove('open');
+      document.getElementById('modal-support-connect').classList.add('open');
+    });
+  });
 
   document.getElementById('modal-channel-setup').classList.add('open');
 }
 
+// Modal podrške: Povezivanje umesto klijenta
+document.getElementById('btn-support-connect')?.addEventListener('click', () => {
+  document.getElementById('modal-support-connect').classList.add('open');
+});
+document.getElementById('close-support-connect')?.addEventListener('click', () => {
+  document.getElementById('modal-support-connect').classList.remove('open');
+});
 document.getElementById('close-channel-setup')?.addEventListener('click', () => {
   document.getElementById('modal-channel-setup').classList.remove('open');
 });
 
-document.getElementById('form-channel-setup')?.addEventListener('submit', (e) => {
+document.getElementById('form-support-request')?.addEventListener('submit', (e) => {
   e.preventDefault();
-  const key = document.getElementById('ch-modal-key').value;
-  const val = document.getElementById('ch-modal-input').value.trim();
-  if (key && val) {
-    saveConnectedChannel(key, val);
-    document.getElementById('modal-channel-setup').classList.remove('open');
-    showToast('✓ Kanal je uspešno povezan i aktiviran za vaš radni prostor!');
-  }
-});
-
-document.getElementById('btn-ch-modal-test')?.addEventListener('click', async () => {
-  const ch = CHANNELS_CATALOG.find((x) => x.key === activeSetupChannelKey);
-  if (!ch) return;
-  const val = document.getElementById('ch-modal-input').value.trim() || 'Test nalog';
-  saveConnectedChannel(ch.key, val);
-  await createAndSaveLead(ch.sampleLead);
-  document.getElementById('modal-channel-setup').classList.remove('open');
-  showToast(`✓ Kanal ${ch.name} povezan i probni upit je poslat u vaš CRM!`);
+  const phone = document.getElementById('support-phone')?.value.trim();
+  document.getElementById('modal-support-connect').classList.remove('open');
+  showToast(`✓ Zahtev primljen! Naš inženjer će vas pozvati na broj ${phone}.`);
 });
 
 document.getElementById('btn-sim-all-channels')?.addEventListener('click', async () => {
