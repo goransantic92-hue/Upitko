@@ -50,40 +50,69 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const {
-      ime,
-      name,
-      contact_name,
-      firma,
-      company,
-      company_name,
-      email,
-      telefon,
-      phone,
-      poruka,
-      message,
-      notes,
-      vrednost,
-      value_rsd,
-      kanal,
-      channel,
-      source_url
-    } = body;
+    // Podrška za standardne forme, ManyChat, Make.com, Zapier i Meta webhookove
+    const userObj = body.user || {};
+    const customFields = body.custom_fields || {};
 
-    const leadName = (contact_name || ime || name || '').trim();
-    const leadEmail = (email || '').trim().toLowerCase();
-    const leadPhone = (telefon || phone || '').trim();
-    const leadCompany = (company_name || firma || company || '').trim();
-    const leadMsg = (notes || poruka || message || '').trim();
-    const leadVal = Number(value_rsd || vrednost || 0);
-    const leadChannel = (channel || kanal || 'web').toLowerCase();
+    let extractedName = (
+      body.contact_name ||
+      body.name ||
+      body.ime ||
+      body.full_name ||
+      userObj.name ||
+      (body.first_name || userObj.first_name ? `${body.first_name || userObj.first_name} ${body.last_name || userObj.last_name || ''}`.trim() : '') ||
+      body.username ||
+      body.ig_username ||
+      userObj.username ||
+      ''
+    ).trim();
 
-    if (!leadName && !leadEmail && !leadPhone) {
-      return res.status(400).json({
-        success: false,
-        error: 'Upit mora sadržati barem ime, email ili broj telefona.'
-      });
-    }
+    let extractedMsg = (
+      body.notes ||
+      body.poruka ||
+      body.message ||
+      body.last_input_text ||
+      body.text ||
+      body.last_message ||
+      body.caption ||
+      customFields.notes ||
+      customFields.poruka ||
+      ''
+    ).trim();
+
+    let extractedPhone = (
+      body.phone ||
+      body.telefon ||
+      userObj.phone ||
+      customFields.phone ||
+      customFields.telefon ||
+      ''
+    ).trim();
+
+    let extractedEmail = (
+      body.email ||
+      userObj.email ||
+      customFields.email ||
+      ''
+    ).trim().toLowerCase();
+
+    let extractedCompany = (
+      body.company_name ||
+      body.firma ||
+      body.company ||
+      customFields.company ||
+      customFields.firma ||
+      ''
+    ).trim();
+
+    const igHandle = body.username || userObj.username || body.ig_username;
+    const leadName = extractedName || (igHandle ? `@${igHandle}` : 'Instagram kupac');
+    const leadEmail = extractedEmail;
+    const leadPhone = extractedPhone;
+    const leadCompany = extractedCompany || (igHandle ? `@${igHandle} (Instagram)` : null);
+    const leadMsg = extractedMsg || 'Novi direktan upit sa Instagram DM-a';
+    const leadVal = Number(body.value_rsd || body.vrednost || 180000);
+    const leadChannel = (req.query.channel || body.channel || body.kanal || 'instagram').toLowerCase();
 
     // 2. Ako su podešene Supabase Environment promenljive na Vercelu, upiši direktno u PostgreSQL
     const rawSupabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
