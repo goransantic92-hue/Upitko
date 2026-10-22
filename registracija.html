@@ -258,10 +258,13 @@
               p_full_name: fullName,
               p_phone: phone
             });
+            // Očisti eventualne početne demo lidove ako je u bazi stara verzija SQL funkcije
+            await sb.from('leads').delete().in('contact_name', ['Milan Petrović', 'Ana Jovanović', 'Stefan Đorđević']);
           } catch (_rpcErr) {
             console.warn('[Upitko] RPC error:', _rpcErr);
           }
 
+          localStorage.removeItem('upitko_leads');
           showAlert('✓ Čestitamo! Radni prostor je uspešno kreiran. Preusmeravanje...', false);
           setTimeout(() => {
             window.location.href = 'app.html';

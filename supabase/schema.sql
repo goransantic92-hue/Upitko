@@ -219,18 +219,13 @@ BEGIN
     INSERT INTO public.profiles (id, organization_id, full_name, phone, role)
     VALUES (v_user_id, v_org_id, p_full_name, p_phone, 'owner');
 
-    -- 3. Ubaci nekoliko početnih demo lidova prilagođenih srpskom tržištu
-    INSERT INTO public.leads (organization_id, contact_name, company_name, phone, channel, stage, value_rsd, notes)
-    VALUES
-        (v_org_id, 'Milan Petrović', 'TehnoGradnja d.o.o.', '064/123-4567', 'viber', 'novi', 180000, 'Zainteresovan za godišnju licencu, poslati ponudu do petka.'),
-        (v_org_id, 'Ana Jovanović', 'AutoCentar Pančevo', '063/876-5432', 'instagram', 'kvalifikovan', 340000, 'Upit sa Instagram reklame za CRM automatizaciju salona.'),
-        (v_org_id, 'Stefan Đorđević', 'GradnjaInvest NS', '065/222-3344', 'web', 'ponuda', 520000, 'Čeka se odobrenje direktora za ponudu sa popustom za plaćanje unapred.');
+    -- Novi klijenti počinju sa potpuno praznim radnim prostorom (0 upita, 0 ponuda)
 
     RETURN jsonb_build_object(
         'success', true,
         'organization_id', v_org_id,
         'api_key', v_api_key,
-        'message', 'Firma je uspešno registrovana sa početnim radnim prostorom!'
+        'message', 'Firma je uspešno registrovana sa čistim radnim prostorom!'
     );
 END;
 $$;

@@ -490,7 +490,7 @@ button,input,select,textarea{font-family:inherit;color:inherit}
       </button>
       <button type="button" class="side-btn" data-tab="inbox">
         <span>Omnichannel Sanduče</span>
-        <span class="side-count">4</span>
+        <span class="side-count" id="nav-inbox-count">4</span>
       </button>
       <button type="button" class="side-btn" data-tab="workflows">
         <span>Automatizacije &amp; SLA</span>
@@ -540,22 +540,22 @@ button,input,select,textarea{font-family:inherit;color:inherit}
         <div class="kpi-card">
           <div class="kpi-label"><span>Ukupno u levku (Aktivno)</span><span>RSD</span></div>
           <div class="kpi-val" id="kpi-total">4.820.000 RSD</div>
-          <div class="kpi-sub">+28% u odnosu na prošli mesec</div>
+          <div class="kpi-sub" id="kpi-total-sub">+28% u odnosu na prošli mesec</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label"><span>Prosečna brzina odgovora</span><span>SLA</span></div>
-          <div class="kpi-val">21 sekunda</div>
-          <div class="kpi-sub">94% upita obrađeno ispod 1 min</div>
+          <div class="kpi-val" id="kpi-sla">21 sekunda</div>
+          <div class="kpi-sub" id="kpi-sla-sub">94% upita obrađeno ispod 1 min</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label"><span>Zatvoreni poslovi (Ovaj mesec)</span><span>Win</span></div>
           <div class="kpi-val" id="kpi-won">1.940.000 RSD</div>
-          <div class="kpi-sub">Stopa konverzije: 36,4%</div>
+          <div class="kpi-sub" id="kpi-won-sub">Stopa konverzije: 36,4%</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label"><span>Najbolji kanal upita</span><span>ROI</span></div>
-          <div class="kpi-val">Instagram &amp; Sajt</div>
-          <div class="kpi-sub">68% ukupnog prihoda</div>
+          <div class="kpi-val" id="kpi-channel">Instagram &amp; Sajt</div>
+          <div class="kpi-sub" id="kpi-channel-sub">68% ukupnog prihoda</div>
         </div>
       </section>
 
@@ -659,28 +659,28 @@ button,input,select,textarea{font-family:inherit;color:inherit}
                 <td><strong>1. Instant Round-Robin dodela</strong></td>
                 <td>Novi upit sa Sajta, Instagrama ili Vibera</td>
                 <td>Ravnomerno dodeljuje slobodnom prodavcu + šalje push alarm</td>
-                <td>342 puta (prosek 0.2s)</td>
+                <td id="wf-stat-1">342 puta (prosek 0.2s)</td>
                 <td><span class="ch-badge">Aktivno</span></td>
               </tr>
               <tr>
                 <td><strong>2. SLA 5-minutni zaštitni alarm</strong></td>
                 <td>Prodavac nije otvorio upit 5 minuta</td>
                 <td>Automatski prebacuje upit sledećem slobodnom kolegi u smeni</td>
-                <td>29 puta (0 izgubljenih upita)</td>
+                <td id="wf-stat-2">29 puta (0 izgubljenih upita)</td>
                 <td><span class="ch-badge">Aktivno</span></td>
               </tr>
               <tr>
                 <td><strong>3. APR / PIB B2B obogaćivanje</strong></td>
                 <td>Unet PIB ili poslovni domen u formi</td>
                 <td>Povlači pun naziv firme, matični broj, adresu i delatnost</td>
-                <td>118 B2B firmi</td>
+                <td id="wf-stat-3">118 B2B firmi</td>
                 <td><span class="ch-badge">Aktivno</span></td>
               </tr>
               <tr>
                 <td><strong>4. Automatski podsetnik za poslatu ponudu</strong></td>
                 <td>48h u fazi „Ponuda poslata“ bez odgovora</td>
                 <td>Kreira zadatak prodavcu i priprema nacrt Viber/Email poruke</td>
-                <td>84 ponude</td>
+                <td id="wf-stat-4">84 ponude</td>
                 <td><span class="ch-badge">Aktivno</span></td>
               </tr>
             </tbody>
@@ -853,7 +853,21 @@ const STAGE_LABELS = {
   zatvoreno: 'Zatvoreno (Dobijeno)'
 };
 
+function hasSupabaseLocalSession() {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
+        const val = localStorage.getItem(k);
+        if (val && val.includes('access_token')) return true;
+      }
+    }
+  } catch (_e) {}
+  return false;
+}
+
 function loadLeads() {
+  if (hasSupabaseLocalSession()) return [];
   try {
     const raw = localStorage.getItem('upitko_leads');
     if (raw) {
@@ -868,7 +882,10 @@ function loadLeads() {
 let leads = loadLeads();
 
 function saveLeads() {
-  localStorage.setItem('upitko_leads', JSON.stringify(leads));
+  // Čuvaj u localStorage samo u Sandbox režimu (kada korisnik nije ulogovan)
+  if (!currentSession) {
+    localStorage.setItem('upitko_leads', JSON.stringify(leads));
+  }
 }
 
 function fmtRsd(num) {
@@ -893,6 +910,13 @@ function renderBoard(filterText = '') {
     const items = leads.filter((l) => l.stage === st);
     cnt.textContent = items.length + ' · ' + fmtRsd(items.reduce((acc, x) => acc + Number(x.value || 0), 0));
 
+    if (items.length === 0) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'padding:18px 12px;text-align:center;font-size:12.5px;color:var(--muted-2);border:1px dashed var(--line);border-radius:10px;';
+      empty.textContent = 'Nema upita u ovoj fazi';
+      col.appendChild(empty);
+    }
+
     items.forEach((lead) => {
       const nextIdx = STAGES.indexOf(st) + 1;
       const nextStage = nextIdx < STAGES.length ? STAGES[nextIdx] : null;
@@ -908,6 +932,7 @@ function renderBoard(filterText = '') {
         <div class="deal-foot">
           <span>👤 ${lead.owner} · ${lead.time}</span>
           <div style="display:flex;gap:6px">
+            <button type="button" class="btn btn-outline btn-sm" data-del="${lead.id}" title="Obriši upit" style="padding:5px 8px;color:var(--muted);">✕</button>
             <button type="button" class="btn btn-outline btn-sm" data-inv="${lead.id}" title="Predračun">🧾</button>
             ${nextStage ? `<button type="button" class="btn btn-primary btn-sm" data-advance="${lead.id}">U fazu: ${STAGE_LABELS[nextStage].split(' ')[0]} →</button>` : `<span style="color:var(--accent);font-weight:700">✓ Naplaćeno</span>`}
           </div>
@@ -918,32 +943,86 @@ function renderBoard(filterText = '') {
   });
 
   // Update KPIs
-  const activeSum = leads.filter((l) => l.stage !== 'zatvoreno').reduce((s, x) => s + Number(x.value || 0), 0);
-  const wonSum = leads.filter((l) => l.stage === 'zatvoreno').reduce((s, x) => s + Number(x.value || 0), 0);
+  const activeLeads = leads.filter((l) => l.stage !== 'zatvoreno');
+  const wonLeads = leads.filter((l) => l.stage === 'zatvoreno');
+  const activeSum = activeLeads.reduce((s, x) => s + Number(x.value || 0), 0);
+  const wonSum = wonLeads.reduce((s, x) => s + Number(x.value || 0), 0);
   document.getElementById('kpi-total').textContent = fmtRsd(activeSum);
   document.getElementById('kpi-won').textContent = fmtRsd(wonSum);
   document.getElementById('nav-deal-count').textContent = leads.length;
+
+  if (currentSession) {
+    const totalSub = document.getElementById('kpi-total-sub');
+    const slaVal = document.getElementById('kpi-sla');
+    const slaSub = document.getElementById('kpi-sla-sub');
+    const wonSub = document.getElementById('kpi-won-sub');
+    const chVal = document.getElementById('kpi-channel');
+    const chSub = document.getElementById('kpi-channel-sub');
+
+    if (totalSub) totalSub.textContent = activeLeads.length === 0 ? '0 aktivnih upita u levku' : `${activeLeads.length} aktivnih upita u obradi`;
+    if (slaVal) slaVal.textContent = leads.length === 0 ? '—' : '< 1 min';
+    if (slaSub) slaSub.textContent = leads.length === 0 ? 'Čeka se prvi upit' : 'SLA monitoring aktivan';
+    const convRate = leads.length > 0 ? ((wonLeads.length / leads.length) * 100).toFixed(1).replace('.', ',') + '%' : '0%';
+    if (wonSub) wonSub.textContent = `Stopa konverzije: ${convRate}`;
+
+    if (leads.length === 0) {
+      if (chVal) chVal.textContent = '—';
+      if (chSub) chSub.textContent = 'Nema podataka';
+    } else {
+      const chCounts = {};
+      leads.forEach((l) => { chCounts[l.channel] = (chCounts[l.channel] || 0) + 1; });
+      const topCh = Object.entries(chCounts).sort((a, b) => b[1] - a[1])[0];
+      if (chVal && topCh) chVal.textContent = topCh[0];
+      if (chSub && topCh) chSub.textContent = `${Math.round((topCh[1] / leads.length) * 100)}% ukupnih upita`;
+    }
+
+    // Update Workflow stats for logged-in user
+    const wf1 = document.getElementById('wf-stat-1');
+    const wf2 = document.getElementById('wf-stat-2');
+    const wf3 = document.getElementById('wf-stat-3');
+    const wf4 = document.getElementById('wf-stat-4');
+    const ponudaCount = leads.filter((l) => l.stage === 'ponuda').length;
+    if (wf1) wf1.textContent = leads.length === 0 ? '0 izvršenja (Spremno)' : `${leads.length} puta (prosek 0.2s)`;
+    if (wf2) wf2.textContent = '0 puta (0 izgubljenih upita)';
+    if (wf3) wf3.textContent = `${leads.length} B2B firmi`;
+    if (wf4) wf4.textContent = `${ponudaCount} ponuda`;
+
+    syncThreadsFromLeads();
+  }
 
   // Render companies table
   const tbody = document.getElementById('companies-tbody');
   if (tbody) {
     const q = filterText.trim().toLowerCase();
-    tbody.innerHTML = leads
-      .filter((l) => !q || l.name.toLowerCase().includes(q) || l.company.toLowerCase().includes(q) || l.channel.toLowerCase().includes(q))
-      .map((l) => `
+    const filtered = leads.filter((l) => !q || l.name.toLowerCase().includes(q) || l.company.toLowerCase().includes(q) || l.channel.toLowerCase().includes(q));
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
         <tr>
-          <td><strong>${l.id}</strong></td>
-          <td>${l.name}</td>
-          <td>${l.company}</td>
-          <td><span class="ch-badge">${l.channel}</span></td>
-          <td>${STAGE_LABELS[l.stage] || l.stage}</td>
-          <td><strong>${fmtRsd(l.value)}</strong></td>
-          <td><button type="button" class="btn btn-outline btn-sm" data-inv="${l.id}">Predračun PDF</button></td>
+          <td colspan="7" style="text-align:center;color:var(--muted);padding:32px 16px;">
+            Još uvek nemate unetih klijenata ili ponuda u radnom prostoru. Kliknite na <strong>„+ Dodaj upit ručno“</strong> u gornjem desnom uglu da unesete prvog klijenta.
+          </td>
         </tr>
-      `).join('');
+      `;
+    } else {
+      tbody.innerHTML = filtered
+        .map((l) => `
+          <tr>
+            <td><strong>${l.id}</strong></td>
+            <td>${l.name}</td>
+            <td>${l.company}</td>
+            <td><span class="ch-badge">${l.channel}</span></td>
+            <td>${STAGE_LABELS[l.stage] || l.stage}</td>
+            <td><strong>${fmtRsd(l.value)}</strong></td>
+            <td style="display:flex;gap:6px;">
+              <button type="button" class="btn btn-outline btn-sm" data-inv="${l.id}">Predračun PDF</button>
+              <button type="button" class="btn btn-outline btn-sm" data-del="${l.id}" title="Obriši">✕</button>
+            </td>
+          </tr>
+        `).join('');
+    }
   }
 
-  // Bind advance & invoice buttons
+  // Bind advance, invoice & delete buttons
   document.querySelectorAll('[data-advance]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-advance');
@@ -972,7 +1051,24 @@ function renderBoard(filterText = '') {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-inv');
       const item = leads.find((x) => x.id === id) || leads[0];
-      openInvoiceModal(item);
+      if (item) openInvoiceModal(item);
+    });
+  });
+
+  document.querySelectorAll('[data-del]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-del');
+      const item = leads.find((x) => x.id === id);
+      if (!item) return;
+      leads = leads.filter((x) => x.id !== id);
+      saveLeads();
+      renderBoard();
+      showToast(`Upit „${item.name}“ je obrisan.`);
+
+      const sb = window.getSupabase();
+      if (sb && currentOrg && item.raw_id) {
+        await sb.from('leads').delete().eq('id', item.raw_id);
+      }
     });
   });
 }
@@ -1138,9 +1234,12 @@ if (location.hash === '#inbox') document.querySelector('[data-tab="inbox"]').cli
 if (location.hash === '#workflows') document.querySelector('[data-tab="workflows"]').click();
 
 // Inbox threads
-const THREADS = [
+const DEFAULT_THREADS = [
   {
     name: 'Marko Ilić · Studio Forma NS',
+    channel: 'Instagram DM',
+    time: 'pre 1 min',
+    preview: '„Zanima me ponuda za 12 radnih mesta..."',
     meta: 'Kanal: Instagram DM · Vrednost posla: 480.000 RSD · Odgovorni prodavac: Nikola J.',
     messages: [
       { dir: 'in', text: 'Pozdrav! Videli smo vašu objavu na Instagramu. Zanima nas ponuda za 12 kancelarijskih radnih mesta sa isporukom i montažom u Novom Sadu.' },
@@ -1150,6 +1249,9 @@ const THREADS = [
   },
   {
     name: 'Jelena Savić · Ordinacija Dr Savić',
+    channel: 'Viber Business',
+    time: 'pre 4 min',
+    preview: '„Poslala sam dimenzije, kada stiže predračun?"',
     meta: 'Kanal: Viber Business · Vrednost posla: 215.000 RSD · Odgovorni prodavac: Milica Đ.',
     messages: [
       { dir: 'in', text: 'Dobar dan, poslala sam dimenzije prostora na Viber. Kada možemo očekivati predračun?' },
@@ -1158,6 +1260,9 @@ const THREADS = [
   },
   {
     name: 'Dejan Kovačević · TehnoGradnja d.o.o.',
+    channel: 'Sajt forma',
+    time: 'pre 9 min',
+    preview: '„Potreban B2B rabat i godišnji ugovor (PIB 108492011)"',
     meta: 'Kanal: Sajt forma · Vrednost posla: 1.850.000 RSD · PIB: 108492011',
     messages: [
       { dir: 'in', text: 'Tražimo godišnjeg dobavljača za naša 3 gradilišta u Beogradu. Molim vas za B2B rabat skalu.' }
@@ -1165,51 +1270,135 @@ const THREADS = [
   },
   {
     name: 'Nemanja Pavlović · Beograd (Vračar)',
+    channel: 'KupujemProdajem / 4zida',
+    time: 'pre 18 min',
+    preview: '„Da li je rok isporuke 5 radnih dana za Beograd?"',
     meta: 'Kanal: Oglasnik parser (KupujemProdajem / 4zida) · Vrednost posla: 145.000 RSD',
     messages: [
       { dir: 'in', text: 'Automatski uvezen upit sa portala: „Da li je rok isporuke 5 radnih dana za Beograd?“' }
     ]
   }
 ];
+let THREADS = hasSupabaseLocalSession() ? [] : [...DEFAULT_THREADS];
 let currentThread = 0;
 
-function renderChat() {
-  const th = THREADS[currentThread];
-  document.getElementById('chat-contact-name').textContent = th.name;
-  document.getElementById('chat-contact-meta').textContent = th.meta;
-  const box = document.getElementById('chat-messages');
-  box.innerHTML = th.messages.map((m) => `<div class="msg ${m.dir}">${m.text}</div>`).join('');
-  box.scrollTop = box.scrollHeight;
+function syncThreadsFromLeads() {
+  if (!currentSession) return;
+  const existingMap = {};
+  THREADS.forEach((t) => {
+    if (t.leadId) existingMap[t.leadId] = t.messages;
+  });
+
+  THREADS = leads.map((l) => {
+    const prevMsgs = existingMap[l.id];
+    const defaultMsg = l.notes
+      ? `Upit klijenta: „${l.notes}“`
+      : `Novi upit primljen preko kanala ${l.channel} (${fmtRsd(l.value)}).`;
+    const msgs = prevMsgs && prevMsgs.length > 0 ? prevMsgs : [{ dir: 'in', text: defaultMsg }];
+    return {
+      leadId: l.id,
+      name: `${l.name} · ${l.company}`,
+      channel: l.channel,
+      time: l.time || 'upravo sada',
+      preview: msgs[msgs.length - 1].text.slice(0, 62) + (msgs[msgs.length - 1].text.length > 62 ? '...' : ''),
+      meta: `Kanal: ${l.channel} · Vrednost posla: ${fmtRsd(l.value)} · Odgovorni: ${l.owner}`,
+      messages: msgs
+    };
+  });
+
+  if (currentThread >= THREADS.length) currentThread = 0;
+  renderThreadList();
+  renderChat();
 }
 
-document.querySelectorAll('.thread-item').forEach((item) => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.thread-item').forEach((el) => el.classList.remove('active'));
-    item.classList.add('active');
-    currentThread = Number(item.getAttribute('data-thread'));
-    renderChat();
+function renderThreadList() {
+  const listEl = document.getElementById('thread-list');
+  const countEl = document.getElementById('nav-inbox-count');
+  if (countEl) countEl.textContent = THREADS.length;
+  if (!listEl) return;
+
+  if (THREADS.length === 0) {
+    listEl.innerHTML = `
+      <div style="padding:28px 16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.5;border:1px dashed var(--line);border-radius:11px;">
+        <strong style="color:var(--ink);display:block;margin-bottom:6px;">Vaše sanduče je prazno</strong>
+        Kada stigne prvi upit sa vašeg sajta, Instagrama ili Vibera (ili kada ručno dodate upit), prepiska sa klijentom će se pojaviti ovde.
+      </div>
+    `;
+    return;
+  }
+
+  listEl.innerHTML = THREADS.map((t, idx) => `
+    <div class="thread-item ${idx === currentThread ? 'active' : ''}" data-thread="${idx}">
+      <div style="display:flex;justify-content:space-between;font-size:12px">
+        <strong style="color:var(--accent)">${t.channel || 'Upit'}</strong><span>${t.time || ''}</span>
+      </div>
+      <strong>${t.name}</strong>
+      <span style="font-size:12.5px;color:var(--muted)">${t.preview || ''}</span>
+    </div>
+  `).join('');
+
+  listEl.querySelectorAll('.thread-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      listEl.querySelectorAll('.thread-item').forEach((el) => el.classList.remove('active'));
+      item.classList.add('active');
+      currentThread = Number(item.getAttribute('data-thread'));
+      renderChat();
+    });
   });
-});
+}
+
+function renderChat() {
+  const nameEl = document.getElementById('chat-contact-name');
+  const metaEl = document.getElementById('chat-contact-meta');
+  const box = document.getElementById('chat-messages');
+  const invBtn = document.getElementById('btn-chat-invoice');
+  const chatInput = document.getElementById('chat-input');
+
+  const th = THREADS[currentThread];
+  if (!th) {
+    if (nameEl) nameEl.textContent = 'Nema aktivnih razgovora';
+    if (metaEl) metaEl.textContent = 'Dodajte prvi upit ili povežite sajt formu da započnete komunikaciju sa klijentima.';
+    if (box) {
+      box.innerHTML = `<div style="padding:36px 16px;text-align:center;color:var(--muted-2);font-size:13.5px;">Još uvek nema poruka u vašem radnom prostoru.</div>`;
+    }
+    if (invBtn) invBtn.style.display = 'none';
+    if (chatInput) chatInput.disabled = true;
+    return;
+  }
+
+  if (invBtn) invBtn.style.display = 'inline-flex';
+  if (chatInput) chatInput.disabled = false;
+  if (nameEl) nameEl.textContent = th.name;
+  if (metaEl) metaEl.textContent = th.meta;
+  if (box) {
+    box.innerHTML = th.messages.map((m) => `<div class="msg ${m.dir}">${m.text}</div>`).join('');
+    box.scrollTop = box.scrollHeight;
+  }
+}
 
 document.getElementById('chat-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const inp = document.getElementById('chat-input');
-  if (!inp.value.trim()) return;
+  if (!inp.value.trim() || !THREADS[currentThread]) return;
   THREADS[currentThread].messages.push({ dir: 'out', text: inp.value.trim() });
+  THREADS[currentThread].preview = inp.value.trim().slice(0, 62);
   inp.value = '';
+  renderThreadList();
   renderChat();
   showToast('Odgovor poslat klijentu · SLA štoperica zaustavljena (19 sek)');
 });
 
 document.querySelectorAll('[data-quick]').forEach((btn) => {
   btn.addEventListener('click', () => {
+    if (!THREADS[currentThread]) return;
     document.getElementById('chat-input').value = btn.getAttribute('data-quick');
     document.getElementById('chat-input').focus();
   });
 });
 
 document.getElementById('btn-chat-invoice').addEventListener('click', () => {
-  openInvoiceModal(leads[currentThread] || leads[0]);
+  const lead = leads[currentThread] || leads[0];
+  if (lead) openInvoiceModal(lead);
 });
 
 // New lead modal & Simulate incoming lead
@@ -1304,16 +1493,34 @@ const SIM_POOL = [
   { name: 'Aleksandar М.', company: 'TermoMont d.o.o. Subotica', channel: 'Sajt forma', value: 840000 },
   { name: 'Miloš Радовановић', company: 'KupujemProdajem izlog', channel: 'Oglasnik parser', value: 165000 }
 ];
-document.getElementById('btn-simulate').addEventListener('click', () => {
+document.getElementById('btn-simulate').addEventListener('click', async () => {
   const pick = SIM_POOL[Math.floor(Math.random() * SIM_POOL.length)];
+  const sb = window.getSupabase();
+  let rawId = null;
+  if (sb && currentOrg) {
+    const chMap = { 'Instagram DM':'instagram', 'Viber Business':'viber', 'Sajt forma':'web', 'Oglasnik parser':'ostalo' };
+    try {
+      const { data: created } = await sb.from('leads').insert({
+        organization_id: currentOrg.id,
+        contact_name: pick.name,
+        company_name: pick.company,
+        channel: chMap[pick.channel] || 'web',
+        value_rsd: pick.value,
+        stage: 'novi'
+      }).select().single();
+      if (created) rawId = created.id;
+    } catch (_e) {}
+  }
+
   leads.unshift({
-    id: 'UP-' + Math.floor(200 + Math.random() * 790),
+    id: rawId ? 'LID-' + rawId.slice(0, 4).toUpperCase() : 'UP-' + Math.floor(200 + Math.random() * 790),
+    raw_id: rawId,
     name: pick.name,
     company: pick.company,
     channel: pick.channel,
     value: pick.value,
     stage: 'novi',
-    owner: 'Milica Đ.',
+    owner: currentProfile?.full_name?.split(' ')[0] || 'Prodavac',
     time: 'pre 1 sek'
   });
   saveLeads();
@@ -1337,6 +1544,49 @@ document.getElementById('btn-export-csv').addEventListener('click', () => {
   showToast('CSV fajl uspešno preuzet (upitko-klijenti.csv)');
 });
 
+// Inbound API Key copy & live webhook test
+document.getElementById('btn-copy-api-key')?.addEventListener('click', () => {
+  const keyText = document.getElementById('display-api-key')?.textContent || '';
+  if (keyText && !keyText.includes('Prijavite se')) {
+    navigator.clipboard.writeText(keyText);
+    showToast('✓ API ključ firme kopiran!');
+  } else {
+    showToast('Prijavite se u nalog vaše firme da biste dobili API ključ.');
+  }
+});
+
+document.getElementById('btn-test-inbound')?.addEventListener('click', async () => {
+  if (!currentOrg || !currentOrg.api_key) {
+    showToast('Prijavite se u svoj nalog da biste testirali prijem upita u vašu bazu.');
+    return;
+  }
+  try {
+    const res = await fetch('/api/v1/inbound', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': currentOrg.api_key
+      },
+      body: JSON.stringify({
+        name: 'Test Klijent (Sajt Forma)',
+        company: 'Web Upit d.o.o.',
+        phone: '064/999-8877',
+        channel: 'web',
+        value_rsd: 195000,
+        notes: 'Test upit poslat direktno preko Inbound Webhook API-ja.'
+      })
+    });
+    if (res.ok) {
+      await fetchSupabaseLeads();
+      showToast('✓ Test upit sa sajta uspešno primljen u vaš CRM!');
+    } else {
+      showToast('Greška pri testiranju Inbound API-ja.');
+    }
+  } catch (_e) {
+    showToast('Greška pri povezivanju sa Inbound endpointom.');
+  }
+});
+
 
 // ==============================================================================
 // SUPABASE LIVE INTEGRACIJA (Nivo 3 — SaaS Multi-tenant Režim)
@@ -1357,20 +1607,53 @@ async function initSupabaseLive() {
     if (!session) return;
     currentSession = session;
 
+    // Čim je korisnik ulogovan, ukloni Sandbox demo podatke (počinje od praznog stanja dok se ne učitaju njegovi podaci)
+    leads = [];
+    THREADS = [];
+    renderBoard();
+    renderThreadList();
+    renderChat();
+
     // Sakrij demo banner kada je korisnik ulogovan
     const banner = document.getElementById('auth-banner');
     if (banner) banner.style.display = 'none';
 
     // 1. Učitaj profil i organizaciju korisnika
-    const { data: profile } = await sb
+    let { data: profile } = await sb
       .from('profiles')
       .select('*, organizations(*)')
       .eq('id', session.user.id)
       .maybeSingle();
 
+    // Ako je korisnik potvrdio email pa se prvi put prijavio, kreiraj organizaciju i profil sada
+    if (!profile) {
+      const meta = session.user.user_metadata || {};
+      try {
+        await sb.rpc('handle_new_company_signup', {
+          p_company_name: meta.company_name || 'Moja Firma',
+          p_full_name: meta.full_name || (session.user.email ? session.user.email.split('@')[0] : 'Korisnik'),
+          p_phone: meta.phone || null
+        });
+        await sb.from('leads').delete().in('contact_name', ['Milan Petrović', 'Ana Jovanović', 'Stefan Đorđević']);
+        const retry = await sb
+          .from('profiles')
+          .select('*, organizations(*)')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        profile = retry.data;
+      } catch (_rpcErr) {
+        console.warn('[Upitko] Auto-onboarding pri prvoj prijavi:', _rpcErr);
+      }
+    }
+
     if (profile && profile.organizations) {
       currentProfile = profile;
       currentOrg = profile.organizations;
+
+      const apiKeyEl = document.getElementById('display-api-key');
+      const apiUrlEl = document.getElementById('display-api-url');
+      if (apiKeyEl && currentOrg.api_key) apiKeyEl.textContent = currentOrg.api_key;
+      if (apiUrlEl) apiUrlEl.textContent = window.location.origin + '/api/v1/inbound';
 
       const sub = document.getElementById('workspace-sub');
       if (sub) {
@@ -1411,12 +1694,24 @@ async function fetchSupabaseLeads() {
   const sb = window.getSupabase();
   if (!sb || !currentOrg) return;
   try {
-    const { data: sbLeads, error } = await sb
+    let { data: sbLeads, error } = await sb
       .from('leads')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && Array.isArray(sbLeads) && sbLeads.length > 0) {
+    if (!error && Array.isArray(sbLeads)) {
+      // Jednokratno očisti 3 stara demo lida ako ih je SQL funkcija ubacila pri registraciji
+      const seedCleanKey = 'upitko_seed_cleaned_' + currentOrg.id;
+      if (!localStorage.getItem(seedCleanKey)) {
+        const seedNames = ['Milan Petrović', 'Ana Jovanović', 'Stefan Đorđević'];
+        const hasSeedLeads = sbLeads.some((l) => seedNames.includes(l.contact_name));
+        if (hasSeedLeads) {
+          await sb.from('leads').delete().in('contact_name', seedNames);
+          sbLeads = sbLeads.filter((l) => !seedNames.includes(l.contact_name));
+        }
+        localStorage.setItem(seedCleanKey, '1');
+      }
+
       leads = sbLeads.map((l) => ({
         id: 'LID-' + l.id.slice(0, 4).toUpperCase(),
         raw_id: l.id,
@@ -1426,6 +1721,7 @@ async function fetchSupabaseLeads() {
         value: Number(l.value_rsd || 0),
         stage: l.stage === 'kvalifikovan' ? 'kvalifikovani' : (l.stage === 'dobijeno' ? 'zatvoreno' : l.stage),
         owner: currentProfile?.full_name?.split(' ')[0] || 'Prodavac',
+        notes: l.notes || '',
         time: new Date(l.created_at).toLocaleTimeString('sr-RS', { hour: '2-digit', minute: '2-digit' })
       }));
       renderBoard();
@@ -1697,6 +1993,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 renderBoard();
+renderThreadList();
 renderChat();
   </script>
 </body>
