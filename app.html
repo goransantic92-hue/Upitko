@@ -532,6 +532,10 @@ button,input,select,textarea{font-family:inherit;color:inherit}
         <p id="workspace-sub">Radni prostor: <strong id="company-name-display">Demo Firma d.o.o. Beograd</strong> · Valuta: <strong>RSD</strong> · SLA cilj: &lt; 60 sekundi</p>
       </div>
       <div class="topbar-actions">
+        <button type="button" class="btn" id="btn-topbar-meta" style="background:linear-gradient(135deg, #e1306c, #833ab4, #405de6); border:none; color:#fff; font-weight:700; box-shadow:0 4px 16px rgba(131,58,180,.35); display:inline-flex; align-items:center; gap:8px;" title="Povežite Instagram DM i Facebook u 1 klik">
+          <span style="font-size:15px;">📸</span>
+          <span id="btn-topbar-meta-label">Poveži Instagram (1 klik)</span>
+        </button>
         <button type="button" class="btn btn-outline" id="btn-ad-mode" style="border-color:rgba(93,240,168,.5); color:var(--accent); background:rgba(93,240,168,.08);" title="Automatska prezentacija za snimanje video reklame (Prečica: Alt+D)">🎬 Režim za reklamu</button>
         <button type="button" class="btn btn-outline" id="btn-simulate">⚡ Simuliraj novi upit (IG / Viber)</button>
         <button type="button" class="btn btn-primary" id="btn-new-lead">+ Dodaj upit ručno</button>
@@ -565,6 +569,7 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 
       <!-- TAB 1: KANBAN PIPELINE -->
       <section class="tab-pane active" id="tab-pipeline">
+        <div id="meta-banner-pipeline" class="meta-quick-banner" style="margin-bottom:18px;"></div>
         <div class="kanban">
           <div class="kb-col">
             <div class="kb-head"><span>1. Novi upiti</span><span class="kb-sum" id="count-novi">0</span></div>
@@ -587,6 +592,7 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 
       <!-- TAB 2: OMNICHANNEL INBOX -->
       <section class="tab-pane" id="tab-inbox">
+        <div id="meta-banner-inbox" class="meta-quick-banner" style="margin-bottom:18px;"></div>
         <div class="inbox-grid">
           <div class="thread-list" id="thread-list">
             <div class="thread-item active" data-thread="0">
@@ -1391,19 +1397,30 @@ document.querySelectorAll('.side-btn[data-tab]').forEach((btn) => {
   });
 });
 
-// Check URL hash & OAuth callback params on load
-const urlParams = new URLSearchParams(window.location.search);
+// Check URL search & hash parameters for OAuth callback
+let searchStr = window.location.search;
+if (!searchStr && window.location.hash.includes('?')) {
+  searchStr = '?' + window.location.hash.split('?')[1];
+}
+const urlParams = new URLSearchParams(searchStr);
+
 if (urlParams.get('connected') === 'meta') {
   const acc = urlParams.get('account') || '@lenkolino';
   saveConnectedChannel('instagram', acc);
   saveConnectedChannel('facebook', 'Meta Stranica');
   showToast('✓ Zvanično povezano preko Meta naloga: ' + acc);
   history.replaceState(null, '', window.location.pathname + '#channels');
+} else if (urlParams.get('connected') === 'meta_no_pages') {
+  showToast('⚠️ Prijavljeni ste na Meta, ali niste odabrali Facebook stranicu povezanu sa Instagramom.');
+  history.replaceState(null, '', window.location.pathname + '#channels');
+} else if (urlParams.get('error')) {
+  showToast('⚠️ Meta greška: ' + urlParams.get('error'));
+  history.replaceState(null, '', window.location.pathname + '#channels');
 }
 
-if (location.hash === '#inbox') document.querySelector('[data-tab="inbox"]').click();
-if (location.hash === '#channels') document.querySelector('[data-tab="channels"]').click();
-if (location.hash === '#workflows') document.querySelector('[data-tab="workflows"]').click();
+if (location.hash.startsWith('#inbox')) document.querySelector('[data-tab="inbox"]')?.click();
+if (location.hash.startsWith('#channels')) document.querySelector('[data-tab="channels"]')?.click();
+if (location.hash.startsWith('#workflows')) document.querySelector('[data-tab="workflows"]')?.click();
 
 const CHANNEL_TO_DB = {
   'Instagram DM': 'instagram',
@@ -1792,7 +1809,116 @@ function saveConnectedChannel(chKey, identifierVal) {
   map[chKey] = identifierVal;
   localStorage.setItem(storageKey, JSON.stringify(map));
   renderChannelsHub();
+  updateMetaBanners();
 }
+
+function disconnectChannel(chKey) {
+  const storageKey = 'upitko_channels_' + (currentOrg?.id || 'default');
+  const map = getConnectedChannelsMap();
+  delete map[chKey];
+  localStorage.setItem(storageKey, JSON.stringify(map));
+  renderChannelsHub();
+  updateMetaBanners();
+}
+
+function startMetaOAuthConnect() {
+  const orgId = currentOrg?.id || '';
+  const returnUrl = encodeURIComponent(window.location.origin + window.location.pathname);
+  window.location.href = `/api/auth/meta/connect?org_id=${orgId}&return_url=${returnUrl}`;
+}
+
+function updateMetaBanners() {
+  const connected = getConnectedChannelsMap();
+  const igConn = connected['instagram'];
+  const topbarBtn = document.getElementById('btn-topbar-meta');
+  const topbarLabel = document.getElementById('btn-topbar-meta-label');
+
+  if (topbarBtn && topbarLabel) {
+    if (igConn) {
+      topbarLabel.textContent = `🟢 IG: ${igConn}`;
+      topbarBtn.style.background = 'rgba(93,240,168,.12)';
+      topbarBtn.style.border = '1px solid rgba(93,240,168,.4)';
+      topbarBtn.style.color = '#5df0a8';
+      topbarBtn.style.boxShadow = 'none';
+      topbarBtn.title = `Povezan Instagram profil: ${igConn}. Kliknite za opcije ili promenu.`;
+    } else {
+      topbarLabel.textContent = 'Poveži Instagram (1 klik)';
+      topbarBtn.style.background = 'linear-gradient(135deg, #e1306c, #833ab4, #405de6)';
+      topbarBtn.style.border = 'none';
+      topbarBtn.style.color = '#fff';
+      topbarBtn.style.boxShadow = '0 4px 16px rgba(131,58,180,.35)';
+      topbarBtn.title = 'Povežite vaš Instagram DM i Facebook u 1 klik';
+    }
+  }
+
+  const bannerHtml = igConn
+    ? `
+      <div style="background:rgba(93,240,168,.08); border:1px solid rgba(93,240,168,.3); border-radius:12px; padding:12px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:22px;">🟢</span>
+          <div>
+            <strong style="font-size:13.5px; color:var(--ink);">Instagram profil (${igConn}) je zvanično povezan</strong>
+            <span style="display:block; font-size:12px; color:var(--muted); margin-top:2px;">Sve nove poruke i upiti kupaca automatski se otvaraju u vašem levku za 0.2 sekunde.</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-primary btn-sm" id="btn-banner-sim-ig" style="justify-content:center;">⚡ Pošalji test poruku</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="document.querySelector('[data-tab=\\'channels\\']').click()">🔌 Kanali</button>
+        </div>
+      </div>
+    `
+    : `
+      <div style="background:radial-gradient(120% 120% at 20% 20%, rgba(225,48,108,.16), rgba(64,93,230,.1) 50%, rgba(4,6,15,.85) 100%); border:1px solid rgba(225,48,108,.4); border-radius:14px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; box-shadow:0 8px 30px rgba(0,0,0,.25);">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, #e1306c, #833ab4, #405de6); display:flex; align-items:center; justify-content:center; font-size:22px; color:#fff; flex-shrink:0; box-shadow:0 4px 14px rgba(225,48,108,.4);">
+            📸
+          </div>
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong style="color:#fff; font-size:15px;">Povežite Instagram DM &amp; Facebook (2 klika)</strong>
+              <span class="ips-tag" style="background:#2563eb; font-size:10px;">Zvanična Meta prijava</span>
+            </div>
+            <p style="color:var(--muted); font-size:13px; margin-top:3px; line-height:1.4;">
+              Kliknite dugme, prijavite se i odaberite stranicu vaše firme. Svaki novi upit kupca iz poruka ili oglasa automatski uleće u CRM.
+            </p>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-meta-direct" style="background:linear-gradient(180deg, #3b82f6, #1d4ed8); border:none; padding:11px 22px; font-weight:700; font-size:13.5px; box-shadow:0 4px 18px rgba(37,99,235,.45); cursor:pointer; white-space:nowrap;">
+          🌐 Prijavi se i poveži nalog (1 klik) →
+        </button>
+      </div>
+    `;
+
+  const pBanner = document.getElementById('meta-banner-pipeline');
+  const iBanner = document.getElementById('meta-banner-inbox');
+  if (pBanner) pBanner.innerHTML = bannerHtml;
+  if (iBanner) iBanner.innerHTML = bannerHtml;
+
+  document.querySelectorAll('.btn-meta-direct').forEach((b) => {
+    b.onclick = startMetaOAuthConnect;
+  });
+
+  const testBtn = document.getElementById('btn-banner-sim-ig');
+  if (testBtn) {
+    testBtn.onclick = async () => {
+      const igCh = CHANNELS_CATALOG.find((x) => x.key === 'instagram');
+      if (igCh) {
+        await createAndSaveLead(igCh.sampleLead);
+        showToast('⚡ Stigao novi test upit sa Instagrama: ' + igCh.sampleLead.name);
+      }
+    };
+  }
+}
+
+document.getElementById('btn-topbar-meta')?.addEventListener('click', () => {
+  const connected = getConnectedChannelsMap();
+  if (connected['instagram']) {
+    document.querySelector('[data-tab="channels"]')?.click();
+    openChannelSetupModal('instagram');
+  } else {
+    startMetaOAuthConnect();
+  }
+});
 
 function renderChannelsHub() {
   const grid = document.getElementById('channels-grid');
@@ -1804,6 +1930,26 @@ function renderChannelsHub() {
 
   grid.innerHTML = CHANNELS_CATALOG.map((ch) => {
     const isConn = Boolean(connected[ch.key]);
+    const isMeta = (ch.key === 'instagram' || ch.key === 'facebook');
+
+    let actionButtons = '';
+    if (isMeta && !isConn) {
+      const grad = ch.key === 'instagram'
+        ? 'linear-gradient(135deg, #e1306c, #833ab4, #405de6)'
+        : 'linear-gradient(135deg, #1877f2, #0d5bb5)';
+      actionButtons = `
+        <button type="button" class="btn btn-primary btn-sm btn-meta-direct" style="background:${grad}; border:none; color:#fff; font-weight:700; flex:1; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,.3);">
+          🌐 Poveži profil (1 klik)
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" data-setup-ch="${ch.key}" title="Opcije">⚙️ Opcije</button>
+      `;
+    } else {
+      actionButtons = `
+        <button type="button" class="btn btn-primary btn-sm" data-sim-ch="${ch.key}" style="flex:1; justify-content:center;">⚡ Testiraj upit</button>
+        <button type="button" class="btn btn-outline btn-sm" data-setup-ch="${ch.key}">🔗 ${isConn ? 'Pregledaj / Izmeni' : 'Poveži kanal'}</button>
+      `;
+    }
+
     return `
       <div class="deal-card" style="padding:20px; display:flex; flex-direction:column; justify-content:space-between; gap:14px;">
         <div>
@@ -1818,8 +1964,7 @@ function renderChannelsHub() {
           <p style="font-size:12.5px; color:var(--muted); line-height:1.45;">${ch.desc}</p>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; padding-top:10px; border-top:1px solid var(--line);">
-          <button type="button" class="btn btn-primary btn-sm" data-sim-ch="${ch.key}" style="flex:1; justify-content:center;">⚡ Testiraj upit</button>
-          <button type="button" class="btn btn-outline btn-sm" data-setup-ch="${ch.key}">🔗 ${isConn ? 'Pregledaj / Izmeni' : 'Poveži kanal'}</button>
+          ${actionButtons}
         </div>
       </div>
     `;
@@ -1842,7 +1987,12 @@ function renderChannelsHub() {
     });
   });
 
+  grid.querySelectorAll('.btn-meta-direct').forEach((btn) => {
+    btn.addEventListener('click', startMetaOAuthConnect);
+  });
+
   updateEmbedCodePreview();
+  updateMetaBanners();
 }
 
 let activeSetupChannelKey = null;
@@ -1864,8 +2014,20 @@ function openChannelSetupModal(chKey) {
   if (!container) return;
 
   if (chKey === 'instagram' || chKey === 'facebook') {
+    const isConn = Boolean(connected[chKey]);
     container.innerHTML = `
       <div style="display:grid; gap:16px;">
+        <!-- TRENUTNI STATUS KANALA -->
+        ${isConn ? `
+          <div style="padding:14px 18px; border-radius:12px; background:rgba(93,240,168,.1); border:1px solid rgba(93,240,168,.35); display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div>
+              <strong style="color:var(--accent); font-size:13.5px;">🟢 Trenutno povezan profil: ${connected[chKey]}</strong>
+              <span style="display:block; font-size:12px; color:var(--muted); margin-top:2px;">Sve poruke i upiti u realnom vremenu uleću u vaše Upitko sanduče.</span>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-disconnect-channel" style="color:#f87171; border-color:rgba(248,113,113,.4);">Raskini vezu</button>
+          </div>
+        ` : ''}
+
         <!-- OPIS -->
         <p style="font-size:13.5px; color:var(--muted); line-height:1.5;">
           Povežite vašu <strong>${ch.name}</strong> stranicu kako bi svaka nova poruka iz DM-a ili prijava sa sponzorisanog oglasa istog trenutka stigla u vaše <em>Omnichannel Sanduče</em> i otvorila novi upit u Kanban levku.
@@ -1879,7 +2041,7 @@ function openChannelSetupModal(chKey) {
           </div>
           <p style="font-size:12.5px; color:var(--muted);">Kliknite na dugme ispod, prijavite se sa vašim nalogom i izaberite stranicu vaše firme. Nema nikakvog kopiranja koda.</p>
           <button type="button" class="btn btn-primary" id="btn-oauth-connect" style="background:linear-gradient(180deg, #3b82f6, #1d4ed8); border:none; color:#fff; justify-content:center; padding:12px; font-weight:700;">
-            <span style="font-size:16px;">🌐</span> Prijavi se i poveži ${ch.name} (1 klik)
+            <span style="font-size:16px;">🌐</span> ${isConn ? 'Ponovo poveži / Promeni' : 'Prijavi se i poveži'} ${ch.name} (1 klik)
           </button>
         </div>
 
@@ -1909,13 +2071,17 @@ function openChannelSetupModal(chKey) {
       </div>
     `;
 
+    document.getElementById('btn-disconnect-channel')?.addEventListener('click', () => {
+      disconnectChannel(chKey);
+      document.getElementById('modal-channel-setup').classList.remove('open');
+      showToast(`Kanal ${ch.name} je isključen.`);
+    });
+
     document.getElementById('btn-oauth-connect')?.addEventListener('click', () => {
       const btn = document.getElementById('btn-oauth-connect');
       btn.disabled = true;
       btn.innerHTML = '<span>Preusmeravanje na zvaničnu Meta prijavu...</span>';
-      const orgId = currentOrg?.id || '';
-      const returnUrl = encodeURIComponent(window.location.origin + window.location.pathname + '#channels');
-      window.location.href = `/api/auth/meta/connect?org_id=${orgId}&return_url=${returnUrl}`;
+      startMetaOAuthConnect();
     });
 
     document.getElementById('btn-save-manual-handle')?.addEventListener('click', () => {

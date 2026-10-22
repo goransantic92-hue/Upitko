@@ -48,6 +48,7 @@ module.exports = async function handler(req, res) {
     'pages_read_engagement',
     'pages_manage_metadata',
     'pages_manage_posts',
+    'pages_messaging',
     'instagram_basic',
     'instagram_manage_messages'
   ].join(',');

@@ -41,6 +41,7 @@ module.exports = async function handler(req, res) {
   return res.status(200).json({
     supabaseUrl,
     supabaseAnonKey,
-    configured: Boolean(supabaseUrl && supabaseAnonKey)
+    configured: Boolean(supabaseUrl && supabaseAnonKey),
+    metaConfigured: Boolean(process.env.META_APP_ID || process.env.FACEBOOK_APP_ID)
   });
 };
